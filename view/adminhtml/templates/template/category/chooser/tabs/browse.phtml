@@ -1,0 +1,47 @@
+<?php
+
+/** @var \M2E\Temu\Block\Adminhtml\Template\Category\Chooser\Tabs\Browse $block */
+
+$isWizard = !$block->viewHelper->isInstallationWizardFinished();
+
+$block->jsUrl->add($block->getUrl('*/general/getChildCategories'), 'general/getChildCategories');
+
+$block->js->add(
+    "
+require([
+    'Temu/Temu/Template/Category/Chooser/Tabs/Browse'
+], function(){
+
+    window.TemuTemplateCategoryChooserTabsBrowseObj = new TemuTemplateCategoryChooserTabsBrowse();
+
+    TemuTemplateCategoryChooserTabsBrowseObj.setShopId(TemuCategoryChooserObj.getShopId());
+    TemuTemplateCategoryChooserTabsBrowseObj.setAccountId(TemuCategoryChooserObj.getAccountId());
+    TemuTemplateCategoryChooserTabsBrowseObj.renderTopLevelCategories('chooser_browser-selects');
+    TemuTemplateCategoryChooserTabsBrowseObj.observe('leaf_selected', function(selectedCategories) {
+        const lastCategory = selectedCategories[selectedCategories.length-1];
+        if (lastCategory['invite_only'] == 1) {
+            TemuCategoryChooserObj.unSelectCategory();
+        } else {
+            TemuCategoryChooserObj.selectCategory(lastCategory['value']);
+        }
+    });
+});
+
+"
+);
+?>
+
+<style>
+    .category-children-block {
+        display: inline-block;
+        margin-left: 10px;
+    }
+    [data-invite_only="1"] {
+        color: gray
+    }
+</style>
+
+<div id="chooser_browser">
+    <div id="chooser_browser-message_wrapper"><?= $block->getInviteOnlyNotice() ?></div>
+    <div id="chooser_browser-selects"></div>
+</div>

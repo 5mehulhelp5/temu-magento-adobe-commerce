@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+namespace M2E\Temu\Model;
+
+class StopQueueFactory
+{
+    private \Magento\Framework\ObjectManagerInterface $objectManager;
+
+    public function __construct(\Magento\Framework\ObjectManagerInterface $objectManager)
+    {
+        $this->objectManager = $objectManager;
+    }
+
+    public function createEmpty(): StopQueue
+    {
+        return $this->objectManager->create(StopQueue::class);
+    }
+
+    public function create(int $accountId, string $channelProductId): StopQueue
+    {
+        $obj = $this->createEmpty();
+
+        $obj->create($accountId, $channelProductId);
+
+        return $obj;
+    }
+}

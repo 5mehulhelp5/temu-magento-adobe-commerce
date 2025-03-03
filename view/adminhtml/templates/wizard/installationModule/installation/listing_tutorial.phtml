@@ -1,0 +1,48 @@
+<?php
+
+// @codingStandardsIgnoreFile
+
+/** @var \M2E\Temu\Block\Adminhtml\Wizard\InstallationTemu\Installation\ListingTutorial\Content $block */
+
+?>
+
+<div class="wizard_block">
+    <h2>
+        <?= __(
+            'Congratulations! You have registered your %extension_title Extension and linked ' .
+            'your %channel_title Account to it.',
+            [
+                'extension_title' => \M2E\Temu\Helper\Module::getExtensionTitle(),
+                'channel_title' => \M2E\Temu\Helper\Module::getChannelTitle(),
+            ]
+        ); ?>
+    </h2>
+
+    <p>
+        <?= __(
+            'The next step involves creating your first %extension_title Listing.',
+            [
+                'extension_title' => \M2E\Temu\Helper\Module::getExtensionTitle(),
+            ]
+        ); ?>
+    </p>
+    <br/>
+
+    <p>
+        <?= __(
+            '%extension_title Listing is a group of Magento Products combined under specific sets ' .
+            'of rules. <br/>These are the Products which will be offered as %channel_title Items by a Seller on ' .
+            'a particular Shop.',
+            [
+                'extension_title' => \M2E\Temu\Helper\Module::getExtensionTitle(),
+                'channel_title' => \M2E\Temu\Helper\Module::getChannelTitle(),
+            ]
+        ); ?>
+    </p>
+    <br/>
+
+    <p>
+        <?= __('Click on the <strong>Create First Listing</strong> button to proceed. Or click on ' .
+            'the <strong>Skip</strong> button if you want to create your first listing later.'); ?>
+    </p>
+</div>
