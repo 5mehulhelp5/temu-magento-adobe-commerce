@@ -9,17 +9,17 @@ trait DataBuilderHelpTrait
     /** @var string[] */
     private array $warningMessages = [];
 
-    private function addWarningMessage(string $message): void
-    {
-        $this->warningMessages[sha1($message)] = $message;
-    }
-
     public function getWarningMessages(): array
     {
         return array_values($this->warningMessages);
     }
 
-    private function searchNotFoundAttributes(\M2E\Temu\Model\Magento\Product $magentoProduct): void
+    protected function addWarningMessage(string $message): void
+    {
+        $this->warningMessages[sha1($message)] = $message;
+    }
+
+    protected function searchNotFoundAttributes(\M2E\Temu\Model\Magento\Product $magentoProduct): void
     {
         $magentoProduct->clearNotFoundAttributes();
     }

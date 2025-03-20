@@ -42,12 +42,17 @@ class Product extends \M2E\Temu\Model\ActiveRecord\AbstractModel
     private \M2E\Temu\Model\Magento\Product\CacheFactory $magentoProductFactory;
     private \M2E\Temu\Model\Product\DataProvider $dataProvider;
     private \M2E\Temu\Model\Product\DataProviderFactory $dataProviderFactory;
+    private \M2E\Temu\Model\Product\Description\RendererFactory $descriptionRendererFactory;
+    private \M2E\Temu\Model\Category\Dictionary\Repository $categoryDictionaryRepository;
+    private ?Category\Dictionary $categoryDictionary = null;
 
     public function __construct(
         \M2E\Temu\Model\Listing\Repository $listingRepository,
         \M2E\Temu\Model\Product\Repository $productRepository,
         \M2E\Temu\Model\Magento\Product\CacheFactory $magentoProductFactory,
         \M2E\Temu\Model\Product\DataProviderFactory $dataProviderFactory,
+        \M2E\Temu\Model\Product\Description\RendererFactory $descriptionRendererFactory,
+        \M2E\Temu\Model\Category\Dictionary\Repository $categoryDictionaryRepository,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry
     ) {
@@ -57,6 +62,8 @@ class Product extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         $this->productRepository = $productRepository;
         $this->magentoProductFactory = $magentoProductFactory;
         $this->dataProviderFactory = $dataProviderFactory;
+        $this->descriptionRendererFactory = $descriptionRendererFactory;
+        $this->categoryDictionaryRepository = $categoryDictionaryRepository;
     }
 
     protected function _construct(): void
@@ -318,6 +325,59 @@ class Product extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         return $this->getSellingFormatTemplate()->getSource($this->getMagentoProduct());
     }
 
+    /**
+     * @return \M2E\Temu\Model\Policy\Description
+     * @throws \M2E\Temu\Model\Exception\Logic
+     */
+    public function getDescriptionTemplate(): \M2E\Temu\Model\Policy\Description
+    {
+        return $this->getListing()->getTemplateDescription();
+    }
+
+    public function getRenderedDescription(): string
+    {
+        return $this->descriptionRendererFactory
+            ->create($this)
+            ->parseTemplate($this->getDescriptionTemplateSource()->getDescription());
+    }
+
+    /**
+     * @return \M2E\Temu\Model\Policy\Description\Source
+     * @throws \M2E\Temu\Model\Exception\Logic
+     */
+    public function getDescriptionTemplateSource(): \M2E\Temu\Model\Policy\Description\Source
+    {
+        return $this->getDescriptionTemplate()->getSource($this->getMagentoProduct());
+    }
+
+    public function getShippingTemplate(): ?\M2E\Temu\Model\Policy\Shipping
+    {
+        return $this->getListing()->getTemplateShipping();
+    }
+
+    public function getCategoryDictionary(): Category\Dictionary
+    {
+        if (isset($this->categoryDictionary)) {
+            return $this->categoryDictionary;
+        }
+
+        if (!$this->hasCategoryTemplate()) {
+            throw new \M2E\Temu\Model\Exception\Logic('Category was not selected.');
+        }
+
+        return $this->categoryDictionary = $this->categoryDictionaryRepository->get($this->getTemplateCategoryId());
+    }
+
+    public function hasCategoryTemplate(): bool
+    {
+        return !empty($this->getData(ProductResource::COLUMN_TEMPLATE_CATEGORY_ID));
+    }
+
+    public function getTemplateCategoryId(): int
+    {
+        return (int)$this->getData(ProductResource::COLUMN_TEMPLATE_CATEGORY_ID);
+    }
+
     public function getOnlineTitle(): string
     {
         return (string)$this->getData(ProductResource::COLUMN_ONLINE_TITLE);
@@ -342,7 +402,7 @@ class Product extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         return (float)$this->getData(ProductResource::COLUMN_ONLINE_MAX_PRICE);
     }
 
-    public function setOnlineMaxPrice(float $value): self
+    public function setOnlineMaxPrice(?float $value): self
     {
         $this->setData(ProductResource::COLUMN_ONLINE_MAX_PRICE, $value);
 
@@ -354,7 +414,7 @@ class Product extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         return (float)$this->getData(ProductResource::COLUMN_ONLINE_MIN_PRICE);
     }
 
-    public function setOnlineMinPrice(float $value): self
+    public function setOnlineMinPrice(?float $value): self
     {
         $this->setData(ProductResource::COLUMN_ONLINE_MIN_PRICE, $value);
 
@@ -366,6 +426,18 @@ class Product extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         $this->setData(ProductResource::COLUMN_ONLINE_CATEGORY_ID, $value);
 
         return $this;
+    }
+
+    public function setOnlineCategoryData(string $data): self
+    {
+        $this->setData(ProductResource::COLUMN_ONLINE_CATEGORIES_DATA, $data);
+
+        return $this;
+    }
+
+    public function getOnlineCategoryData(): string
+    {
+        return (string)$this->getData(ProductResource::COLUMN_ONLINE_CATEGORIES_DATA);
     }
 
     public function getOnlineCategoryId(): ?int
@@ -397,6 +469,13 @@ class Product extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         return $this;
     }
 
+    public function setTemplateCategoryId(int $id): self
+    {
+        $this->setData(ProductResource::COLUMN_TEMPLATE_CATEGORY_ID, $id);
+
+        return $this;
+    }
+
     private function setChannelProductId(string $productId): self
     {
         $this->setData(ProductResource::COLUMN_CHANNEL_PRODUCT_ID, $productId);
@@ -409,6 +488,30 @@ class Product extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         $this->setData(ProductResource::COLUMN_ONLINE_TITLE, $onlineTitle);
 
         return $this;
+    }
+
+    public function setOnlineDescription(string $value): self
+    {
+        $this->setData(ProductResource::COLUMN_ONLINE_DESCRIPTION, $value);
+
+        return $this;
+    }
+
+    public function getOnlineDescription(): string
+    {
+        return (string)$this->getData(ProductResource::COLUMN_ONLINE_DESCRIPTION);
+    }
+
+    public function setOnlineImages(string $value): self
+    {
+        $this->setData(ProductResource::COLUMN_ONLINE_IMAGE, $value);
+
+        return $this;
+    }
+
+    public function getOnlineImages(): string
+    {
+        return $this->getData(ProductResource::COLUMN_ONLINE_IMAGE);
     }
 
     // ----------------------------------------

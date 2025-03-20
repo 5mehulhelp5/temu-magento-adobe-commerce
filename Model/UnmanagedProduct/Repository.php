@@ -207,6 +207,24 @@ class Repository
         return $item;
     }
 
+    public function findVariantBySkuAndAccountId(string $sku, int $accountId): ?\M2E\Temu\Model\UnmanagedProduct\VariantSku
+    {
+        $collection = $this->productVariantCollectionFactory->create();
+        $collection->addFieldToFilter(VariantSkuResource::COLUMN_SKU, $sku);
+        $collection->addFieldToFilter(VariantSkuResource::COLUMN_ACCOUNT_ID, $accountId);
+
+        /**
+         *
+         * @var \M2E\Temu\Model\UnmanagedProduct\VariantSku $item
+         */
+        $item = $collection->getFirstItem();
+        if ($item->isObjectNew()) {
+            return null;
+        }
+
+        return $item;
+    }
+
     /**
      * @param int $magentoProductId
      *

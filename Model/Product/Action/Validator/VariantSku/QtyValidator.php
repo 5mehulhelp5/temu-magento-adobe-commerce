@@ -6,7 +6,7 @@ namespace M2E\Temu\Model\Product\Action\Validator\VariantSku;
 
 class QtyValidator implements ValidatorInterface
 {
-    private const QTY_MAXIMUM = 999999; //TODO
+    private const QTY_MAXIMUM = 999999;
 
     public function validate(\M2E\Temu\Model\Product\VariantSku $variant): ?string
     {

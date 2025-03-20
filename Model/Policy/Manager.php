@@ -16,21 +16,28 @@ class Manager
     public const TEMPLATE_DESCRIPTION = 'description';
     public const TEMPLATE_SELLING_FORMAT = 'selling_format';
     public const TEMPLATE_SYNCHRONIZATION = 'synchronization';
+    public const TEMPLATE_SHIPPING = 'shipping';
 
     protected \M2E\Temu\Model\ActiveRecord\Factory $activeRecordFactory;
 
     private \M2E\Temu\Model\Policy\SellingFormatFactory $sellingFormatFactory;
     private \M2E\Temu\Model\Policy\SynchronizationFactory $synchronizationFactory;
+    private \M2E\Temu\Model\Policy\DescriptionFactory $descriptionFactory;
+    private \M2E\Temu\Model\Policy\ShippingFactory $shippingFactory;
 
     public function __construct(
         \M2E\Temu\Model\Policy\SellingFormatFactory $sellingFormatFactory,
         \M2E\Temu\Model\Policy\SynchronizationFactory $synchronizationFactory,
+        \M2E\Temu\Model\Policy\DescriptionFactory $descriptionFactory,
+        \M2E\Temu\Model\Policy\ShippingFactory $shippingFactory,
         \M2E\Temu\Model\ActiveRecord\Factory $activeRecordFactory
     ) {
         $this->activeRecordFactory = $activeRecordFactory;
 
         $this->sellingFormatFactory = $sellingFormatFactory;
         $this->synchronizationFactory = $synchronizationFactory;
+        $this->descriptionFactory = $descriptionFactory;
+        $this->shippingFactory = $shippingFactory;
     }
 
     //########################################
@@ -95,6 +102,8 @@ class Manager
         return [
             self::TEMPLATE_SELLING_FORMAT,
             self::TEMPLATE_SYNCHRONIZATION,
+            self::TEMPLATE_DESCRIPTION,
+            self::TEMPLATE_SHIPPING,
         ];
     }
 
@@ -152,6 +161,12 @@ class Manager
             case self::TEMPLATE_SYNCHRONIZATION:
                 $name = 'Temu_Template_Synchronization';
                 break;
+            case self::TEMPLATE_DESCRIPTION:
+                $name = 'Temu_Template_Description';
+                break;
+            case self::TEMPLATE_SHIPPING:
+                $name = 'Temu_Template_Shipping';
+                break;
         }
 
         if ($name === null) {
@@ -170,6 +185,10 @@ class Manager
                 return $this->sellingFormatFactory->create();
             case self::TEMPLATE_SYNCHRONIZATION:
                 return $this->synchronizationFactory->create();
+            case self::TEMPLATE_DESCRIPTION:
+                return $this->descriptionFactory->create();
+            case self::TEMPLATE_SHIPPING:
+                return $this->shippingFactory->createEmpty();
         }
 
         throw new \M2E\Temu\Model\Exception\Logic(

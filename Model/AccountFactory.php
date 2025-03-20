@@ -25,6 +25,7 @@ class AccountFactory
         string $serverHash,
         int $siteId,
         string $siteTitle,
+        string $region,
         \M2E\Temu\Model\Account\Settings\UnmanagedListings $unmanagedListingsSettings,
         \M2E\Temu\Model\Account\Settings\Order $orderSettings,
         \M2E\Temu\Model\Account\Settings\InvoicesAndShipment $invoicesAndShipmentSettings
@@ -36,6 +37,7 @@ class AccountFactory
             $serverHash,
             $siteId,
             $siteTitle,
+            $region,
             $unmanagedListingsSettings,
             $orderSettings,
             $invoicesAndShipmentSettings

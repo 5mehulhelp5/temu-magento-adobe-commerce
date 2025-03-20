@@ -123,6 +123,7 @@
                 <item name="policy" xsi:type="object">M2E\Temu\Setup\InstallHandler\PolicyHandler</item>
                 <item name="tag" xsi:type="object">M2E\Temu\Setup\InstallHandler\TagHandler</item>
                 <item name="processing" xsi:type="object">M2E\Temu\Setup\InstallHandler\ProcessingHandler</item>
+                <item name="category" xsi:type="object">M2E\Temu\Setup\InstallHandler\CategoryHandler</item>
             </argument>
         </arguments>
     </type>
@@ -142,6 +143,29 @@
                 </item>
                 <item name="m2e_temu_product_unmanaged_grid_data_source" xsi:type="string">
                     M2E\Temu\Model\ResourceModel\UnmanagedProduct\Grid\Collection
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!--  Validators  -->
+    <type name="M2E\Temu\Model\Product\Action\Type\ListAction\Validator">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="category" xsi:type="object">
+                    M2E\Temu\Model\Product\Action\Validator\CategoryValidator
+                </item>
+                <item name="title" xsi:type="object">
+                    M2E\Temu\Model\Product\Action\Validator\TitleValidator
+                </item>
+                <item name="images" xsi:type="object">
+                    M2E\Temu\Model\Product\Action\Validator\ImagesValidator
+                </item>
+                <item name="package_weight" xsi:type="object">
+                    M2E\Temu\Model\Product\Action\Validator\PackageWeightValidator
+                </item>
+                <item name="ean" xsi:type="object">
+                    M2E\Temu\Model\Product\Action\Validator\EanValidator
                 </item>
             </argument>
         </arguments>

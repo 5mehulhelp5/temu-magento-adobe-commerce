@@ -142,6 +142,19 @@
         </filters>
 
         <massaction name="listing_massaction" component="M2E_Temu/js/Magento/Ui/Grid/massactions">
+            <action name="list">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="type" xsi:type="string">list</item>
+                        <item name="label" xsi:type="string" translate="true">List Item(s) on Temu</item>
+                        <item name="url" xsi:type="url" path="m2e_temu/product_action/runList"/>
+                        <item name="confirm" xsi:type="array">
+                            <item name="title" xsi:type="string" translate="true">Confirmation</item>
+                            <item name="message" xsi:type="string" translate="true">Are you sure?</item>
+                        </item>
+                    </item>
+                </argument>
+            </action>
             <action name="revise">
                 <argument name="data" xsi:type="array">
                     <item name="config" xsi:type="array">

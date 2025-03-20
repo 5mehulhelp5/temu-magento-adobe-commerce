@@ -2,8 +2,21 @@
 
 namespace M2E\Temu\Block\Adminhtml\Listing\Create;
 
+use M2E\Temu\Model\Listing;
+
 class Templates extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractContainer
 {
+    private \M2E\Temu\Helper\Data\Session $sessionHelper;
+
+    public function __construct(
+        \M2E\Temu\Helper\Data\Session $sessionHelper,
+        \M2E\Temu\Block\Adminhtml\Magento\Context\Widget $context,
+        array $data = []
+    ) {
+        $this->sessionHelper = $sessionHelper;
+        parent::__construct($context, $data);
+    }
+
     public function _construct()
     {
         parent::_construct();
@@ -34,7 +47,17 @@ class Templates extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractContainer
             ]
         );
 
-        $nextStepBtnText = (string)__('Complete');
+        $nextStepBtnText = 'Next Step';
+
+        $sessionData = $this->sessionHelper->getValue(
+            Listing::CREATE_LISTING_SESSION_DATA
+        );
+        if (
+            isset($sessionData['creation_mode']) && $sessionData['creation_mode'] ===
+            \M2E\Temu\Helper\View::LISTING_CREATION_MODE_LISTING_ONLY
+        ) {
+            $nextStepBtnText = 'Complete';
+        }
 
         $url = $this->getUrl(
             '*/listing_create/index',

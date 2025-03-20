@@ -35,6 +35,7 @@ class AddProductsService
     public function addProduct(
         \M2E\Temu\Model\Listing $listing,
         int $magentoProductId,
+        ?int $categoryDictionaryId,
         int $initiator,
         ?\M2E\Temu\Model\UnmanagedProduct $unmanagedProduct = null
     ): ?Product {
@@ -48,6 +49,7 @@ class AddProductsService
         $listingProduct = $this->createProductService->create(
             $listing,
             $m2eMagentoProduct,
+            $categoryDictionaryId,
             $unmanagedProduct,
         );
 
@@ -85,6 +87,7 @@ class AddProductsService
     public function addFromUnmanaged(
         \M2E\Temu\Model\Listing $listing,
         \M2E\Temu\Model\UnmanagedProduct $unmanagedProduct,
+        ?int $categoryDictionaryId,
         int $initiator
     ): ?Product {
         if (!$unmanagedProduct->hasMagentoProductId()) {
@@ -118,6 +121,7 @@ class AddProductsService
         $listingProduct = $this->addProduct(
             $listing,
             $magentoProductId,
+            $categoryDictionaryId,
             $initiator,
             $unmanagedProduct,
         );

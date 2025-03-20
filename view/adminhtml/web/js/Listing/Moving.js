@@ -154,7 +154,7 @@ define([
                     if (isLastPart) {
 
                         self.accountId = response.accountId;
-                        self.shopId = response.shopId;
+                        self.region = response.region;
 
                         self.moveToListingGrid();
                         return;
@@ -174,7 +174,7 @@ define([
                 method: 'get',
                 parameters: {
                     accountId: self.accountId,
-                    shopId: self.shopId,
+                    region: self.region,
                     ignoreListings: Temu.customData.ignoreListings
                 },
                 onSuccess: (function (transport) {

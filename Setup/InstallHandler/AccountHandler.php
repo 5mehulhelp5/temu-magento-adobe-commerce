@@ -68,6 +68,12 @@ class AccountHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
                 ['nullable' => false]
             )
             ->addColumn(
+                AccountResource::COLUMN_REGION,
+                Table::TYPE_TEXT,
+                255,
+                ['nullable' => false]
+            )
+            ->addColumn(
                 AccountResource::COLUMN_MAGENTO_ORDERS_SETTINGS,
                 Table::TYPE_TEXT,
                 \M2E\Core\Model\ResourceModel\Setup::LONG_COLUMN_SIZE,

@@ -6,6 +6,8 @@ use Magento\Framework\App\Area;
 
 class Image
 {
+    private const MEDIA_TYPE_IMAGE = 'IMAGE';
+
     protected $driverPool;
     protected $storeManager;
     protected $mediaConfig;
@@ -206,6 +208,11 @@ class Image
             \Magento\Framework\UrlInterface::URL_TYPE_MEDIA,
             $secure
         );
+    }
+
+    public function getMediaType(): string
+    {
+        return self::MEDIA_TYPE_IMAGE;
     }
 
     //########################################

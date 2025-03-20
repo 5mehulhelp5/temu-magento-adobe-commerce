@@ -34,24 +34,6 @@ class ReviseRules extends AbstractTab
         $form = $this->_formFactory->create();
 
         $form->addField(
-            'synchronization_id',
-            'hidden',
-            [
-                'name' => 'synchronization[id]',
-                'value' => (!$this->isCustom() && isset($formData['id'])) ? (int)$formData['id'] : '',
-            ]
-        );
-
-        $form->addField(
-            'synchronization_title',
-            'hidden',
-            [
-                'name' => 'synchronization[title]',
-                'value' => $this->getTitle(),
-            ]
-        );
-
-        $form->addField(
             'template_synchronization_form_data_revise',
             self::HELP_BLOCK,
             [

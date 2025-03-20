@@ -6,5 +6,8 @@ namespace M2E\Temu\Model\Product\Action\Validator;
 
 interface ValidatorInterface
 {
-    public function validate(\M2E\Temu\Model\Product $product): ?string;
+    public function validate(
+        \M2E\Temu\Model\Product $product,
+        \M2E\Temu\Model\Product\Action\Configurator $configurator
+    ): ?string;
 }

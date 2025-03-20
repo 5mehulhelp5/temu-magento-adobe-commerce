@@ -8,6 +8,10 @@ use M2E\Temu\Helper\Component\Temu as ComponentHelper;
 class Account extends \M2E\Temu\Model\ActiveRecord\AbstractModel
 {
     public const LOCK_NICK = 'account';
+
+    private const REGION_US = 'US';
+    private const REGION_EU = 'EU';
+
     private Account\Settings\UnmanagedListings $unmanagedListingSettings;
     private Account\Settings\Order $ordersSettings;
     private Account\Settings\InvoicesAndShipment $invoiceAndShipmentSettings;
@@ -37,6 +41,7 @@ class Account extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         string $serverHash,
         int $siteId,
         string $siteTitle,
+        string $region,
         \M2E\Temu\Model\Account\Settings\UnmanagedListings $unmanagedListingsSettings,
         \M2E\Temu\Model\Account\Settings\Order $orderSettings,
         \M2E\Temu\Model\Account\Settings\InvoicesAndShipment $invoicesAndShipmentSettings
@@ -47,6 +52,7 @@ class Account extends \M2E\Temu\Model\ActiveRecord\AbstractModel
             ->setData(AccountResource::COLUMN_SERVER_HASH, $serverHash)
             ->setSiteId($siteId)
             ->setSiteTitle($siteTitle)
+            ->setRegion($region)
             ->setUnmanagedListingSettings($unmanagedListingsSettings)
             ->setOrdersSettings($orderSettings)
             ->setInvoiceAndShipmentSettings($invoicesAndShipmentSettings);
@@ -100,6 +106,23 @@ class Account extends \M2E\Temu\Model\ActiveRecord\AbstractModel
     public function getSiteTitle(): string
     {
         return $this->getData(AccountResource::COLUMN_SITE_TITLE);
+    }
+
+    public function setRegion(string $region): self
+    {
+        $this->setData(AccountResource::COLUMN_REGION, $region);
+
+        return $this;
+    }
+
+    public function getRegion(): string
+    {
+        return $this->getData(AccountResource::COLUMN_REGION);
+    }
+
+    public function isRegionUs(): bool
+    {
+        return $this->getData(AccountResource::COLUMN_REGION) === self::REGION_US;
     }
 
     public function getCurrencyCode(): string

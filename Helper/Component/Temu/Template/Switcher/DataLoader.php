@@ -292,6 +292,14 @@ class DataLoader
             return \M2E\Temu\Model\Policy\Manager::TEMPLATE_SYNCHRONIZATION;
         }
 
+        if ($source instanceof \M2E\Temu\Model\Policy\Description) {
+            return \M2E\Temu\Model\Policy\Manager::TEMPLATE_DESCRIPTION;
+        }
+
+        if ($source instanceof \M2E\Temu\Model\Policy\Shipping) {
+            return \M2E\Temu\Model\Policy\Manager::TEMPLATE_SHIPPING;
+        }
+
         throw new \M2E\Temu\Model\Exception\Logic('Invalid source ' . $source);
     }
 
@@ -305,6 +313,8 @@ class DataLoader
         if (
             $source instanceof \M2E\Temu\Model\Policy\SellingFormat
             || $source instanceof \M2E\Temu\Model\Policy\Synchronization
+            || $source instanceof \M2E\Temu\Model\Policy\Description
+            || $source instanceof \M2E\Temu\Model\Policy\Shipping
         ) {
             return true;
         }
@@ -320,8 +330,10 @@ class DataLoader
     private function isHorizontalTemplate($source): bool
     {
         if (
-            $source instanceof \M2E\Temu\Model\Policy\SellingFormat ||
-            $source instanceof \M2E\Temu\Model\Policy\Synchronization
+            $source instanceof \M2E\Temu\Model\Policy\SellingFormat
+            || $source instanceof \M2E\Temu\Model\Policy\Synchronization
+            || $source instanceof \M2E\Temu\Model\Policy\Description
+            || $source instanceof \M2E\Temu\Model\Policy\Shipping
         ) {
             return true;
         }

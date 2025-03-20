@@ -16,15 +16,19 @@ class Title extends Column
 
         foreach ($dataSource['data']['items'] as &$row) {
             $accountTitle = $row['title'];
+            $site = $row['site_title'];
 
             $html = \M2E\Core\Helper\Data::escapeHtml($accountTitle);
-            //if ($row['is_test']) {
-            //    $html .= ' <span style="color:orange">(Test)</span>';
-            //}
+            $html .= $this->renderLine((string)\__('Site'), $site);
 
             $row['title'] = $html;
         }
 
         return $dataSource;
+    }
+
+    private function renderLine(string $label, string $value): string
+    {
+        return sprintf('<p style="margin: 0">%s: %s</p>', $label, $value);
     }
 }

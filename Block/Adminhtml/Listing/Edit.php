@@ -4,18 +4,17 @@ namespace M2E\Temu\Block\Adminhtml\Listing;
 
 class Edit extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractContainer
 {
-    private ?\M2E\Temu\Model\Listing $listing = null;
-    private \M2E\Temu\Model\Listing\Repository $listingRepository;
+    private \M2E\Temu\Model\Listing $listing;
     private \M2E\Core\Helper\Url $urlHelper;
 
     public function __construct(
         \M2E\Core\Helper\Url $urlHelper,
-        \M2E\Temu\Model\Listing\Repository $listingRepository,
+        \M2E\Temu\Model\Listing $listing,
         \M2E\Temu\Block\Adminhtml\Magento\Context\Widget $context,
         array $data = []
     ) {
         $this->urlHelper = $urlHelper;
-        $this->listingRepository = $listingRepository;
+        $this->listing = $listing;
         parent::__construct($context, $data);
     }
 
@@ -51,7 +50,7 @@ class Edit extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractContainer
         $url = $this->getUrl(
             '*/listing/save',
             [
-                'id' => $this->getListing()->getId(),
+                'id' => $this->listing->getId(),
                 'back' => $backUrl,
             ]
         );
@@ -67,7 +66,7 @@ class Edit extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractContainer
             $this->getUrl(
                 '*/listing/edit',
                 [
-                    'id' => $this->listing['id'],
+                    'id' => $this->listing->getId(),
                     'back' => $backUrl,
                 ]
             )
@@ -75,7 +74,7 @@ class Edit extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractContainer
         $url = $this->getUrl(
             '*/listing/save',
             [
-                'id' => $this->listing['id'],
+                'id' => $this->listing->getId(),
                 'back' => $editBackUrl,
             ]
         );
@@ -92,12 +91,10 @@ class Edit extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractContainer
         $this->addButton('save_buttons', $saveButtons);
     }
 
-    protected function getListing(): ?\M2E\Temu\Model\Listing
+    protected function _prepareLayout()
     {
-        if ($this->listing === null && $this->getRequest()->getParam('id')) {
-            $this->listing = $this->listingRepository->get($this->getRequest()->getParam('id'));
-        }
+        $this->getRequest()->setParam('id', $this->listing->getId());
 
-        return $this->listing;
+        return parent::_prepareLayout();
     }
 }

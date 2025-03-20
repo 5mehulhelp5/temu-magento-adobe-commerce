@@ -7,6 +7,7 @@ namespace M2E\Temu\Block\Adminhtml\Listing\Wizard;
 use M2E\Temu\Model\ResourceModel\Listing\Wizard as WizardResource;
 use M2E\Temu\Model\ResourceModel\Listing\Wizard\Product as WiardProductResource;
 use M2E\Temu\Model\ResourceModel\Product as ProductResource;
+use M2E\Temu\Model\ResourceModel\Listing as ListingResource;
 
 abstract class AbstractGrid extends \M2E\Temu\Block\Adminhtml\Magento\Product\Grid
 {
@@ -18,6 +19,7 @@ abstract class AbstractGrid extends \M2E\Temu\Block\Adminhtml\Magento\Product\Gr
     private \M2E\Temu\Model\Listing\Ui\RuntimeStorage $uiListingRuntimeStorage;
     private \M2E\Temu\Model\Listing\Wizard\Ui\RuntimeStorage $uiWizardRuntimeStorage;
     private \M2E\Temu\Model\ResourceModel\Product $productResource;
+    private \M2E\Temu\Model\ResourceModel\Listing $listingResource;
 
     public function __construct(
         \M2E\Temu\Model\ResourceModel\Product $productResource,
@@ -25,6 +27,7 @@ abstract class AbstractGrid extends \M2E\Temu\Block\Adminhtml\Magento\Product\Gr
         \M2E\Temu\Model\Listing\Ui\RuntimeStorage $uiListingRuntimeStorage,
         \M2E\Temu\Model\ResourceModel\Listing\Wizard $wizardResource,
         \M2E\Temu\Model\ResourceModel\Listing\Wizard\Product $listingWizardProductResource,
+        \M2E\Temu\Model\ResourceModel\Listing $listingResource,
         \M2E\Core\Model\ResourceModel\Magento\Product\CollectionFactory $magentoProductCollectionFactory,
         \Magento\Catalog\Model\Product\Type $type,
         \M2E\Temu\Helper\Magento\Product $magentoProductHelper,
@@ -40,6 +43,7 @@ abstract class AbstractGrid extends \M2E\Temu\Block\Adminhtml\Magento\Product\Gr
         $this->magentoProductHelper = $magentoProductHelper;
         $this->wizardResource = $wizardResource;
         $this->listingWizardProductResource = $listingWizardProductResource;
+        $this->listingResource = $listingResource;
         $this->uiListingRuntimeStorage = $uiListingRuntimeStorage;
         $this->uiWizardRuntimeStorage = $uiWizardRuntimeStorage;
         $this->productResource = $productResource;
@@ -126,6 +130,7 @@ abstract class AbstractGrid extends \M2E\Temu\Block\Adminhtml\Magento\Product\Gr
 
         $collection = $this->skipAddedProductsInWizard($collection);
         $collection = $this->skipProductsInListing($collection);
+        $collection = $this->skipProductsFromOthersListings($collection);
 
         $collection->addFieldToFilter(
             [
@@ -416,6 +421,36 @@ JS,
         );
 
         $collection->getSelect()->where('e.entity_id NOT IN (?)', $productIdsInListingQuery);
+
+        return $collection;
+    }
+
+    private function skipProductsFromOthersListings(
+        \M2E\Core\Model\ResourceModel\Magento\Product\Collection $collection
+    ): \M2E\Core\Model\ResourceModel\Magento\Product\Collection {
+        $productsInListingQuery = $collection->getConnection()->select();
+        $productsInListingQuery->from(
+            $this->productResource->getMainTable(),
+            [ProductResource::COLUMN_MAGENTO_PRODUCT_ID]
+        );
+        $productsInListingQuery->distinct();
+        $productsInListingQuery->join(
+            ['listing' => $this->listingResource->getMainTable()],
+            sprintf(
+                '`listing`.`%s` = `%s`',
+                ListingResource::COLUMN_ID,
+                ProductResource::COLUMN_LISTING_ID
+            ),
+            null,
+        );
+
+        $productsInListingQuery->where('`listing`.`account_id` = ?', $this->getListing()->getAccountId());
+
+        $collection->getSelect()
+                   ->joinLeft(['sq' => $productsInListingQuery], 'sq.magento_product_id = e.entity_id', [])
+                   ->where('sq.magento_product_id IS NULL');
+
+        $collection->getSelect()->where('sq.magento_product_id IS NULL', $productsInListingQuery);
 
         return $collection;
     }

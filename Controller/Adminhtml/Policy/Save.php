@@ -8,10 +8,14 @@ class Save extends \M2E\Temu\Controller\Adminhtml\AbstractTemplate
     private \M2E\Core\Helper\Url $urlHelper;
     private \M2E\Temu\Model\Policy\Synchronization\SaveService $synchronizationSaveService;
     private \M2E\Temu\Model\Policy\SellingFormat\SaveService $sellingFormatSaveService;
+    private \M2E\Temu\Model\Policy\Description\SaveService $descriptionSaveService;
+    private \M2E\Temu\Model\Policy\Shipping\SaveService $shippingSaveService;
 
     public function __construct(
         \M2E\Temu\Model\Policy\SellingFormat\SaveService $sellingFormatSaveService,
         \M2E\Temu\Model\Policy\Synchronization\SaveService $synchronizationSaveService,
+        \M2E\Temu\Model\Policy\Description\SaveService $descriptionSaveService,
+        \M2E\Temu\Model\Policy\Shipping\SaveService $shippingSaveService,
         \M2E\Temu\Helper\Module\Wizard $wizardHelper,
         \M2E\Core\Helper\Url $urlHelper,
         \M2E\Temu\Model\Policy\Manager $templateManager
@@ -22,6 +26,8 @@ class Save extends \M2E\Temu\Controller\Adminhtml\AbstractTemplate
         $this->urlHelper = $urlHelper;
         $this->synchronizationSaveService = $synchronizationSaveService;
         $this->sellingFormatSaveService = $sellingFormatSaveService;
+        $this->descriptionSaveService = $descriptionSaveService;
+        $this->shippingSaveService = $shippingSaveService;
     }
 
     public function execute()
@@ -119,6 +125,14 @@ class Save extends \M2E\Temu\Controller\Adminhtml\AbstractTemplate
 
         if ($nick === \M2E\Temu\Model\Policy\Manager::TEMPLATE_SELLING_FORMAT) {
             return $this->sellingFormatSaveService->save($data);
+        }
+
+        if ($nick === \M2E\Temu\Model\Policy\Manager::TEMPLATE_DESCRIPTION) {
+            return $this->descriptionSaveService->save($data);
+        }
+
+        if ($nick === \M2E\Temu\Model\Policy\Manager::TEMPLATE_SHIPPING) {
+            return $this->shippingSaveService->save($data);
         }
 
         throw new \M2E\Temu\Model\Exception\Logic('Unknown nick ' . $nick);

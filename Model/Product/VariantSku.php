@@ -229,6 +229,18 @@ class VariantSku extends \M2E\Temu\Model\ActiveRecord\AbstractModel implements
         return (int)$this->getData(VariantSkuResource::COLUMN_ONLINE_QTY);
     }
 
+    public function setOnlineImage(string $image): self
+    {
+        $this->setData(VariantSkuResource::COLUMN_ONLINE_IMAGE, $image);
+
+        return $this;
+    }
+
+    public function getOnlineImage(): string
+    {
+        return (string)$this->getData(VariantSkuResource::COLUMN_ONLINE_IMAGE);
+    }
+
     public function getDataProvider(): VariantSku\DataProvider
     {
         /** @psalm-suppress RedundantPropertyInitializationCheck */
@@ -302,5 +314,10 @@ class VariantSku extends \M2E\Temu\Model\ActiveRecord\AbstractModel implements
         }
 
         return \M2E\Core\Helper\Date::createDateGmt($value);
+    }
+
+    public function getCategoryDictionary(): \M2E\Temu\Model\Category\Dictionary
+    {
+        return $this->getProduct()->getCategoryDictionary();
     }
 }

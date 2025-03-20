@@ -6,14 +6,11 @@ namespace M2E\Temu\Model\Product;
 
 class ActionCalculator
 {
-    private \M2E\Temu\Model\Magento\Product\RuleFactory $ruleFactory;
     private VariantSku\ActionCalculator $variantActionCalculator;
 
     public function __construct(
-        \M2E\Temu\Model\Magento\Product\RuleFactory $ruleFactory,
         VariantSku\ActionCalculator $variantActionCalculator
     ) {
-        $this->ruleFactory = $ruleFactory;
         $this->variantActionCalculator = $variantActionCalculator;
     }
 
@@ -36,7 +33,26 @@ class ActionCalculator
 
     public function calculateToList(\M2E\Temu\Model\Product $product): Action
     {
-        return Action::createNothing($product);
+        if (
+            !$product->isListable()
+            || !$product->isStatusNotListed()
+        ) {
+            return Action::createNothing($product);
+        }
+
+        if (!$this->isNeedListProduct($product)) {
+            return Action::createNothing($product);
+        }
+
+        $variantSettings = $this->calculateVariants($product, false);
+        if (!$variantSettings->hasAddAction()) {
+            return Action::createNothing($product);
+        }
+
+        $configurator = new \M2E\Temu\Model\Product\Action\Configurator();
+        $configurator->enableAll();
+
+        return Action::createList($product, $configurator, $variantSettings);
     }
 
     private function isNeedListProduct(\M2E\Temu\Model\Product $product): bool

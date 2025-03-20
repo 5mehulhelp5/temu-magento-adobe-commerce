@@ -26,19 +26,30 @@ class Listing extends \M2E\Temu\Model\ActiveRecord\AbstractModel
 
     public const CREATE_LISTING_SESSION_DATA = 'temu_listing_create';
 
+    public const REQUIRED_POLICIES = [
+        'Description' => ListingResource::COLUMN_TEMPLATE_DESCRIPTION_ID,
+        'Shipping' => ListingResource::COLUMN_TEMPLATE_SHIPPING_ID,
+    ];
+
     private \M2E\Temu\Model\Account $account;
     private \M2E\Temu\Model\Policy\SellingFormat $templateSellingFormat;
     private \M2E\Temu\Model\Policy\Synchronization $templateSynchronization;
+    private \M2E\Temu\Model\Policy\Description $templateDescription;
+    private \M2E\Temu\Model\Policy\Shipping $templateShipping;
     private \M2E\Temu\Model\Product\Repository $listingProductRepository;
     private \M2E\Temu\Model\Account\Repository $accountRepository;
     private \M2E\Temu\Model\Policy\SellingFormat\Repository $sellingFormatTemplateRepository;
     private \M2E\Temu\Model\Policy\Synchronization\Repository $synchronizationTemplateRepository;
+    private \M2E\Temu\Model\Policy\Description\Repository $templateDescriptionRepository;
+    private \M2E\Temu\Model\Policy\Shipping\Repository $shippingTemplateRepository;
 
     public function __construct(
         \M2E\Temu\Model\Product\Repository $listingProductRepository,
         \M2E\Temu\Model\Account\Repository $accountRepository,
         \M2E\Temu\Model\Policy\SellingFormat\Repository $sellingFormatTemplateRepository,
         \M2E\Temu\Model\Policy\Synchronization\Repository $synchronizationTemplateRepository,
+        \M2E\Temu\Model\Policy\Description\Repository $templateDescriptionRepository,
+        \M2E\Temu\Model\Policy\Shipping\Repository $shippingTemplateRepository,
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -56,6 +67,8 @@ class Listing extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         $this->accountRepository = $accountRepository;
         $this->sellingFormatTemplateRepository = $sellingFormatTemplateRepository;
         $this->synchronizationTemplateRepository = $synchronizationTemplateRepository;
+        $this->templateDescriptionRepository = $templateDescriptionRepository;
+        $this->shippingTemplateRepository = $shippingTemplateRepository;
     }
 
     // ----------------------------------------
@@ -123,6 +136,34 @@ class Listing extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         return $this->templateSynchronization;
     }
 
+    /**
+     * @throws \M2E\Temu\Model\Exception\Logic
+     */
+    public function getTemplateDescription(): Policy\Description
+    {
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        if (!isset($this->templateDescription)) {
+            $this->templateDescription = $this->templateDescriptionRepository
+                ->get($this->getTemplateDescriptionId());
+        }
+
+        return $this->templateDescription;
+    }
+
+    public function getTemplateShipping(): ?Policy\Shipping
+    {
+        if ($this->getTemplateShippingId() === null) {
+            return null;
+        }
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        if (!isset($this->templateShipping)) {
+            $this->templateShipping = $this->shippingTemplateRepository
+                ->get($this->getTemplateShippingId());
+        }
+
+        return $this->templateShipping;
+    }
+
     public function getTitle(): string
     {
         return (string)$this->getData(ListingResource::COLUMN_TITLE);
@@ -173,9 +214,40 @@ class Listing extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         $this->setData(ListingResource::COLUMN_TEMPLATE_SYNCHRONIZATION_ID, $synchronizationTemplateId);
     }
 
+    public function setTemplateShippingId(int $shippingTemplateId): void
+    {
+        $this->setData(ListingResource::COLUMN_TEMPLATE_SHIPPING_ID, $shippingTemplateId);
+    }
+
+    public function getTemplateShippingId(): ?int
+    {
+        return (int)$this->getData(ListingResource::COLUMN_TEMPLATE_SHIPPING_ID);
+    }
+
+    public function hasTemplateShipping(): bool
+    {
+        return !empty($this->getTemplateShippingId());
+    }
+
     public function getTemplateSynchronizationId(): int
     {
         return (int)$this->getData(ListingResource::COLUMN_TEMPLATE_SYNCHRONIZATION_ID);
+    }
+
+    public function isAllRequiredPoliciesExist(): bool
+    {
+        foreach (self::REQUIRED_POLICIES as $policy) {
+            if (!$this->hasTemplatePolicyId($policy)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function hasTemplatePolicyId(string $policy): bool
+    {
+        return (bool)$this->getData($policy);
     }
 
     // ---------------------------------------

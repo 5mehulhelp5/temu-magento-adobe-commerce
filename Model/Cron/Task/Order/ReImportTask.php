@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace M2E\Temu\Model\Cron\Task\Order;
 
-class ReImportTask extends \M2E\Temu\Model\Cron\AbstractTask
+class ReImportTask implements \M2E\Core\Model\Cron\TaskHandlerInterface
 {
     public const NICK = 'order/re_import';
 
@@ -13,30 +13,15 @@ class ReImportTask extends \M2E\Temu\Model\Cron\AbstractTask
     private \M2E\Temu\Model\Channel\Order\ItemsByCreateDate\RetrieveProcessor $receiveOrderProcessor;
     private \M2E\Temu\Model\Order\MagentoProcessor $orderMagentoProcessor;
     private \M2E\Temu\Model\Order\UpdateFromChannelFactory $updateFromChannelFactory;
+    private \M2E\Temu\Model\Synchronization\LogService $syncLog;
 
     public function __construct(
         \M2E\Temu\Model\Account\Repository $accountRepository,
         \M2E\Temu\Model\Channel\Order\ItemsByCreateDate\RetrieveProcessor $receiveOrderProcessor,
         \M2E\Temu\Model\Order\ReImport\ManagerFactory $reimportManager,
         \M2E\Temu\Model\Order\MagentoProcessor $orderMagentoProcessor,
-        \M2E\Temu\Model\Order\UpdateFromChannelFactory $updateFromChannelFactory,
-        \M2E\Temu\Model\Cron\Manager $cronManager,
-        \M2E\Temu\Model\Synchronization\LogService $syncLogger,
-        \M2E\Temu\Helper\Data $helperData,
-        \Magento\Framework\Event\Manager $eventManager,
-        \M2E\Temu\Model\ActiveRecord\Factory $activeRecordFactory,
-        \M2E\Temu\Model\Cron\TaskRepository $taskRepo,
-        \Magento\Framework\App\ResourceConnection $resource
+        \M2E\Temu\Model\Order\UpdateFromChannelFactory $updateFromChannelFactory
     ) {
-        parent::__construct(
-            $cronManager,
-            $syncLogger,
-            $helperData,
-            $eventManager,
-            $activeRecordFactory,
-            $taskRepo,
-            $resource,
-        );
         $this->reimportManager = $reimportManager;
         $this->accountRepository = $accountRepository;
         $this->receiveOrderProcessor = $receiveOrderProcessor;
@@ -44,21 +29,16 @@ class ReImportTask extends \M2E\Temu\Model\Cron\AbstractTask
         $this->updateFromChannelFactory = $updateFromChannelFactory;
     }
 
-    protected function getNick(): string
+    /**
+     * @param \M2E\Temu\Model\Cron\TaskContext $context
+     *
+     * @return void
+     */
+    public function process($context): void
     {
-        return self::NICK;
-    }
+        $this->syncLog = $context->getSynchronizationLog();
+        $this->syncLog->setTask(\M2E\Temu\Model\Synchronization\Log::TASK_ORDERS);
 
-    protected function getSynchronizationLog(): \M2E\Temu\Model\Synchronization\LogService
-    {
-        $synchronizationLog = parent::getSynchronizationLog();
-        $synchronizationLog->setTask(\M2E\Temu\Model\Synchronization\Log::TASK_ORDERS);
-
-        return $synchronizationLog;
-    }
-
-    protected function performActions(): void
-    {
         foreach ($this->accountRepository->getAll() as $account) {
             $manager = $this->reimportManager->create($account);
             if (!$manager->isEnabled()) {
@@ -104,8 +84,8 @@ class ReImportTask extends \M2E\Temu\Model\Cron\AbstractTask
                     ],
                 );
 
-                $this->processTaskAccountException($message, __FILE__, __LINE__);
-                $this->processTaskException($exception);
+                $context->getExceptionHandler()->processTaskAccountException($message, __FILE__, __LINE__);
+                $context->getExceptionHandler()->processTaskException($exception);
             }
         }
     }
@@ -122,8 +102,7 @@ class ReImportTask extends \M2E\Temu\Model\Cron\AbstractTask
                 ? \M2E\Temu\Model\Log\AbstractModel::TYPE_ERROR
                 : \M2E\Temu\Model\Log\AbstractModel::TYPE_WARNING;
 
-            $this
-                ->getSynchronizationLog()
+            $this->syncLog
                 ->add((string)__($message->getText()), $logType);
         }
     }

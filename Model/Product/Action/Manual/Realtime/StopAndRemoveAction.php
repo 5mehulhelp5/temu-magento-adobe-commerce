@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace M2E\Temu\Model\Product\Action\Manual\Realtime;
 
-use M2E\Temu\Model\Product\Action\Manual\Realtime\AbstractRealtime;
-
 class StopAndRemoveAction extends AbstractRealtime
 {
     private \M2E\Temu\Model\Product\RemoveHandler $removeHandler;

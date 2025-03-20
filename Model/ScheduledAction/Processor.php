@@ -8,6 +8,7 @@ use M2E\Temu\Model\ResourceModel\ScheduledAction\Collection as ScheduledActionCo
 class Processor
 {
     private const REVISE_VARIANTS_PRIORITY = 500;
+    private const LIST_PRIORITY = 25;
     private const RELIST_PRIORITY = 125;
     private const STOP_PRIORITY = 1000;
 
@@ -64,6 +65,9 @@ class Processor
             $listingProduct->setActionConfigurator($scheduledAction->getConfigurator());
 
             switch ($scheduledAction->getActionType()) {
+                case \M2E\Temu\Model\Product::ACTION_LIST:
+                    $this->actionDispatcher->processList($listingProduct, $configurator, $variantSettings, $params, $statusChanger);
+                    break;
                 case \M2E\Temu\Model\Product::ACTION_REVISE:
                     $this->actionDispatcher->processRevise($listingProduct, $configurator, $variantSettings, $params, $statusChanger);
                     break;
@@ -106,6 +110,7 @@ class Processor
         $connection = $this->resourceConnection->getConnection();
 
         $unionSelect = $connection->select()->union([
+            $this->getListScheduledActionsPreparedCollection()->getSelect(),
             $this->getReviseVariantsScheduledActionsPreparedCollection()->getSelect(),
             $this->getRelistScheduledActionsPreparedCollection()->getSelect(),
             $this->getStopScheduledActionsPreparedCollection()->getSelect(),
@@ -129,6 +134,16 @@ class Processor
         }
 
         return $this->scheduledActionRepository->getByIds($scheduledActionsIds);
+    }
+
+    private function getListScheduledActionsPreparedCollection(): ScheduledActionCollection
+    {
+        $collection = $this->scheduledActionRepository->createCollectionForFindByActionType(
+            self::LIST_PRIORITY,
+            \M2E\Temu\Model\Product::ACTION_LIST
+        );
+
+        return $collection;
     }
 
     private function getReviseVariantsScheduledActionsPreparedCollection(): ScheduledActionCollection

@@ -121,22 +121,14 @@ class Form extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractForm
         $addAnotherAccountButton = $this
             ->getLayout()
             ->createBlock(
-                \M2E\Temu\Block\Adminhtml\Magento\Button::class
+                \M2E\Temu\Block\Adminhtml\Magento\Button\DropDown::class
             );
 
         $addAnotherAccountButton->setData([
             'id' => 'add_account',
             'label' => __('Add Another'),
             'class' => 'primary',
-            'onclick' => '',
-            'data_attribute' => [
-                'mage-init' => [
-                    'Temu/Account/AddButton' => [
-                        'urlCreate' => $this->accountUrlHelper->getCreateUrl(),
-                        'specific_end_url' => $this->getUrl('*/*/*', ['_current' => true]),
-                    ],
-                ],
-            ],
+            'options' => $this->getDropdownOptions()
         ]);
 
         $fieldset->addField(
@@ -302,5 +294,31 @@ JS
         $sessionData = $this->sessionDataHelper->getValue(Listing::CREATE_LISTING_SESSION_DATA);
 
         return $sessionData[$key] ?? null;
+    }
+
+    private function getDropdownOptions(): array
+    {
+        return [
+            [
+                'label' => 'US',
+                'id' => 'US',
+                'onclick' => 'setLocation(this.getAttribute("data-url"))',
+                'data_attribute' => [
+                    'url' => $this->accountUrlHelper->getBeforeGetTokenUrl(
+                        ['_current' => true, 'region' => 'US', 'specific_end_url' => $this->getUrl('*/*/*', ['_current' => true]),]
+                    ),
+                ],
+            ],
+            [
+                'label' => 'EU',
+                'id' => 'EU',
+                'onclick' => 'setLocation(this.getAttribute("data-url"))',
+                'data_attribute' => [
+                    'url' => $this->accountUrlHelper->getBeforeGetTokenUrl(
+                        ['_current' => true, 'region' => 'EU', 'specific_end_url' => $this->getUrl('*/*/*', ['_current' => true]),]
+                    ),
+                ],
+            ]
+        ];
     }
 }

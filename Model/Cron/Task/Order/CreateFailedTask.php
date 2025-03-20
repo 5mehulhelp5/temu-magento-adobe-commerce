@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace M2E\Temu\Model\Cron\Task\Order;
 
-class CreateFailedTask extends \M2E\Temu\Model\Cron\AbstractTask
+class CreateFailedTask implements \M2E\Core\Model\Cron\TaskHandlerInterface
 {
     public const NICK = 'order/create_failed';
 
@@ -15,45 +15,22 @@ class CreateFailedTask extends \M2E\Temu\Model\Cron\AbstractTask
     public function __construct(
         \M2E\Temu\Model\Order\MagentoProcessor $orderMagentoProcessor,
         \M2E\Temu\Model\Account\Repository $accountRepository,
-        \M2E\Temu\Model\Order\Repository $orderRepository,
-        \M2E\Temu\Model\Cron\Manager $cronManager,
-        \M2E\Temu\Model\Synchronization\LogService $syncLogger,
-        \M2E\Temu\Helper\Data $helperData,
-        \Magento\Framework\Event\Manager $eventManager,
-        \M2E\Temu\Model\ActiveRecord\Factory $activeRecordFactory,
-        \M2E\Temu\Model\Cron\TaskRepository $taskRepo,
-        \Magento\Framework\App\ResourceConnection $resource
+        \M2E\Temu\Model\Order\Repository $orderRepository
     ) {
-        parent::__construct(
-            $cronManager,
-            $syncLogger,
-            $helperData,
-            $eventManager,
-            $activeRecordFactory,
-            $taskRepo,
-            $resource
-        );
         $this->orderRepository = $orderRepository;
         $this->accountRepository = $accountRepository;
         $this->orderMagentoProcessor = $orderMagentoProcessor;
     }
 
-    protected function getNick(): string
+    /**
+     * @param \M2E\Temu\Model\Cron\TaskContext $context
+     *
+     * @return void
+     */
+    public function process($context): void
     {
-        return self::NICK;
-    }
+        $context->getSynchronizationLog()->setTask(\M2E\Temu\Model\Synchronization\Log::TASK_ORDERS);
 
-    protected function getSynchronizationLog(): \M2E\Temu\Model\Synchronization\LogService
-    {
-        $synchronizationLog = parent::getSynchronizationLog();
-
-        $synchronizationLog->setTask(\M2E\Temu\Model\Synchronization\Log::TASK_ORDERS);
-
-        return $synchronizationLog;
-    }
-
-    protected function performActions()
-    {
         foreach ($this->accountRepository->getAll() as $account) {
             try {
                 $borderDate = \M2E\Core\Helper\Date::createCurrentGmt();
@@ -73,13 +50,13 @@ class CreateFailedTask extends \M2E\Temu\Model\Cron\AbstractTask
                     true
                 );
             } catch (\Throwable $exception) {
-                $message = (string)\__(
+                $message = (string)__(
                     'The "Create Failed Orders" Action for Account "%1" was completed with error.',
                     $account->getTitle(),
                 );
 
-                $this->processTaskAccountException($message, __FILE__, __LINE__);
-                $this->processTaskException($exception);
+                $context->getExceptionHandler()->processTaskAccountException($message, __FILE__, __LINE__);
+                $context->getExceptionHandler()->processTaskException($exception);
             }
         }
     }

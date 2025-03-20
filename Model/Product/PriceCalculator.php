@@ -2,7 +2,7 @@
 
 namespace M2E\Temu\Model\Product;
 
-use M2E\Temu\Helper\Magento\Attribute;
+use M2E\Core\Helper\Magento\Attribute;
 use M2E\Temu\Model\Exception\Logic;
 use M2E\Temu\Model\Listing;
 use M2E\Temu\Model\Magento\Product;

@@ -19,7 +19,7 @@ define([
 
             jQuery.validator.addMethod('Temu-validate-description-template', function (value, el) {
 
-                if ($('description_mode').value != Temu.php.constant('\\M2E\\Temu\\Model\\Template\\Description::DESCRIPTION_MODE_CUSTOM')) {
+                if ($('description_mode').value != Temu.php.constant('\\M2E\\Temu\\Model\\Policy\\Description::DESCRIPTION_MODE_CUSTOM')) {
                     return true;
                 }
 
@@ -31,7 +31,7 @@ define([
 
                 var isValidMagentoProductId = false;
 
-                new Ajax.Request(Temu.url.get('temu_template_description/checkMagentoProductId'), {
+                new Ajax.Request(Temu.url.get('policy_description/checkMagentoProductId'), {
                     method: 'post',
                     asynchronous: false,
                     parameters: {
@@ -131,7 +131,7 @@ define([
 
             $$('.c-custom_description_tr').invoke('hide');
 
-            if (this.value == Temu.php.constant('\\M2E\\Temu\\Model\\Template\\Description::DESCRIPTION_MODE_CUSTOM')) {
+            if (this.value == Temu.php.constant('\\M2E\\Temu\\Model\\Policy\\Description::DESCRIPTION_MODE_CUSTOM')) {
                 if (viewEditCustomDescription) {
                     viewEditCustomDescription.show();
                     $$('.c-custom_description_tr').invoke('hide');
@@ -232,7 +232,7 @@ define([
                     id: 'description_preview_form',
                     method: 'post',
                     target: '_blank',
-                    action: Temu.url.get('temu_template_description/preview')
+                    action: Temu.url.get('policy_description/preview')
                 }));
                 this.initFormValidation('#description_preview_form');
             }
@@ -270,7 +270,7 @@ define([
 
         openPreviewPopup: function () {
             if (
-                    $('description_mode').value == Temu.php.constant('\\M2E\\Temu\\Model\\Template\\Description::DESCRIPTION_MODE_CUSTOM')
+                    $('description_mode').value == Temu.php.constant('\\M2E\\Temu\\Model\\Policy\\Description::DESCRIPTION_MODE_CUSTOM')
                     && !$('description_template').value.length
             ) {
                 this.alert(Temu.translator.translate('Please enter Description Value.'));
@@ -283,7 +283,7 @@ define([
         selectProductIdRandomly: function () {
             var self = this;
 
-            new Ajax.Request(Temu.url.get('temu_template_description/getRandomMagentoProductId'), {
+            new Ajax.Request(Temu.url.get('policy_description/getRandomMagentoProductId'), {
                 method: 'post',
                 parameters: {
                     store_id: $('description_preview_store_id').value

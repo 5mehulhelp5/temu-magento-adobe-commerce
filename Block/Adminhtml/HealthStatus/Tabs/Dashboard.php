@@ -7,12 +7,14 @@ class Dashboard extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractForm
     private string $currentVersion;
     private ?string $latestPublicVersion = null;
     private bool $cronIsNotWorking = false;
-    private \M2E\Temu\Helper\Module\Cron $cronHelper;
     private \M2E\Temu\Model\HealthStatus\Task\Result\Set $resultSet;
     private \M2E\Temu\Model\Module $module;
+    private \M2E\Temu\Model\Cron\Manager $cronManager;
+    private \M2E\Temu\Model\Cron\Config $cronConfig;
 
     public function __construct(
-        \M2E\Temu\Helper\Module\Cron $cronHelper,
+        \M2E\Temu\Model\Cron\Config $cronConfig,
+        \M2E\Temu\Model\Cron\Manager $cronManager,
         \M2E\Temu\Model\HealthStatus\Task\Result\Set $resultSet,
         \M2E\Temu\Model\Module $module,
         \M2E\Temu\Block\Adminhtml\Magento\Context\Template $context,
@@ -21,8 +23,9 @@ class Dashboard extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractForm
         array $data = []
     ) {
         $this->resultSet = $resultSet;
-        $this->cronHelper = $cronHelper;
         $this->module = $module;
+        $this->cronManager = $cronManager;
+        $this->cronConfig = $cronConfig;
         parent::__construct($context, $registry, $formFactory, $data);
     }
 
@@ -112,14 +115,14 @@ HTML
             'note',
             [
                 'label' => __('Type'),
-                'text' => ucwords(str_replace('_', ' ', $this->cronHelper->getRunner())),
+                'text' => ucwords(str_replace('_', ' ', $this->cronConfig->getActiveRunner())),
             ]
         );
 
-        $cronLastRunTime = $this->cronHelper->getLastRun();
+        $cronLastRunTime = $this->cronManager->getCronLastRun();
         $cronLastRunTimeText = 'N/A';
         if ($cronLastRunTime !== null) {
-            $this->cronIsNotWorking = $this->cronHelper->isLastRunMoreThan(12, true);
+            $this->cronIsNotWorking = $this->cronManager->isCronLastRunMoreThan(12 * 3600);
             $cronLastRunTimeText = $cronLastRunTime->format('Y-m-d H:i:s');
         }
 

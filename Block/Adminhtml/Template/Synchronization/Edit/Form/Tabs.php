@@ -3,7 +3,6 @@
 namespace M2E\Temu\Block\Adminhtml\Template\Synchronization\Edit\Form;
 
 use M2E\Temu\Block\Adminhtml\Magento\Tabs\AbstractVerticalTabs;
-use M2E\Temu\Block\Adminhtml\Template\Synchronization\Edit\Form\Tabs as SyncTabs;
 
 /**
  * Class \M2E\Temu\Block\Adminhtml\Template\Synchronization\Edit\Form\Tabs
@@ -20,6 +19,18 @@ class Tabs extends AbstractVerticalTabs
 
     protected function _prepareLayout()
     {
+        $this->addTab(
+            'list_rules',
+            [
+                'label' => __('List Rules'),
+                'title' => __('List Rules'),
+                'content' => $this
+                    ->getLayout()
+                    ->createBlock(\M2E\Temu\Block\Adminhtml\Template\Synchronization\Edit\Form\Tabs\ListRules::class)
+                    ->toHtml(),
+            ]
+        );
+
         $this->addTab(
             'revise_rules',
             [

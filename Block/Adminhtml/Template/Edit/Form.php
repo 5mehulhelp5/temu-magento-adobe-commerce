@@ -6,8 +6,10 @@ class Form extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractForm
 {
     /** @var \M2E\Temu\Helper\Data\GlobalData */
     private $globalDataHelper;
+    private \M2E\Temu\Model\Account\Repository $accountRepository;
 
     public function __construct(
+        \M2E\Temu\Model\Account\Repository $accountRepository,
         \M2E\Temu\Block\Adminhtml\Magento\Context\Template $context,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Data\FormFactory $formFactory,
@@ -15,7 +17,7 @@ class Form extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractForm
         array $data = []
     ) {
         $this->globalDataHelper = $globalDataHelper;
-
+        $this->accountRepository = $accountRepository;
         parent::__construct($context, $registry, $formFactory, $data);
     }
 
@@ -62,6 +64,35 @@ class Form extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractForm
             ]
         );
 
+        $templateNick = $this->getTemplateNick();
+
+        if ($templateNick === \M2E\Temu\Model\Policy\Manager::TEMPLATE_SHIPPING) {
+            if ($this->getRequest()->getParam('account_id', false) !== false) {
+                $fieldset->addField(
+                    'account_id_hidden',
+                    'hidden',
+                    [
+                        'name' => 'shipping[account_id]',
+                        'value' => $templateData['account_id'],
+                    ]
+                );
+            }
+
+            $fieldset->addField(
+                'account_id',
+                'select',
+                [
+                    'name' => 'shipping[account_id]',
+                    'label' => __('Account'),
+                    'title' => __('Account'),
+                    'values' => $this->getAccountOptions(),
+                    'value' => $templateData['account_id'],
+                    'required' => true,
+                    'disabled' => !empty($templateData['account_id']),
+                ]
+            );
+        }
+
         $form->setUseContainer(true);
         $this->setForm($form);
 
@@ -70,11 +101,14 @@ class Form extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractForm
 
     public function getTemplateData()
     {
+        $accountId = $this->getRequest()->getParam('account_id', false);
+
         $nick = $this->getTemplateNick();
         $templateData = $this->globalDataHelper->getValue("temu_template_$nick");
 
         return array_merge([
             'title' => '',
+            'account_id' => ($accountId !== false) ? $accountId : ''
         ], $templateData->getData());
     }
 
@@ -88,6 +122,26 @@ class Form extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractForm
         $template = $this->getParentBlock()->getTemplateObject();
 
         return $template ? $template->getId() : null;
+    }
+
+    private function getAccountOptions(): array
+    {
+        return $this->formatAccountOptions($this->accountRepository->getAll());
+    }
+
+    private function formatAccountOptions(array $accounts): array
+    {
+        $optionsResult = [
+            ['value' => '', 'label' => ''],
+        ];
+        foreach ($accounts as $account) {
+            $optionsResult[] = [
+                'value' => $account->getId(),
+                'label' => $account->getTitle(),
+            ];
+        }
+
+        return $optionsResult;
     }
 
     protected function _toHtml()

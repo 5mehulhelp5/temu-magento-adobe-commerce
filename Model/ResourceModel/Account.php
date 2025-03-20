@@ -12,6 +12,7 @@ class Account extends \M2E\Temu\Model\ResourceModel\ActiveRecord\AbstractModel
     public const COLUMN_IDENTIFIER = 'identifier';
     public const COLUMN_SITE_ID = 'site_id';
     public const COLUMN_SITE_TITLE = 'site_title';
+    public const COLUMN_REGION = 'region';
     public const COLUMN_MAGENTO_ORDERS_SETTINGS = 'magento_orders_settings';
     public const COLUMN_CREATE_MAGENTO_INVOICE = 'create_magento_invoice';
     public const COLUMN_CREATE_MAGENTO_SHIPMENT = 'create_magento_shipment';

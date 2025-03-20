@@ -150,7 +150,7 @@ class ShippingAddress extends \Magento\Framework\DataObject
 
         if ($email === null || stripos($email, 'Invalid Request') !== false || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $email = str_replace(' ', '-', strtolower($this->order->getBuyerName()));
-            $email .= \M2E\Temu\Model\Magento\Customer::FAKE_EMAIL_POSTFIX;
+            $email .= \M2E\Core\Model\Magento\Customer::FAKE_EMAIL_POSTFIX;
         }
 
         return $email;

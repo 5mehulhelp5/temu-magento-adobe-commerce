@@ -35,10 +35,28 @@ class Manually extends \M2E\Temu\Block\Adminhtml\Magento\Grid\AbstractContainer
                 'id' => 'listing_category_continue_btn',
                 'class' => 'action-primary forward',
                 'label' => __('Continue'),
-                'onclick' => 'ListingWizardCategoryModeManuallyGridObj.completeCategoriesDataStep(1, 0);',
+                'onclick' => 'ListingWizardCategoryModeManuallyGridObj.completeCategoriesDataStep(1, 0);'
             ],
             $this->uiWizardRuntimeStorage->getManager(),
         );
+    }
+
+    protected function _beforeToHtml()
+    {
+        $this->js->add(
+            <<<JS
+ require([
+    'Temu/Category/Chooser/SelectedProductsData'
+], function() {
+     window.SelectedProductsDataObj = new SelectedProductsData();
+
+     SelectedProductsDataObj.setWizardId('{$this->getWizardId()}');
+     SelectedProductsDataObj.setRegion('{$this->getRegion()}');
+});
+JS,
+        );
+
+        return parent::_beforeToHtml();
     }
 
     protected function _prepareLayout()
@@ -56,5 +74,15 @@ class Manually extends \M2E\Temu\Block\Adminhtml\Magento\Grid\AbstractContainer
         $this->setChild('grid', $gridBlock);
 
         return parent::_prepareLayout();
+    }
+
+    private function getWizardId(): int
+    {
+        return $this->uiWizardRuntimeStorage->getManager()->getWizardId();
+    }
+
+    public function getRegion(): string
+    {
+        return $this->uiWizardRuntimeStorage->getManager()->getListing()->getAccount()->getRegion();
     }
 }

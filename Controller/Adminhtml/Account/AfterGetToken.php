@@ -34,6 +34,7 @@ class AfterGetToken extends AbstractAccount
     {
         $authCode = $this->getRequest()->getParam('code');
         $region = $this->getRequest()->getParam('region');
+        $specificEndUrl = $this->getRequest()->getParam('specific_end_url');
 
         if ($authCode === null) {
             $this->_redirect('*/*/index');
@@ -43,6 +44,10 @@ class AfterGetToken extends AbstractAccount
         try {
             if (empty($accountId)) {
                 $account = $this->accountCreate->create($authCode, $region);
+
+                if ($specificEndUrl !== null) {
+                    return $this->_redirect($specificEndUrl);
+                }
 
                 return $this->_redirect(
                     '*/*/edit',

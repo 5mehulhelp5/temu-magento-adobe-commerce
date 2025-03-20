@@ -6,7 +6,7 @@ namespace M2E\Temu\Model\InventorySync;
 
 class Initialize
 {
-    private const SYNC_INTERVAL_8_HOURS_IN_SECONDS = 28800;
+    private const SYNC_INTERVAL_24_HOURS_IN_SECONDS = 86400;
 
     private \M2E\Temu\Model\Account $account;
 
@@ -39,7 +39,7 @@ class Initialize
         $lastSyncDate = $this->account->getInventoryLastSyncDate();
         if (
             $lastSyncDate !== null
-            && $lastSyncDate->modify('+ ' . self::SYNC_INTERVAL_8_HOURS_IN_SECONDS . ' seconds') > $currentDate
+            && $lastSyncDate->modify('+ ' . self::SYNC_INTERVAL_24_HOURS_IN_SECONDS . ' seconds') > $currentDate
         ) {
             return false;
         }

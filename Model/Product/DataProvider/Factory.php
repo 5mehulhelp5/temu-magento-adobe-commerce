@@ -8,6 +8,12 @@ class Factory implements FactoryInterface
 {
     private const ALLOWED_BUILDERS = [
         VariantsProvider::NICK => VariantsProvider::class,
+        ShippingProvider::NICK => ShippingProvider::class,
+        DescriptionProvider::NICK => DescriptionProvider::class,
+        TitleProvider::NICK => TitleProvider::class,
+        ImagesProvider::NICK => ImagesProvider::class,
+        CategoryProvider::NICK => CategoryProvider::class,
+        ProductAttributesProvider::NICK => ProductAttributesProvider::class
     ];
 
     private \Magento\Framework\ObjectManagerInterface $objectManager;

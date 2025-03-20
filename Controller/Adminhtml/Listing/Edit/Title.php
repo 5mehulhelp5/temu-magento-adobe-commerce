@@ -42,7 +42,11 @@ class Title extends AbstractListing
 
         $this->setAjaxContent(
             $this->getLayout()->createBlock(
-                \M2E\Temu\Block\Adminhtml\Listing\Edit\Title::class
+                \M2E\Temu\Block\Adminhtml\Listing\Edit\Title::class,
+                '',
+                [
+                    'listing' => $listing,
+                ],
             )
         );
 

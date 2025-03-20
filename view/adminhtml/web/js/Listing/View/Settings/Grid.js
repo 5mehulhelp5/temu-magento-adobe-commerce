@@ -1,6 +1,7 @@
 define([
     'jquery',
     'Temu/Listing/View/Grid',
+    'Temu/Listing/Wizard/Category',
     'Temu/Listing/MovingFromListing',
     'Magento_Ui/js/modal/modal'
 ], function (jQuery) {
@@ -10,13 +11,13 @@ define([
         // ---------------------------------------
 
         accountId: null,
-        shopId: null,
+        region: null,
 
         // ---------------------------------------
 
-        initialize: function ($super, gridId, listingId, accountId, shopId) {
+        initialize: function ($super, gridId, listingId, accountId, region) {
             this.accountId = accountId;
-            this.shopId = shopId;
+            this.region = region;
 
             $super(gridId, listingId);
         },
@@ -27,9 +28,11 @@ define([
             $super();
 
             this.movingHandler = new MovingFromListing(this);
+            this.categoryHandler = new TemuListingCategory(this);
 
             this.actions = Object.extend(this.actions, {
                 movingAction: this.movingHandler.run.bind(this.movingHandler),
+                editCategorySettingsAction: this.categoryHandler.editCategorySettings.bind(this.categoryHandler),
             });
         },
 

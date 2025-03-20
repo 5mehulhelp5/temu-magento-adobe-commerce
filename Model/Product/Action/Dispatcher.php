@@ -194,6 +194,58 @@ class Dispatcher
      *
      * @return \M2E\Core\Helper\Data::STATUS_SUCCESS | \M2E\Core\Helper\Data::STATUS_ERROR
      */
+    public function processList(
+        \M2E\Temu\Model\Product $product,
+        \M2E\Temu\Model\Product\Action\Configurator $configurator,
+        \M2E\Temu\Model\Product\Action\VariantSettings $variantSettings,
+        array $params,
+        int $statusChanger
+    ): int {
+        $logsActionId = $this->getLogActionId($params);
+        $params += ['logs_action_id' => $logsActionId];
+
+        $this->removeTags($product);
+
+        try {
+            $processor = $this->processorAsyncFactory->createProcessStart(
+                AsyncActions::ACTION_LIST,
+                $product,
+                $configurator,
+                $variantSettings,
+                $statusChanger,
+                $logsActionId,
+                \M2E\Temu\Model\Listing\Log::ACTION_LIST_PRODUCT,
+                $params,
+            );
+
+            $result = $processor->process();
+            if ($result === \M2E\Core\Helper\Data::STATUS_ERROR) {
+                $this->tagBuffer->addTag($product, $this->tagFactory->createWithHasErrorCode());
+                $this->tagBuffer->flush();
+            }
+
+            return $result;
+        } catch (\Throwable $exception) {
+            $this->logListingProductException(
+                $product,
+                $exception,
+                \M2E\Temu\Model\Product::ACTION_LIST,
+                $statusChanger,
+                $logsActionId
+            );
+            $this->exceptionHelper->process($exception);
+
+            return \M2E\Core\Helper\Data::STATUS_ERROR;
+        }
+    }
+
+    /**
+     * @param \M2E\Temu\Model\Product $product
+     * @param array $params
+     * @param int $statusChanger
+     *
+     * @return \M2E\Core\Helper\Data::STATUS_SUCCESS | \M2E\Core\Helper\Data::STATUS_ERROR
+     */
     public function processRelist(
         \M2E\Temu\Model\Product $product,
         \M2E\Temu\Model\Product\Action\Configurator $configurator,

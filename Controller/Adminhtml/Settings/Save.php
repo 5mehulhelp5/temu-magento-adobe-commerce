@@ -27,13 +27,7 @@ class Save extends AbstractSettings
             return $this->getResult();
         }
 
-        if (isset($post['identifier_code_mode'])) {
-            $this->settings->setIdentifierCodeMode((int)$post['identifier_code_mode']);
-        }
-
-        if (isset($post['identifier_code_custom_attribute'])) {
-            $this->settings->setIdentifierCodeValue((string)$post['identifier_code_custom_attribute']);
-        }
+        $this->settings->setConfigValues($this->getRequest()->getParams());
 
         $this->setJsonContent(['success' => true]);
 

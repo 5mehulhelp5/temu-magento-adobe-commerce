@@ -21,14 +21,14 @@ class ProxyObject
 
     private UserInfoFactory $userInfoFactory;
     protected \Magento\Tax\Model\Calculation $taxCalculation;
-    private \M2E\Temu\Model\Magento\CustomerFactory $magentoCustomerFactory;
+    private \M2E\Core\Model\Magento\CustomerFactory $magentoCustomerFactory;
     private \M2E\Temu\Model\Config\Manager $config;
     private \M2E\Temu\Model\Order\Tax\PriceTaxRateFactory $priceTaxRateFactory;
 
     public function __construct(
         \M2E\Temu\Model\Order $order,
         \M2E\Temu\Model\Config\Manager $config,
-        \M2E\Temu\Model\Magento\CustomerFactory $magentoCustomerFactory,
+        \M2E\Core\Model\Magento\CustomerFactory $magentoCustomerFactory,
         \Magento\Tax\Model\Calculation $taxCalculation,
         \M2E\Temu\Model\Currency $currency,
         TemuPayment $payment,

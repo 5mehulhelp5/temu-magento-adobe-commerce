@@ -58,7 +58,6 @@ class Processor
         \DateTime $inventorySyncProcessingStartDate,
         \M2E\Temu\Model\Account $account
     ): void {
-        $this->processNotReceivedProducts($account, $inventorySyncProcessingStartDate);
         $this->removeNotReceivedUnmanagedProducts($account);
 
         $this->repository

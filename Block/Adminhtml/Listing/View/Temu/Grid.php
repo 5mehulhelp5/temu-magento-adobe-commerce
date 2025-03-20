@@ -227,6 +227,11 @@ class Grid extends \M2E\Temu\Block\Adminhtml\Listing\View\AbstractGrid
         // Set mass-action
         // ---------------------------------------
 
+        $this->getMassactionBlock()->addItem('list', [
+            'label' => __('List Item(s) on ' . \M2E\Temu\Helper\Module::getChannelTitle()),
+            'url' => '',
+        ], 'actions');
+
         $this->getMassactionBlock()->addItem('revise', [
             'label' => __('Revise Item(s) on ' . \M2E\Temu\Helper\Module::getChannelTitle()),
             'url' => '',
@@ -500,6 +505,7 @@ HTML;
         $ignoreListings = \M2E\Core\Helper\Json::encode([$this->getListing()->getId()]);
 
         $this->jsUrl->addUrls([
+            'runListProducts' => $this->getUrl('*/listing/runListProducts'),
             'runRelistProducts' => $this->getUrl('*/listing/runRelistProducts'),
             'runReviseProducts' => $this->getUrl('*/listing/runReviseProducts'),
             'runStopProducts' => $this->getUrl('*/listing/runStopProducts'),

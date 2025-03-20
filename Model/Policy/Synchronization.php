@@ -4,7 +4,7 @@ namespace M2E\Temu\Model\Policy;
 
 use M2E\Temu\Model\ResourceModel\Policy\Synchronization as SynchronizationResource;
 
-class Synchronization extends \M2E\Temu\Model\ActiveRecord\AbstractModel
+class Synchronization extends \M2E\Temu\Model\ActiveRecord\AbstractModel implements PolicyInterface
 {
     public const QTY_MODE_NONE = 0;
     public const QTY_MODE_YES = 1;
@@ -39,10 +39,7 @@ class Synchronization extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         $this->_init(\M2E\Temu\Model\ResourceModel\Policy\Synchronization::class);
     }
 
-    /**
-     * @return string
-     */
-    public function getNick()
+    public function getNick(): string
     {
         return \M2E\Temu\Model\Policy\Manager::TEMPLATE_SYNCHRONIZATION;
     }

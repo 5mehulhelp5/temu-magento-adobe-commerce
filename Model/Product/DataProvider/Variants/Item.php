@@ -7,9 +7,15 @@ namespace M2E\Temu\Model\Product\DataProvider\Variants;
 class Item
 {
     private string $skuId;
+    private string $sku;
+    private string $identifier;
     private int $qty;
     private float $price;
     private string $currency;
+    private array $images;
+    private array $variationAttributes;
+    private array $packageWeight;
+    private array $packageDimensions;
 
     public function setSkuId(string $skuId): void
     {
@@ -19,6 +25,26 @@ class Item
     public function getSkuId(): string
     {
         return $this->skuId;
+    }
+
+    public function setSku(string $sku): void
+    {
+        $this->sku = $sku;
+    }
+
+    public function getSku(): string
+    {
+        return $this->sku;
+    }
+
+    public function setIdentifier(string $identifier): void
+    {
+        $this->identifier = $identifier;
+    }
+
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
     }
 
     public function setPrice(float $price): void
@@ -46,6 +72,16 @@ class Item
         return $this->qty;
     }
 
+    public function setVariationAttributes(array $variationAttributes)
+    {
+        $this->variationAttributes = $variationAttributes;
+    }
+
+    public function getVariationAttributes(): array
+    {
+        return $this->variationAttributes;
+    }
+
     public function toArray(): array
     {
         $data = [
@@ -56,5 +92,51 @@ class Item
         ];
 
         return $data;
+    }
+
+    public function toArrayForList(): array
+    {
+        $data = [
+            'sku' => $this->sku,
+            'identifier' => $this->identifier,
+            'price_base' => $this->price,
+            'qty' => $this->qty,
+            'images' => $this->images,
+            'variation_attributes' => $this->variationAttributes,
+            'package_weight' => $this->packageWeight,
+            'package_dimensions' => $this->packageDimensions,
+        ];
+
+        return $data;
+    }
+
+    public function getPackageWeight(): array
+    {
+        return $this->packageWeight;
+    }
+
+    public function setPackageWeight(array $packageWeight): void
+    {
+        $this->packageWeight = $packageWeight;
+    }
+
+    public function setPackageDimensions(array $packageDimensions): void
+    {
+        $this->packageDimensions = $packageDimensions;
+    }
+
+    public function getPackageDimensions(): array
+    {
+        return $this->packageDimensions;
+    }
+
+    public function setImages(array $images): void
+    {
+        $this->images = $images;
+    }
+
+    public function getImages(): array
+    {
+        return $this->images;
     }
 }

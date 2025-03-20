@@ -56,6 +56,10 @@ abstract class AffectedListingsProductsAbstract extends \M2E\Temu\Model\Policy\A
             return \M2E\Temu\Model\ResourceModel\Listing::COLUMN_TEMPLATE_SYNCHRONIZATION_ID;
         }
 
+        if ($this->getTemplateNick() === \M2E\Temu\Model\Policy\Manager::TEMPLATE_SHIPPING) {
+            return \M2E\Temu\Model\ResourceModel\Listing::COLUMN_TEMPLATE_SHIPPING_ID;
+        }
+
         throw new \M2E\Temu\Model\Exception\Logic('Unknown template ' . $this->getTemplateNick());
     }
 }

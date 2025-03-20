@@ -1,0 +1,32 @@
+<?php
+/**
+ * @var \M2E\Temu\Block\Adminhtml\Category\Chooser\Prepare $block
+ */
+?>
+
+<script>
+    require([
+        'Temu/Category/Chooser'
+    ], () => {
+        window.TemuCategoryChooserObj = new TemuCategoryChooser(
+            "<?= $block->getRegion() ?>",
+            <?= $block->getAccountId() ?>
+        );
+    });
+</script>
+
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Magento_Ui/js/core/app": {
+                "components": {
+                    "category_search": {
+                        "component": "M2E_Temu/js/Category/Chooser/Tabs/Search",
+                        "searchUrl": "<?= $block->getSearchUrl() ?>",
+                        "region": "<?= $block->getRegion() ?>"
+                    }
+                }
+            }
+        }
+    }
+</script>

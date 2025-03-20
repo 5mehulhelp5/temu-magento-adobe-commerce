@@ -16,11 +16,15 @@ class Product extends \M2E\Temu\Model\ResourceModel\ActiveRecord\AbstractModel
     public const COLUMN_STATUS_CHANGER = 'status_changer';
     public const COLUMN_STATUS_CHANGE_DATE = 'status_change_date';
     public const COLUMN_ONLINE_TITLE = 'online_title';
+    public const COLUMN_ONLINE_DESCRIPTION = 'online_description';
+    public const COLUMN_ONLINE_IMAGE = 'online_image';
     public const COLUMN_IDENTIFIERS = 'identifiers';
     public const COLUMN_ONLINE_QTY = 'online_qty';
     public const COLUMN_ONLINE_MIN_PRICE = 'online_min_price';
     public const COLUMN_ONLINE_MAX_PRICE = 'online_max_price';
     public const COLUMN_ONLINE_CATEGORY_ID  = 'online_category_id';
+    public const COLUMN_ONLINE_CATEGORIES_DATA = 'online_categories_data';
+    public const COLUMN_TEMPLATE_CATEGORY_ID  = 'template_category_id';
     public const COLUMN_LAST_BLOCKING_ERROR_DATE = 'last_blocking_error_date';
     public const COLUMN_ADDITIONAL_DATA = 'additional_data';
     public const COLUMN_UPDATE_DATE = 'update_date';
@@ -32,5 +36,28 @@ class Product extends \M2E\Temu\Model\ResourceModel\ActiveRecord\AbstractModel
             \M2E\Temu\Helper\Module\Database\Tables::TABLE_NAME_PRODUCT,
             self::COLUMN_ID
         );
+    }
+
+    public function getTemplateCategoryIds(array $listingProductIds, $columnName, $returnNull = false): array
+    {
+        $select = $this->getConnection()
+                       ->select()
+                       ->from(['product' => $this->getMainTable()])
+                       ->reset(\Magento\Framework\DB\Select::COLUMNS)
+                       ->columns([$columnName])
+                       ->where('id IN (?)', $listingProductIds);
+
+        !$returnNull && $select->where("{$columnName} IS NOT NULL");
+
+        foreach ($select->query()->fetchAll() as $row) {
+            $id = $row[$columnName] !== null ? (int)$row[$columnName] : null;
+            if (!$returnNull) {
+                continue;
+            }
+
+            $ids[$id] = $id;
+        }
+
+        return array_values($ids);
     }
 }

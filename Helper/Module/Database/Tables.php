@@ -35,6 +35,11 @@ class Tables
 
     public const TABLE_NAME_PROCESSING_PARTIAL_DATA = self::PREFIX . 'processing_partial_data';
 
+    public const TABLE_NAME_CATEGORY_TREE = self::PREFIX . 'category_tree';
+    public const TABLE_NAME_CATEGORY_DICTIONARY = self::PREFIX . 'category_dictionary';
+    public const TABLE_NAME_ATTRIBUTE_MAPPING = self::PREFIX . 'attribute_mapping';
+    public const TABLE_NAME_TEMPLATE_CATEGORY_ATTRIBUTES = self::PREFIX . 'template_category_attributes';
+
     public const TABLE_NAME_PROCESSING_LOCK = self::PREFIX . 'processing_lock';
 
     public const TABLE_NAME_STOP_QUEUE = self::PREFIX . 'stop_queue';
@@ -44,6 +49,8 @@ class Tables
     public const TABLE_NAME_OPERATION_HISTORY = self::PREFIX . 'operation_history';
     public const TABLE_NAME_TEMPLATE_SELLING_FORMAT = self::PREFIX . 'template_selling_format';
     public const TABLE_NAME_TEMPLATE_SYNCHRONIZATION = self::PREFIX . 'template_synchronization';
+    public const TABLE_NAME_TEMPLATE_DESCRIPTION = self::PREFIX . 'template_description';
+    public const TABLE_NAME_TEMPLATE_SHIPPING = self::PREFIX . 'template_shipping';
 
     public const TABLE_NAME_TAG = self::PREFIX . 'tag';
 
@@ -103,6 +110,8 @@ class Tables
             self::TABLE_NAME_OPERATION_HISTORY => \M2E\Temu\Model\ResourceModel\OperationHistory::class,
             self::TABLE_NAME_TEMPLATE_SELLING_FORMAT => \M2E\Temu\Model\ResourceModel\Policy\SellingFormat::class,
             self::TABLE_NAME_TEMPLATE_SYNCHRONIZATION => \M2E\Temu\Model\ResourceModel\Policy\Synchronization::class,
+            self::TABLE_NAME_TEMPLATE_DESCRIPTION => \M2E\Temu\Model\ResourceModel\Policy\Description::class,
+            self::TABLE_NAME_TEMPLATE_SHIPPING => \M2E\Temu\Model\ResourceModel\Policy\Shipping::class,
             self::TABLE_NAME_WIZARD => \M2E\Temu\Model\ResourceModel\Wizard::class,
             self::TABLE_NAME_TAG => \M2E\Temu\Model\ResourceModel\Tag::class,
             self::TABLE_NAME_PRODUCT_TAG_RELATION => \M2E\Temu\Model\ResourceModel\Tag\ListingProduct\Relation::class,
@@ -115,7 +124,10 @@ class Tables
             self::TABLE_NAME_INVENTORY_SYNC_RECEIVED_PRODUCT => \M2E\Temu\Model\ResourceModel\InventorySync\ReceivedProduct::class,
             self::TABLE_NAME_PRODUCT_VARIANT_SKU => \M2E\Temu\Model\ResourceModel\Product\VariantSku::class,
             self::TABLE_NAME_UNMANAGED_PRODUCT_VARIANT_SKU => \M2E\Temu\Model\ResourceModel\UnmanagedProduct\VariantSku::class,
-
+            self::TABLE_NAME_CATEGORY_TREE => \M2E\Temu\Model\ResourceModel\Category\Tree::class,
+            self::TABLE_NAME_CATEGORY_DICTIONARY => \M2E\Temu\Model\ResourceModel\Category\Dictionary::class,
+            self::TABLE_NAME_TEMPLATE_CATEGORY_ATTRIBUTES => \M2E\Temu\Model\ResourceModel\Category\Attribute::class,
+            self::TABLE_NAME_ATTRIBUTE_MAPPING => \M2E\Temu\Model\ResourceModel\AttributeMapping\Pair::class,
         ];
     }
 
@@ -144,6 +156,8 @@ class Tables
             self::TABLE_NAME_OPERATION_HISTORY => \M2E\Temu\Model\OperationHistory::class,
             self::TABLE_NAME_TEMPLATE_SELLING_FORMAT => \M2E\Temu\Model\Policy\SellingFormat::class,
             self::TABLE_NAME_TEMPLATE_SYNCHRONIZATION => \M2E\Temu\Model\Policy\Synchronization::class,
+            self::TABLE_NAME_TEMPLATE_DESCRIPTION => \M2E\Temu\Model\Policy\Description::class,
+            self::TABLE_NAME_TEMPLATE_SHIPPING => \M2E\Temu\Model\Policy\Shipping::class,
             self::TABLE_NAME_WIZARD => \M2E\Temu\Model\Wizard::class,
             self::TABLE_NAME_TAG => \M2E\Temu\Model\Tag\Entity::class,
             self::TABLE_NAME_PRODUCT_TAG_RELATION => \M2E\Temu\Model\Tag\ListingProduct\Relation::class,
@@ -156,6 +170,10 @@ class Tables
             self::TABLE_NAME_INVENTORY_SYNC_RECEIVED_PRODUCT => \M2E\Temu\Model\InventorySync\ReceivedProduct::class,
             self::TABLE_NAME_PRODUCT_VARIANT_SKU => \M2E\Temu\Model\Product\VariantSku::class,
             self::TABLE_NAME_UNMANAGED_PRODUCT_VARIANT_SKU => \M2E\Temu\Model\UnmanagedProduct\VariantSku::class,
+            self::TABLE_NAME_CATEGORY_TREE => \M2E\Temu\Model\Category\Tree::class,
+            self::TABLE_NAME_CATEGORY_DICTIONARY => \M2E\Temu\Model\Category\Dictionary::class,
+            self::TABLE_NAME_TEMPLATE_CATEGORY_ATTRIBUTES => \M2E\Temu\Model\Category\CategoryAttribute::class,
+            self::TABLE_NAME_ATTRIBUTE_MAPPING => \M2E\Temu\Model\AttributeMapping\Pair::class,
         ];
     }
 

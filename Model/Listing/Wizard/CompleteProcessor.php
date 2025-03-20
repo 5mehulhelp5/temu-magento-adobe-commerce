@@ -36,6 +36,7 @@ class CompleteProcessor
                     ->addProduct(
                         $listing,
                         $wizardProduct->getMagentoProductId(),
+                        $wizardProduct->getCategoryDictionaryId(),
                         \M2E\Core\Helper\Data::INITIATOR_USER,
                     );
             } elseif ($wizardManager->isWizardTypeUnmanaged()) {
@@ -52,6 +53,7 @@ class CompleteProcessor
                     ->addFromUnmanaged(
                         $listing,
                         $unmanagedProduct,
+                        $wizardProduct->getCategoryDictionaryId(),
                         \M2E\Core\Helper\Data::INITIATOR_USER,
                     );
 

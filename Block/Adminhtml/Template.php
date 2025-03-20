@@ -70,6 +70,18 @@ class Template extends AbstractContainer
                 'onclick' => "setLocation('" . $this->getTemplateUrl(Manager::TEMPLATE_SYNCHRONIZATION) . "')",
                 'default' => false,
             ],
+            Manager::TEMPLATE_DESCRIPTION => [
+                'label' => __('Description'),
+                'id' => 'description',
+                'onclick' => "setLocation('" . $this->getTemplateUrl(Manager::TEMPLATE_DESCRIPTION) . "')",
+                'default' => false,
+            ],
+            Manager::TEMPLATE_SHIPPING => [
+                'label' => __('Shipping'),
+                'id' => 'shipping',
+                'onclick' => "setLocation('" . $this->getTemplateUrl(Manager::TEMPLATE_SHIPPING) . "')",
+                'default' => false,
+            ],
         ];
 
         return $data;

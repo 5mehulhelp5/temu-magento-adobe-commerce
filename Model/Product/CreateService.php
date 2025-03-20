@@ -23,6 +23,7 @@ class CreateService
     public function create(
         \M2E\Temu\Model\Listing $listing,
         \M2E\Temu\Model\Magento\Product $m2eMagentoProduct,
+        ?int $categoryDictionaryId,
         ?\M2E\Temu\Model\UnmanagedProduct $unmanagedProduct = null
     ): \M2E\Temu\Model\Product {
         $this->checkSupportedMagentoType($m2eMagentoProduct);
@@ -30,11 +31,15 @@ class CreateService
         $listingProduct = $this->listingProductFactory->create(
             $listing,
             $m2eMagentoProduct->getProductId(),
-            $m2eMagentoProduct->isSimpleType()
+            $m2eMagentoProduct->isSimpleType(),
         );
 
         if ($unmanagedProduct !== null) {
             $listingProduct->fillFromUnmanagedProduct($unmanagedProduct);
+        }
+
+        if ($categoryDictionaryId !== null) {
+            $listingProduct->setTemplateCategoryId($categoryDictionaryId);
         }
 
         $this->listingProductRepository->create($listingProduct);
@@ -60,26 +65,17 @@ class CreateService
             }
         }
 
-        if ($m2eMagentoProduct->isSimpleType()) {
-            return [
-                $this->createVariantEntity(
-                    $listingProduct,
-                    $m2eMagentoProduct,
-                    $unmanagedVariants[$m2eMagentoProduct->getProductId()] ?? null
-                ),
-            ];
+        if (!$m2eMagentoProduct->isSimpleType()) {
+            return [];
         }
 
-        $variants = [];
-        foreach ($m2eMagentoProduct->getConfigurableChildren() as $child) {
-            $variants[] = $this->createVariantEntity(
+        return [
+            $this->createVariantEntity(
                 $listingProduct,
-                $child,
-                $unmanagedVariants[$child->getProductId()] ?? null
-            );
-        }
-
-        return $variants;
+                $m2eMagentoProduct,
+                $unmanagedVariants[$m2eMagentoProduct->getProductId()] ?? null
+            ),
+        ];
     }
 
     private function createVariantEntity(
@@ -112,7 +108,6 @@ class CreateService
 
     private function isSupportedMagentoProductType(\M2E\Temu\Model\Magento\Product $ourMagentoProduct): bool
     {
-        return $ourMagentoProduct->isSimpleType()
-            || $ourMagentoProduct->isConfigurableType();
+        return $ourMagentoProduct->isSimpleType();
     }
 }

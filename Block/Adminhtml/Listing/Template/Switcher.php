@@ -166,6 +166,12 @@ class Switcher extends AbstractBlock
             case \M2E\Temu\Model\Policy\Manager::TEMPLATE_SYNCHRONIZATION:
                 $blockName = \M2E\Temu\Block\Adminhtml\Template\Synchronization\Edit\Form\Data::class;
                 break;
+            case \M2E\Temu\Model\Policy\Manager::TEMPLATE_DESCRIPTION:
+                $blockName = \M2E\Temu\Block\Adminhtml\Template\Description\Edit\Form\Data::class;
+                break;
+            case \M2E\Temu\Model\Policy\Manager::TEMPLATE_SHIPPING:
+                $blockName = \M2E\Temu\Block\Adminhtml\Template\Shipping\Edit\Form\Data::class;
+                break;
         }
 
         if ($blockName === null) {

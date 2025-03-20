@@ -4,6 +4,7 @@ namespace M2E\Temu\Block\Adminhtml\Template;
 
 use M2E\Temu\Block\Adminhtml\Magento\Grid\AbstractGrid;
 use Magento\Framework\DB\Select;
+use M2E\Temu\Model\ResourceModel\Account as AccountResource;
 
 class Grid extends AbstractGrid
 {
@@ -11,10 +12,20 @@ class Grid extends AbstractGrid
     private \Magento\Framework\App\ResourceConnection $resourceConnection;
     private \M2E\Temu\Model\ResourceModel\Policy\SellingFormat\CollectionFactory $sellingCollectionFactory;
     private \M2E\Temu\Model\ResourceModel\Policy\Synchronization\CollectionFactory $syncCollectionFactory;
+    private \M2E\Temu\Model\ResourceModel\Policy\Description\CollectionFactory $descriptionCollectionFactory;
+    private \M2E\Temu\Model\ResourceModel\Policy\Shipping\CollectionFactory $shippingCollectionFactory;
+    private \M2E\Temu\Model\ResourceModel\Account $accountResource;
+    private \M2E\Temu\Model\ResourceModel\Account\Collection $accountCollection;
+    private \M2E\Temu\Model\ResourceModel\Account\CollectionFactory $accountCollectionFactory;
 
     public function __construct(
         \M2E\Temu\Model\ResourceModel\Policy\SellingFormat\CollectionFactory $sellingCollectionFactory,
         \M2E\Temu\Model\ResourceModel\Policy\Synchronization\CollectionFactory $syncCollectionFactory,
+        \M2E\Temu\Model\ResourceModel\Policy\Description\CollectionFactory $descriptionCollectionFactory,
+        \M2E\Temu\Model\ResourceModel\Policy\Shipping\CollectionFactory $shippingCollectionFactory,
+        \M2E\Temu\Model\ResourceModel\Account $accountResource,
+        \M2E\Temu\Model\ResourceModel\Account\Collection $accountCollection,
+        \M2E\Temu\Model\ResourceModel\Account\CollectionFactory $accountCollectionFactory,
         \M2E\Temu\Model\ResourceModel\Collection\WrapperFactory $wrapperCollectionFactory,
         \Magento\Framework\App\ResourceConnection $resourceConnection,
         \M2E\Temu\Block\Adminhtml\Magento\Context\Template $context,
@@ -23,10 +34,14 @@ class Grid extends AbstractGrid
     ) {
         $this->wrapperCollectionFactory = $wrapperCollectionFactory;
         $this->resourceConnection = $resourceConnection;
-
-        parent::__construct($context, $backendHelper, $data);
         $this->sellingCollectionFactory = $sellingCollectionFactory;
         $this->syncCollectionFactory = $syncCollectionFactory;
+        $this->descriptionCollectionFactory = $descriptionCollectionFactory;
+        $this->shippingCollectionFactory = $shippingCollectionFactory;
+        $this->accountResource = $accountResource;
+        $this->accountCollection = $accountCollection;
+        $this->accountCollectionFactory = $accountCollectionFactory;
+        parent::__construct($context, $backendHelper, $data);
     }
 
     public function _construct()
@@ -57,7 +72,8 @@ class Grid extends AbstractGrid
             [
                 'id as template_id',
                 'title',
-                new \Zend_Db_Expr('\'0\' as `marketplace`'),
+                new \Zend_Db_Expr('NULL as `account_title`'),
+                new \Zend_Db_Expr('\'0\' as `account_id`'),
                 new \Zend_Db_Expr(
                     '\'' . \M2E\Temu\Model\Policy\Manager::TEMPLATE_SELLING_FORMAT . '\' as `nick`'
                 ),
@@ -76,9 +92,55 @@ class Grid extends AbstractGrid
             [
                 'id as template_id',
                 'title',
-                new \Zend_Db_Expr('\'0\' as `marketplace`'),
+                new \Zend_Db_Expr('NULL as `account_title`'),
+                new \Zend_Db_Expr('\'0\' as `account_id`'),
                 new \Zend_Db_Expr(
                     '\'' . \M2E\Temu\Model\Policy\Manager::TEMPLATE_SYNCHRONIZATION . '\' as `nick`'
+                ),
+                'create_date',
+                'update_date',
+            ]
+        );
+
+        ///Prepare Description collection
+        $collectionDescription = $this->descriptionCollectionFactory->create();
+        $collectionDescription->getSelect()->reset(Select::COLUMNS);
+        $collectionDescription->getSelect()->columns(
+            [
+                'id as template_id',
+                'title',
+                new \Zend_Db_Expr('NULL as `account_title`'),
+                new \Zend_Db_Expr('\'0\' as `account_id`'),
+                new \Zend_Db_Expr(
+                    '\'' . \M2E\Temu\Model\Policy\Manager::TEMPLATE_DESCRIPTION . '\' as `nick`'
+                ),
+                'create_date',
+                'update_date',
+            ]
+        );
+
+        // Prepare Shipping collection
+        // ----------------------------------------
+        $collectionShipping = $this->shippingCollectionFactory->create();
+        $collectionShipping->getSelect()->reset(Select::COLUMNS);
+        $collectionShipping->getSelect()->join(
+            ['account' => $this->accountResource->getMainTable()],
+            sprintf(
+                'account.%s = main_table.%s',
+                \M2E\Temu\Model\ResourceModel\Account::COLUMN_ID,
+                \M2E\Temu\Model\ResourceModel\Policy\Shipping::COLUMN_ACCOUNT_ID
+            ),
+            []
+        );
+
+        $collectionShipping->getSelect()->columns(
+            [
+                'id as template_id',
+                'title',
+                new \Zend_Db_Expr('account.title as `account_title`'),
+                new \Zend_Db_Expr('account.id as `account_id`'),
+                new \Zend_Db_Expr(
+                    '\'' . \M2E\Temu\Model\Policy\Manager::TEMPLATE_SHIPPING . '\' as `nick`'
                 ),
                 'create_date',
                 'update_date',
@@ -91,6 +153,8 @@ class Grid extends AbstractGrid
         $unionSelect->union([
             $collectionSellingFormat->getSelect(),
             $collectionSynchronization->getSelect(),
+            $collectionDescription->getSelect(),
+            $collectionShipping->getSelect()
         ]);
 
         // Prepare result collection
@@ -99,7 +163,7 @@ class Grid extends AbstractGrid
         $resultCollection->setConnection($this->resourceConnection->getConnection());
         $resultCollection->getSelect()->reset()->from(
             ['main_table' => $unionSelect],
-            ['template_id', 'title', 'nick', 'marketplace', 'create_date', 'update_date']
+            ['template_id', 'title',  'account_title', 'account_id','nick', 'create_date', 'update_date']
         );
 
         $this->setCollection($resultCollection);
@@ -121,6 +185,8 @@ class Grid extends AbstractGrid
         $options = [
             \M2E\Temu\Model\Policy\Manager::TEMPLATE_SELLING_FORMAT => __('Selling'),
             \M2E\Temu\Model\Policy\Manager::TEMPLATE_SYNCHRONIZATION => __('Synchronization'),
+            \M2E\Temu\Model\Policy\Manager::TEMPLATE_DESCRIPTION => __('Description'),
+            \M2E\Temu\Model\Policy\Manager::TEMPLATE_SHIPPING => __('Shipping'),
         ];
         $this->addColumn('nick', [
             'header' => __('Type'),
@@ -131,6 +197,18 @@ class Grid extends AbstractGrid
             'index' => 'nick',
             'filter_index' => 'main_table.nick',
             'options' => $options,
+        ]);
+
+        $this->addColumn('account', [
+            'header' => $this->__('Account'),
+            'align' => 'left',
+            'type' => 'options',
+            'width' => '100px',
+            'index' => 'account_title',
+            'filter_index' => 'account_title',
+            'filter_condition_callback' => [$this, 'callbackFilterAccount'],
+            'frame_callback' => [$this, 'callbackColumnAccount'],
+            'options' => $this->getEnabledAccountTitles(),
         ]);
 
         $this->addColumn('create_date', [
@@ -194,6 +272,48 @@ class Grid extends AbstractGrid
         ]);
 
         return parent::_prepareColumns();
+    }
+
+    protected function callbackFilterAccount($collection, $column)
+    {
+        $value = $column->getFilter()->getValue();
+        if ($value == null) {
+            return;
+        }
+
+        $collection->getSelect()->where('account_id = 0 OR account_id = ?', (int)$value);
+    }
+
+    public function callbackColumnAccount($value, $row, $column, $isExport)
+    {
+        if (empty($value)) {
+            return __('Any');
+        }
+
+        return $value;
+    }
+
+    private function getEnabledAccountCollection(): AccountResource\Collection
+    {
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        if (!isset($this->accountCollection)) {
+            $collection = $this->accountCollectionFactory->create();
+            $collection->setOrder(AccountResource::COLUMN_TITLE, 'ASC');
+
+            $this->accountCollection = $collection;
+        }
+
+        return $this->accountCollection;
+    }
+
+    private function getEnabledAccountTitles(): array
+    {
+        $result = [];
+        foreach ($this->getEnabledAccountCollection()->getItems() as $account) {
+            $result[$account->getId()] = $account->getTitle();
+        }
+
+        return $result;
     }
 
     public function getGridUrl()

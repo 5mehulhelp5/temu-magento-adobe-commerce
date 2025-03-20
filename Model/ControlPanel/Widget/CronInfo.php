@@ -6,35 +6,30 @@ namespace M2E\Temu\Model\ControlPanel\Widget;
 
 class CronInfo implements \M2E\Core\Model\ControlPanel\Widget\CronInfoInterface
 {
-    private \M2E\Temu\Helper\Module\Cron $cronHelper;
-    private \M2E\Temu\Model\Config\Manager $config;
+    private \M2E\Temu\Model\Cron\Config $cronConfig;
+    private \M2E\Temu\Model\Cron\Manager $cronManager;
 
     public function __construct(
-        \M2E\Temu\Helper\Module\Cron $cronHelper,
-        \M2E\Temu\Model\Config\Manager $config
+        \M2E\Temu\Model\Cron\Config $cronConfig,
+        \M2E\Temu\Model\Cron\Manager $cronManager
     ) {
-        $this->cronHelper = $cronHelper;
-        $this->config = $config;
-    }
-
-    public function isMagentoCronDisabled(): bool
-    {
-        return (bool)(int)$this->config->getGroupValue('/cron/magento/', 'disabled');
+        $this->cronConfig = $cronConfig;
+        $this->cronManager = $cronManager;
     }
 
     public function isCronWorking(): bool
     {
-        return !$this->cronHelper->isLastRunMoreThan(1, true);
+        return !$this->cronManager->isCronLastRunMoreThan(3600);
     }
 
     public function getCronLastRunTime(): ?\DateTimeInterface
     {
-        return $this->cronHelper->getLastRun();
+        return $this->cronManager->getCronLastRun();
     }
 
     public function isRunnerTypeMagento(): bool
     {
-        return true;
+        return $this->cronConfig->getActiveRunner() === \M2E\Temu\Model\Cron\Config::RUNNER_MAGENTO;
     }
 
     public function isRunnerTypeDeveloper(): bool
@@ -50,6 +45,11 @@ class CronInfo implements \M2E\Core\Model\ControlPanel\Widget\CronInfoInterface
     public function isRunnerTypeServicePub(): bool
     {
         return false;
+    }
+
+    public function isMagentoCronDisabled(): bool
+    {
+        return $this->cronConfig->isRunnerDisabled(\M2E\Temu\Model\Cron\Config::RUNNER_MAGENTO);
     }
 
     public function isControllerCronDisabled(): bool

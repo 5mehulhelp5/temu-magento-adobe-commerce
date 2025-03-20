@@ -2,46 +2,32 @@
 
 namespace M2E\Temu\Model\Cron\Task\Magento\Product;
 
-class DetectSpecialPriceEndDateTask extends \M2E\Temu\Model\Cron\AbstractTask
+class DetectSpecialPriceEndDateTask implements \M2E\Core\Model\Cron\TaskHandlerInterface
 {
     public const NICK = 'magento/product/detect_special_price_end_date';
-
-    /** @var int (in seconds) */
-    protected int $intervalInSeconds = 7200;
 
     /** @var \M2E\Temu\PublicServices\Product\SqlChange */
     private $publicService;
     private \M2E\Temu\Model\ResourceModel\Product\CollectionFactory $listingProductCollectionFactory;
-    /** @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory */
+    /**
+     * @psalm-suppress UndefinedClass
+     * @var \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory
+     */
     private $catalogProductCollectionFactory;
     /** @var \M2E\Temu\Model\ResourceModel\Listing\CollectionFactory */
     private $listingCollectionFactory;
     private \M2E\Temu\Model\Registry\Manager $registry;
 
+    /**
+     * @psalm-suppress UndefinedClass
+     */
     public function __construct(
         \M2E\Temu\Model\Registry\Manager $registry,
-        \M2E\Temu\Model\Cron\Manager $cronManager,
-        \M2E\Temu\Model\Synchronization\LogService $syncLogger,
         \M2E\Temu\Model\ResourceModel\Listing\CollectionFactory $listingCollectionFactory,
         \M2E\Temu\Model\ResourceModel\Product\CollectionFactory $listingProductCollectionFactory,
         \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $catalogProductCollectionFactory,
-        \M2E\Temu\PublicServices\Product\SqlChange $publicService,
-        \M2E\Temu\Helper\Data $helperData,
-        \Magento\Framework\Event\Manager $eventManager,
-        \M2E\Temu\Model\ActiveRecord\Factory $activeRecordFactory,
-        \M2E\Temu\Model\Cron\TaskRepository $taskRepo,
-        \Magento\Framework\App\ResourceConnection $resource
+        \M2E\Temu\PublicServices\Product\SqlChange $publicService
     ) {
-        parent::__construct(
-            $cronManager,
-            $syncLogger,
-            $helperData,
-            $eventManager,
-            $activeRecordFactory,
-            $taskRepo,
-            $resource
-        );
-
         $this->publicService = $publicService;
         $this->listingProductCollectionFactory = $listingProductCollectionFactory;
         $this->catalogProductCollectionFactory = $catalogProductCollectionFactory;
@@ -49,12 +35,7 @@ class DetectSpecialPriceEndDateTask extends \M2E\Temu\Model\Cron\AbstractTask
         $this->registry = $registry;
     }
 
-    protected function getNick(): string
-    {
-        return self::NICK;
-    }
-
-    protected function performActions()
+    public function process($context): void
     {
         if (!$this->getLastProcessedProductId()) {
             $this->setLastProcessedProductId(0);
@@ -135,6 +116,10 @@ class DetectSpecialPriceEndDateTask extends \M2E\Temu\Model\Cron\AbstractTask
         $date = new \DateTime('now', new \DateTimeZone('UTC'));
         $date->modify('-1 day');
 
+        /**
+         * @psalm-suppress UndefinedClass
+         * @var \Magento\Catalog\Model\ResourceModel\Product\Collection $collection
+         */
         $collection = $this->catalogProductCollectionFactory->create();
         $collection->setStoreId($storeId);
         $collection->addAttributeToSelect('price');

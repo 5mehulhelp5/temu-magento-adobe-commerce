@@ -87,7 +87,12 @@ ul.list > li {
 
 /* ================================================ */
 
-.admin__old .fieldset > .legend {
+#edit_specifics_form .fieldset{
+    margin-bottom: 20px;
+}
+
+.admin__old .fieldset > .legend,
+#edit_specifics_form .fieldset > .legend {
     position: static;
     float: left;
     width: 100%;

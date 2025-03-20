@@ -31,6 +31,10 @@
         <add id="M2E_Temu::configuration_accounts" title="Accounts" module="M2E_Temu" sortOrder="10"
              parent="M2E_Temu::configuration" action="m2e_temu/account/index"
              resource="M2E_Temu::configuration_accounts"/>
+        <add id="M2E_Temu::configuration_categories" module="M2E_Temu" sortOrder="20"
+             parent="M2E_Temu::configuration" title="Categories"
+             action="m2e_temu/template_category/index"
+             resource="M2E_Temu::configuration_categories"/>
         <add id="M2E_Temu::configuration_templates" title="Policies" module="M2E_Temu" sortOrder="30"
              parent="M2E_Temu::configuration" action="m2e_temu/policy/index"
              resource="M2E_Temu::configuration_templates"/>

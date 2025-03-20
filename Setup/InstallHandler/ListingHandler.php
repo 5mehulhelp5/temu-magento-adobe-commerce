@@ -84,6 +84,12 @@ class ListingHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
                 ['unsigned' => true, 'default' => null]
             )
             ->addColumn(
+                ListingResource::COLUMN_TEMPLATE_SHIPPING_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
                 ListingResource::COLUMN_ADDITIONAL_DATA,
                 Table::TYPE_TEXT,
                 \M2E\Core\Model\ResourceModel\Setup::LONG_COLUMN_SIZE,
@@ -107,6 +113,7 @@ class ListingHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
             ->addIndex('template_description_id', ListingResource::COLUMN_TEMPLATE_DESCRIPTION_ID)
             ->addIndex('template_selling_format_id', ListingResource::COLUMN_TEMPLATE_SELLING_FORMAT_ID)
             ->addIndex('template_synchronization_id', ListingResource::COLUMN_TEMPLATE_SYNCHRONIZATION_ID)
+            ->addIndex('template_shipping_id', ListingResource::COLUMN_TEMPLATE_SHIPPING_ID)
             ->setOption('type', 'INNODB')
             ->setOption('charset', 'utf8')
             ->setOption('collate', 'utf8_general_ci')

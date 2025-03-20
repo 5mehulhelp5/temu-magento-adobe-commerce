@@ -7,6 +7,7 @@ namespace M2E\Temu\Block\Adminhtml\Settings;
 class Tabs extends \M2E\Temu\Block\Adminhtml\Magento\Tabs\AbstractTabs
 {
     public const TAB_ID_MAIN = 'main';
+    public const TAB_ID_MAPPING_ATTRIBUTES = 'mapping';
 
     protected function _construct()
     {
@@ -54,6 +55,7 @@ class Tabs extends \M2E\Temu\Block\Adminhtml\Magento\Tabs\AbstractTabs
             'Settings saved' => __('Settings saved'),
             'Error' => __('Error'),
         ]);
+        //@todo to modify JS component and current method when attributes mapping will be ready
         $this->js->addRequireJs(
             [
                 's' => 'Temu/Settings',

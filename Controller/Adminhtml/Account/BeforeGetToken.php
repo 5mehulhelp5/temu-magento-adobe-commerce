@@ -26,11 +26,13 @@ class BeforeGetToken extends AbstractAccount
     {
         $accountId = (int)$this->getRequest()->getParam('id', 0);
         $region = $this->getRequest()->getParam('region');
+        $specificEndUrl = $this->getRequest()->getParam('specific_end_url');
 
         try {
             $backUrl = $this->getUrl('*/*/afterGetToken', [
                 'id' => $accountId,
                 'region' => $region,
+                'specific_end_url' => $specificEndUrl,
                 '_current' => true,
             ]);
 

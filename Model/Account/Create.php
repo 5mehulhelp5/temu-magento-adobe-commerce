@@ -60,6 +60,7 @@ class Create
             $response->getHash(),
             $channelAccount->siteId,
             $channelAccount->siteTitle,
+            $region,
             new \M2E\Temu\Model\Account\Settings\UnmanagedListings(),
             (new \M2E\Temu\Model\Account\Settings\Order())
                 ->createWith(

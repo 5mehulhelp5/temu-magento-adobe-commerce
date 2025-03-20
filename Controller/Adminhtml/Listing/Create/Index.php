@@ -84,8 +84,8 @@ class Index extends \M2E\Temu\Controller\Adminhtml\AbstractListing
             // clear session data if user came back to the first step and changed the marketplace
             // ---------------------------------------
             if (
-                $this->getSessionValue('shop_id')
-                && (int)$this->getSessionValue('shop_id') != (int)$post['shop_id']
+                $this->getSessionValue('site_id')
+                && (int)$this->getSessionValue('site_id') != (int)$post['site_id']
             ) {
                 $this->clearSession();
             }
@@ -158,25 +158,18 @@ class Index extends \M2E\Temu\Controller\Adminhtml\AbstractListing
                 return;
             }
 
-            $this->clearSession();
-
-            if ((bool)$this->getRequest()->getParam('wizard', false)) {
-                $this->setWizardStep('sourceMode');
-
-                $this->_redirect('*/wizard_installationTemu');
-
-                return;
-            }
+            $wizard = $this->createModel->process($listing, \M2E\Temu\Model\Listing\Wizard::TYPE_GENERAL);
 
             $this->_redirect(
-                '*/listing/index',
-                []
+                '*/listing_wizard/index',
+                [
+                    'id' => $wizard->getId()
+                ]
             );
 
             return;
         }
 
-        $this->setWizardStep('listingTemplates');
         $this->addContent(
             $this->getLayout()->createBlock(\M2E\Temu\Block\Adminhtml\Listing\Create\Templates::class)
         );

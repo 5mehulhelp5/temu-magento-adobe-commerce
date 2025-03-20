@@ -10,6 +10,8 @@ class StepDeclarationCollectionFactory
 {
     public const STEP_SELECT_PRODUCT_SOURCE = 'products-source';
     public const STEP_SELECT_PRODUCTS = 'select-products';
+    public const STEP_POLICY_SETTINGS = 'policy-settings';
+    public const STEP_SETTINGS = 'settings';
     public const STEP_SELECT_CATEGORY_MODE = 'category-mode';
     public const STEP_SELECT_CATEGORY = 'select-category';
     public const STEP_REVIEW = 'review';
@@ -25,6 +27,16 @@ class StepDeclarationCollectionFactory
                 'nick' => self::STEP_SELECT_PRODUCTS,
                 'route' => '*/listing_wizard_product/view',
                 'back_handler' => \M2E\Temu\Model\Listing\Wizard\Step\BackHandler\Products::class,
+            ],
+            [
+                'nick' => self::STEP_SETTINGS,
+                'route' => '*/listing_wizard_settings/view',
+                'back_handler' => null,
+            ],
+            [
+                'nick' => self::STEP_POLICY_SETTINGS,
+                'route' => '*/listing_wizard_policy/view',
+                'back_handler' => null,
             ],
             [
                 'nick' => self::STEP_SELECT_CATEGORY_MODE,

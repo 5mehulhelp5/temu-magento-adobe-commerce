@@ -400,6 +400,42 @@ class Repository
         return $variantSku;
     }
 
+    public function findVariantBySkuAndAccount(string $sku, int $accountId): ?VariantSku
+    {
+        $collection = $this->variantSkuCollectionFactory->create();
+        $collection
+            ->join(
+                ['p' => $this->productResource->getMainTable()],
+                sprintf(
+                    'main_table.%s = p.%s',
+                    VariantSkuResource::COLUMN_PRODUCT_ID,
+                    ProductResource::COLUMN_ID,
+                ),
+                [],
+            );
+
+        $collection->join(
+            ['l' => $this->listingResource->getMainTable()],
+            sprintf(
+                '`l`.%s = `p`.%s',
+                ListingResource::COLUMN_ID,
+                ProductResource::COLUMN_LISTING_ID,
+            ),
+            [],
+        );
+
+        $collection
+            ->addFieldToFilter(sprintf('l.%s', ListingResource::COLUMN_ACCOUNT_ID), $accountId)
+            ->addFieldToFilter(sprintf('p.%s', VariantSkuResource::COLUMN_ONLINE_SKU), $sku);
+
+        $variantSku = $collection->getFirstItem();
+        if ($variantSku->isObjectNew()) {
+            return null;
+        }
+
+        return $variantSku;
+    }
+
     // ----------------------------------------
 
     public function getCountListedProductsForListing(\M2E\Temu\Model\Listing $listing): int

@@ -25,6 +25,15 @@ abstract class AbstractRealtime extends \M2E\Temu\Model\Product\Action\Manual\Ab
          */
         foreach ($actions as $action) {
             switch ($this->getAction()) {
+                case \M2E\Temu\Model\Product::ACTION_LIST:
+                    $result = $this->actionDispatcher->processList(
+                        $action->getProduct(),
+                        $action->getConfigurator(),
+                        $action->getVariantSettings(),
+                        $params,
+                        \M2E\Temu\Model\Product::STATUS_CHANGER_USER
+                    );
+                    break;
                 case \M2E\Temu\Model\Product::ACTION_REVISE:
                     $result = $this->actionDispatcher->processRevise(
                         $action->getProduct(),

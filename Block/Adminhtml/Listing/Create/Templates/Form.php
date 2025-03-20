@@ -4,8 +4,11 @@ namespace M2E\Temu\Block\Adminhtml\Listing\Create\Templates;
 
 use M2E\Temu\Model\Listing;
 use M2E\Temu\Model\Policy\Manager as TemplateManager;
+use M2E\Temu\Model\ResourceModel\Policy\Shipping as ShippingResource;
 use M2E\Temu\Model\ResourceModel\Policy\SellingFormat\CollectionFactory as SellingFormatCollectionFactory;
 use M2E\Temu\Model\ResourceModel\Policy\Synchronization\CollectionFactory as SynchronizationCollectionFactory;
+use M2E\Temu\Model\ResourceModel\Policy\Description\CollectionFactory as DescriptionCollectionFactory;
+use M2E\Temu\Model\ResourceModel\Policy\Shipping\CollectionFactory as ShippingCollectionFactory;
 
 class Form extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractForm
 {
@@ -14,10 +17,14 @@ class Form extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractForm
     private Listing\Repository $listingRepository;
     private SellingFormatCollectionFactory $sellingFormatCollectionFactory;
     private SynchronizationCollectionFactory $synchronizationCollectionFactory;
+    private DescriptionCollectionFactory $descriptionCollectionFactory;
+    private ShippingCollectionFactory $shippingCollectionFactory;
 
     public function __construct(
         SellingFormatCollectionFactory $sellingFormatCollectionFactory,
         SynchronizationCollectionFactory $synchronizationCollectionFactory,
+        DescriptionCollectionFactory $descriptionCollectionFactory,
+        ShippingCollectionFactory $shippingCollectionFactory,
         \M2E\Temu\Model\Listing\Repository $listingRepository,
         \M2E\Temu\Block\Adminhtml\Magento\Context\Template $context,
         \Magento\Framework\Registry $registry,
@@ -29,6 +36,8 @@ class Form extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractForm
         $this->listingRepository = $listingRepository;
         $this->sellingFormatCollectionFactory = $sellingFormatCollectionFactory;
         $this->synchronizationCollectionFactory = $synchronizationCollectionFactory;
+        $this->descriptionCollectionFactory = $descriptionCollectionFactory;
+        $this->shippingCollectionFactory = $shippingCollectionFactory;
         parent::__construct($context, $registry, $formFactory, $data);
     }
 
@@ -148,6 +157,143 @@ HTML
             ]
         );
 
+        $descriptionTemplates = $this->getDescriptionTemplates();
+        $style = count($descriptionTemplates) === 0 ? 'display: none' : '';
+
+        $templateDescriptionValue = $formData['template_description_id'];
+        if (empty($templateDescriptionValue) && !empty($descriptionTemplates)) {
+            $templateDescriptionValue = reset($descriptionTemplates)['value'];
+        }
+
+        $templateDescription = $this->elementFactory->create(
+            'select',
+            [
+                'data' => [
+                    'html_id' => 'template_description_id',
+                    'name' => 'template_description_id',
+                    'style' => 'width: 50%;' . $style,
+                    'no_span' => true,
+                    'values' => array_merge(['' => ''], $descriptionTemplates),
+                    'value' => $templateDescriptionValue,
+                    'required' => true,
+                ],
+            ]
+        );
+        $templateDescription->setForm($form);
+
+        $style = count($descriptionTemplates) === 0 ? '' : 'display: none';
+        $fieldset->addField(
+            'template_description_container',
+            self::CUSTOM_CONTAINER,
+            [
+                'label' => __('Description Policy'),
+                'style' => 'line-height: 34px;display: initial;',
+                'field_extra_attributes' => 'style="margin-bottom: 5px"',
+                'required' => true,
+                'text' => <<<HTML
+    <span id="template_description_label" style="{$style}">
+        $noPoliciesAvailableText
+    </span>
+    {$templateDescription->toHtml()}
+HTML
+                ,
+                'after_element_html' => <<<HTML
+&nbsp;
+<span style="line-height: 30px;">
+    <span id="edit_description_template_link" style="color:#41362f">
+        <a href="javascript: void(0);" onclick="TemuListingSettingsObj.editTemplate(
+            '{$this->getEditUrl(TemplateManager::TEMPLATE_DESCRIPTION)}',
+            $('template_description_id').value,
+            TemuListingSettingsObj.newDescriptionTemplateCallback
+        );">
+            $viewText&nbsp;/&nbsp;$editText
+        </a>
+        <span>$orText</span>
+    </span>
+    <a id="add_description_template_link" href="javascript: void(0);"
+        onclick="TemuListingSettingsObj.addNewTemplate(
+        '{$this->getAddNewUrl(TemplateManager::TEMPLATE_DESCRIPTION)}',
+        TemuListingSettingsObj.newDescriptionTemplateCallback
+    );">$addNewText</a>
+</span>
+HTML
+                ,
+            ]
+        );
+
+        $fieldset = $form->addFieldset(
+            'shipping_settings',
+            [
+                'legend' => __('Shipping'),
+                'collapsable' => false,
+            ]
+        );
+
+        $accountId = (int)$formData['account_id'];
+        $shippingTemplates = $this->getShippingTemplates($accountId);
+        $style = count($shippingTemplates) === 0 ? 'display: none' : '';
+
+        $shippingTemplatesValue = $formData['template_shipping_id'];
+        if (empty($shippingTemplatesValue) && !empty($shippingTemplates)) {
+            $shippingTemplatesValue = reset($shippingTemplates)['value'];
+        }
+
+        $templateShipping = $this->elementFactory->create(
+            'select',
+            [
+                'data' => [
+                    'html_id' => 'template_shipping_id',
+                    'name' => 'template_shipping_id',
+                    'style' => 'width: 50%;' . $style,
+                    'no_span' => true,
+                    'values' => array_merge(['' => ''], $shippingTemplates),
+                    'value' => $shippingTemplatesValue,
+                    'required' => true,
+                ],
+            ]
+        );
+        $templateShipping->setForm($form);
+
+        $style = count($shippingTemplates) === 0 ? '' : 'display: none';
+        $fieldset->addField(
+            'template_shipping_container',
+            self::CUSTOM_CONTAINER,
+            [
+                'label' => __('Shipping Policy'),
+                'style' => 'line-height: 34px;display: initial;',
+                'field_extra_attributes' => 'style="margin-bottom: 5px"',
+                'required' => true,
+                'text' => <<<HTML
+    <span id="template_shipping_label" style="{$style}">
+        $noPoliciesAvailableText
+    </span>
+    {$templateShipping->toHtml()}
+HTML
+                ,
+                'after_element_html' => <<<HTML
+&nbsp;
+<span style="line-height: 30px;">
+    <span id="edit_shipping_template_link" style="color:#41362f">
+        <a href="javascript: void(0);" onclick="TemuListingSettingsObj.editTemplate(
+            '{$this->getEditUrl(TemplateManager::TEMPLATE_SHIPPING)}',
+            $('template_shipping_id').value,
+            TemuListingSettingsObj.newShippingTemplateCallback
+        );">
+            $viewText&nbsp;/&nbsp;$editText
+        </a>
+        <span>$orText</span>
+    </span>
+    <a id="add_shipping_template_link" href="javascript: void(0);"
+        onclick="TemuListingSettingsObj.addNewTemplate(
+        '{$this->getAddNewUrl( TemplateManager::TEMPLATE_SHIPPING, $accountId)}',
+        TemuListingSettingsObj.newShippingTemplateCallback
+    );">$addNewText</a>
+</span>
+HTML
+                ,
+            ]
+        );
+
         $fieldset = $form->addFieldset(
             'synchronization_settings',
             [
@@ -236,12 +382,12 @@ HTML
                 'getShippingTemplates' => $this->getUrl(
                     '*/general/modelGetAll',
                     [
-                        'model' => 'Temu_Template_Shipping',
+                        'model' => 'Policy_Shipping',
                         'id_field' => 'id',
                         'data_field' => 'title',
                         'sort_field' => 'title',
                         'sort_dir' => 'ASC',
-                        'is_custom_template' => 0,
+                        'account_id' => $formData['account_id'],
                     ]
                 ),
                 'getReturnPolicyTemplates' => $this->getUrl(
@@ -276,6 +422,17 @@ HTML
                         'is_custom_template' => 0,
                     ]
                 ),
+                'getDescriptionTemplates' => $this->getUrl(
+                    '*/general/modelGetAll',
+                    [
+                        'model' => 'Policy_Description',
+                        'id_field' => 'id',
+                        'data_field' => 'title',
+                        'sort_field' => 'title',
+                        'sort_dir' => 'ASC',
+                        'is_custom_template' => 0,
+                    ]
+                ),
             ]
         );
 
@@ -301,6 +458,7 @@ JS
             'template_selling_format_id' => '',
             'template_description_id' => '',
             'template_synchronization_id' => '',
+            'template_shipping_id' => '',
         ];
     }
 
@@ -360,16 +518,54 @@ JS
         return $collection->getConnection()->fetchAssoc($collection->getSelect());
     }
 
-    protected function getAddNewUrl($nick)
+    protected function getDescriptionTemplates(): array
     {
-        return $this->getUrl(
-            '*/policy/newAction',
+        $collection = $this->descriptionCollectionFactory->create();
+        $collection->addFieldToFilter('is_custom_template', 0);
+        $collection->setOrder('title', \Magento\Framework\Data\Collection::SORT_ORDER_ASC);
+
+        $collection->getSelect()->reset(\Magento\Framework\DB\Select::COLUMNS)->columns(
             [
-                'wizard' => $this->getRequest()->getParam('wizard'),
-                'nick' => $nick,
-                'close_on_save' => 1,
+                'value' => \M2E\Temu\Model\ResourceModel\Policy\Description::COLUMN_ID,
+                'label' => \M2E\Temu\Model\ResourceModel\Policy\Description::COLUMN_TITLE,
             ]
         );
+
+        return $collection->getConnection()->fetchAssoc($collection->getSelect());
+    }
+
+    protected function getShippingTemplates(int $accountId): array
+    {
+        $collection = $this->shippingCollectionFactory->create();
+        $collection->addFieldToFilter(ShippingResource::COLUMN_ACCOUNT_ID, ['eq' => $accountId]);
+        $collection->setOrder(ShippingResource::COLUMN_TITLE, \Magento\Framework\Data\Collection::SORT_ORDER_ASC);
+
+        $collection->getSelect()->reset(\Magento\Framework\DB\Select::COLUMNS)
+                   ->columns(
+                       [
+                           'value' => ShippingResource::COLUMN_ID,
+                           'label' => ShippingResource::COLUMN_TITLE,
+                       ]
+                   );
+
+        $result = $collection->toArray();
+
+        return $result['items'];
+    }
+
+    protected function getAddNewUrl($nick, int $accountId = null)
+    {
+        $params = [
+            'wizard' => $this->getRequest()->getParam('wizard'),
+            'nick' => $nick,
+            'close_on_save' => 1,
+        ];
+
+        if ($accountId !== null) {
+            $params['account_id'] = $accountId;
+        }
+
+        return $this->getUrl('*/policy/newAction', $params);
     }
 
     protected function getEditUrl($nick)
