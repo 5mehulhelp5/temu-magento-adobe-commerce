@@ -11,15 +11,18 @@ class VariantValidator
     private \M2E\Temu\Model\Product\Action\Validator\VariantSku\PriceValidator $priceValidator;
     private \M2E\Temu\Model\Product\Action\Validator\VariantSku\QtyValidator $qtyValidator;
     private \M2E\Temu\Model\Product\Action\Validator\VariantSku\SameSkuAlreadyExists $sameSkuAlreadyExists;
+    private \M2E\Temu\Model\Product\Action\Validator\VariantSku\IdentifierValidator $identifierValidator;
 
     public function __construct(
         \M2E\Temu\Model\Product\Action\Validator\VariantSku\PriceValidator $priceValidator,
         \M2E\Temu\Model\Product\Action\Validator\VariantSku\QtyValidator $qtyValidator,
-        \M2E\Temu\Model\Product\Action\Validator\VariantSku\SameSkuAlreadyExists $sameSkuAlreadyExists
+        \M2E\Temu\Model\Product\Action\Validator\VariantSku\SameSkuAlreadyExists $sameSkuAlreadyExists,
+        \M2E\Temu\Model\Product\Action\Validator\VariantSku\IdentifierValidator $identifierValidator
     ) {
         $this->priceValidator = $priceValidator;
         $this->qtyValidator = $qtyValidator;
         $this->sameSkuAlreadyExists = $sameSkuAlreadyExists;
+        $this->identifierValidator = $identifierValidator;
     }
 
     public function validate(
@@ -66,6 +69,11 @@ class VariantValidator
                 $variantSettings->isAddAction($variant->getId())
             ) {
                 if ($error = $this->sameSkuAlreadyExists->validate($variant)) {
+                    $messages[] = $error;
+                    $variantHasError = true;
+                }
+
+                if ($error = $this->identifierValidator->validate($variant)) {
                     $messages[] = $error;
                     $variantHasError = true;
                 }

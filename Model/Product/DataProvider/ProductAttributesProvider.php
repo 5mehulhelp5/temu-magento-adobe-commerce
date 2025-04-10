@@ -9,7 +9,7 @@ class ProductAttributesProvider implements DataBuilderInterface
     use DataBuilderHelpTrait;
 
     public const NICK = 'ProductAttributes';
-    private string $attributesData = '';
+    private string $encodedProductAttributes = '';
 
     private Attributes\Processor $attributeProcessor;
 
@@ -21,18 +21,26 @@ class ProductAttributesProvider implements DataBuilderInterface
 
     public function getProductAttributesData(\M2E\Temu\Model\Product $product): array
     {
-        $attributes = $this->attributeProcessor->execute($product);
-
+        $result = array_map(static function (\M2E\Temu\Model\Product\DataProvider\Attributes\Item $attribute) {
+            return [
+                'pid' => $attribute->getPid(),
+                'ref_pid' => $attribute->getRefPid(),
+                'template_pid' => $attribute->getTemplatePid(),
+                'value' => $attribute->getValue(),
+                'value_id' => $attribute->getValueId(),
+            ];
+        }, $this->attributeProcessor->getAttributes($product));
         $this->collectWarningMessages($this->attributeProcessor->getWarningMessages());
-        $this->attributesData = json_encode($attributes);
 
-        return $attributes;
+        $this->encodedProductAttributes = json_encode($result);
+
+        return $result;
     }
 
     public function getMetaData(): array
     {
         return [
-            self::NICK => $this->attributesData
+            self::NICK => $this->encodedProductAttributes
         ];
     }
 

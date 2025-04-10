@@ -14,7 +14,14 @@ abstract class AbstractInstallation extends \M2E\Temu\Controller\Adminhtml\Abstr
         $this->getResultPage()
              ->getConfig()
              ->getTitle()
-             ->prepend(__('Configuration of %channel Integration', ['channel' => (string)__('Temu')]));
+             ->prepend(
+                 __(
+                     'Configuration of %channel_title Integration',
+                     [
+                         'channel_title' => \M2E\Temu\Helper\Module::getChannelTitle(),
+                     ]
+                 )
+             );
     }
 
     protected function getCustomViewNick(): string

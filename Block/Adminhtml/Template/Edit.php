@@ -46,14 +46,12 @@ class Edit extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractContainer
                 (string)__('Add %template_name Policy', ['template_name' => $this->getTemplateName()]),
             );
 
-            $onclickHandler = $nick == \M2E\Temu\Model\Policy\Manager::TEMPLATE_DESCRIPTION
-                ? 'TemuTemplateDescriptionObj'
-                : 'TemuTemplateEditObj';
+            $onclickHandler = 'TemuTemplateEditObj';
 
             $this->buttonList->add('duplicate', [
                 'label' => __('Duplicate'),
                 'onclick' => $onclickHandler . '.duplicateClick(
-                    \'tts-template\', \'' . $duplicateHeaderText . '\', \'' . $nick . '\'
+                    \'temu-template\', \'' . $duplicateHeaderText . '\', \'' . $nick . '\'
                 )',
                 'class' => 'add temu_duplicate_button primary',
             ]);
@@ -61,7 +59,7 @@ class Edit extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractContainer
             $url = $this->getUrl('*/policy/delete');
             $this->buttonList->add('delete', [
                 'label' => __('Delete'),
-                'onclick' => 'TemuTemplateEditObj.deleteClick(\'' . $url . '\')',
+                'onclick' => $onclickHandler . '.deleteClick(\'' . $url . '\')',
                 'class' => 'delete temu_delete_button primary',
             ]);
         }

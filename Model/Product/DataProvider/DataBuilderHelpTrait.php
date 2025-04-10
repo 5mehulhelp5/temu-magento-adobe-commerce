@@ -14,12 +14,12 @@ trait DataBuilderHelpTrait
         return array_values($this->warningMessages);
     }
 
-    protected function addWarningMessage(string $message): void
+    private function addWarningMessage(string $message): void
     {
         $this->warningMessages[sha1($message)] = $message;
     }
 
-    protected function searchNotFoundAttributes(\M2E\Temu\Model\Magento\Product $magentoProduct): void
+    private function searchNotFoundAttributes(\M2E\Temu\Model\Magento\Product $magentoProduct): void
     {
         $magentoProduct->clearNotFoundAttributes();
     }

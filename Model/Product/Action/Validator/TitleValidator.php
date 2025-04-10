@@ -14,7 +14,7 @@ class TitleValidator implements ValidatorInterface
             return null;
         }
 
-        $title = $product->getDescriptionTemplateSource()->getTitle();
+        $title = $product->getDataProvider()->getTitle()->getValue();
 
         $titleLength = mb_strlen($title);
 

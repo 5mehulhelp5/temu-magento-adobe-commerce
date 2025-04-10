@@ -146,6 +146,18 @@ class Grid extends \M2E\Temu\Block\Adminhtml\Listing\Grid
         $backUrl = $this->getBackUrl();
 
         return [
+            'manageProducts' => [
+                'caption' => __('Manage'),
+                'group' => 'products_actions',
+                'field' => 'id',
+                'url' => [
+                    'base' => '*/listing/view',
+                    'params' => [
+                        'id' => $this->getId(),
+                        'back' => $backUrl,
+                    ],
+                ],
+            ],
 
             'editTitle' => [
                 'caption' => __('Title'),

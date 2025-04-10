@@ -12,14 +12,6 @@ class VariantsProvider implements DataBuilderInterface
 
     private array $onlineDataForSku = [];
 
-    private \M2E\Temu\Model\Settings $settings;
-
-    public function __construct(
-        \M2E\Temu\Model\Settings $settings
-    ) {
-        $this->settings = $settings;
-    }
-
     public function getVariantSkus(
         \M2E\Temu\Model\Product $product,
         \M2E\Temu\Model\Product\Action\VariantSettings $variantSettings
@@ -94,10 +86,7 @@ class VariantsProvider implements DataBuilderInterface
             }
 
             $images = $variant->getDataProvider()->getImage()->getValue();
-
-            $eanAttributeCode = $this->settings->getIdentifierCodeValue();
-            $magentoProduct = $product->getMagentoProduct();
-            $identifier = $magentoProduct->getAttributeValue($eanAttributeCode);
+            $identifier = $variant->getDataProvider()->getIdentifier()->getValue();
 
             $variationAttributes = $variant->getDataProvider()->getSalesAttributesData()->getValue();
             if ($variant->getDataProvider()->getSalesAttributesData()->getMessages()) {

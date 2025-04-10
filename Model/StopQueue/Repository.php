@@ -119,4 +119,14 @@ class Repository
             ]
         );
     }
+
+    public function removeByAccountId(int $accountId): void
+    {
+        $this->stopQueueResource
+            ->getConnection()
+            ->delete(
+                $this->stopQueueResource->getMainTable(),
+                ['account_id = ?' => $accountId],
+            );
+    }
 }

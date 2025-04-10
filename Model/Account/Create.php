@@ -11,19 +11,22 @@ class Create
     private \M2E\Temu\Model\AccountFactory $accountFactory;
     private \M2E\Core\Helper\Magento\Store $storeHelper;
     private \M2E\Temu\Model\ShippingProvider\SynchronizeService $shippingProviderSynchronizeService;
+    private \M2E\Temu\Helper\Module\Exception $helperException;
 
     public function __construct(
         \M2E\Temu\Model\AccountFactory $accountFactory,
         \M2E\Temu\Model\Channel\Connector\Account\Add\Processor $addProcessor,
         \M2E\Temu\Model\Account\Repository $accountRepository,
         \M2E\Temu\Model\ShippingProvider\SynchronizeService $shippingProviderSynchronizeService,
-        \M2E\Core\Helper\Magento\Store $storeHelper
+        \M2E\Core\Helper\Magento\Store $storeHelper,
+        \M2E\Temu\Helper\Module\Exception $helperException
     ) {
         $this->addProcessor = $addProcessor;
         $this->accountRepository = $accountRepository;
         $this->accountFactory = $accountFactory;
         $this->shippingProviderSynchronizeService = $shippingProviderSynchronizeService;
         $this->storeHelper = $storeHelper;
+        $this->helperException = $helperException;
     }
 
     /**
@@ -71,7 +74,11 @@ class Create
 
         $this->accountRepository->create($account);
 
-        $this->synchronizeShippingProvider($account);
+        try {
+            $this->synchronizeShippingProvider($account);
+        } catch (\Throwable $exception) {
+            $this->helperException->process($exception);
+        }
 
         return $account;
     }

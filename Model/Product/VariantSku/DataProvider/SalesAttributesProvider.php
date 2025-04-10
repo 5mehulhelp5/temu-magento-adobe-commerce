@@ -6,6 +6,7 @@ namespace M2E\Temu\Model\Product\VariantSku\DataProvider;
 
 use M2E\Temu\Model\Product\DataProvider\DataBuilderHelpTrait;
 use M2E\Temu\Model\Product\DataProvider\DataBuilderInterface;
+use M2E\Temu\Model\Product\VariantSku\DataProvider\Attributes\Item;
 
 class SalesAttributesProvider implements DataBuilderInterface
 {
@@ -23,10 +24,17 @@ class SalesAttributesProvider implements DataBuilderInterface
 
     public function getSalesAttributesData(\M2E\Temu\Model\Product\VariantSku $product): array
     {
-        $attributes = $this->attributeProcessor->execute($product);
+        $result = array_map(static function (Item $attribute) {
+            return [
+                'parent_spec_id' => $attribute->getParentSpecId(),
+                'spec_id' => $attribute->getSpecId(),
+                'value' => $attribute->getValue(),
+                'value_id' => $attribute->getValueId()
+            ];
+        }, $this->attributeProcessor->getAttributes($product));
         $this->collectWarningMessages($this->attributeProcessor->getWarningMessages());
 
-        return $attributes;
+        return $result;
     }
 
     private function collectWarningMessages(array $messages): void

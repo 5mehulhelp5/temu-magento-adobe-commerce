@@ -84,6 +84,25 @@ class DataProvider
         return $result;
     }
 
+    public function getIdentifier(): DataProvider\Identifier\Result
+    {
+        if ($this->hasResult(DataProvider\IdentifierProvider::NICK)) {
+            /** @var \M2E\Temu\Model\Product\VariantSku\DataProvider\Identifier\Result */
+            return $this->getResult(DataProvider\IdentifierProvider::NICK);
+        }
+
+        /** @var \M2E\Temu\Model\Product\VariantSku\DataProvider\IdentifierProvider $builder */
+        $builder = $this->getBuilder(DataProvider\IdentifierProvider::NICK);
+
+        $value = $builder->getIdentifier($this->variantSku);
+
+        $result = DataProvider\Identifier\Result::success($value, $builder->getWarningMessages());
+
+        $this->addResult(DataProvider\IdentifierProvider::NICK, $result);
+
+        return $result;
+    }
+
     public function getPackage(): DataProvider\Package\Result
     {
         if ($this->hasResult(DataProvider\PackageProvider::NICK)) {

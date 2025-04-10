@@ -26,7 +26,7 @@ class ModeView extends \M2E\Temu\Controller\Adminhtml\Listing\Wizard\StepAbstrac
              ->getTitle()
              ->prepend(__('Set Your Categories'));
 
-        $this->setPageHelpLink('https://docs-m2.m2epro.com/docs/create-m2e-temu-listing/');
+        $this->setPageHelpLink('https://docs-m2.m2epro.com/docs/set-categories-for-temu-products/');
 
         return $this->getResult();
     }

@@ -22,16 +22,16 @@ class Category extends \M2E\Temu\Block\Adminhtml\Magento\Grid\AbstractContainer
         $this->buttonList->update('add', 'onclick', '');
     }
 
-    //protected function _prepareLayout()
-    //{
-    //    $url = $this->getUrl('*/category/update');
-    //    $this->addButton('update', [
-    //        'label' => __('Update Category Data'),
-    //        'onclick' => 'setLocation(\'' . $url . '\')',
-    //        'class' => 'action-primary',
-    //        'button_class' => '',
-    //    ]);
-    //
-    //    return parent::_prepareLayout();
-    //}
+    protected function _prepareLayout()
+    {
+        $url = $this->getUrl('*/category/update');
+        $this->addButton('update', [
+            'label' => __('Update Category Data'),
+            'onclick' => 'setLocation(\'' . $url . '\')',
+            'class' => 'action-primary',
+            'button_class' => '',
+        ]);
+
+        return parent::_prepareLayout();
+    }
 }

@@ -6,35 +6,23 @@ namespace M2E\Temu\Model\Product\DataProvider\Attributes;
 
 class Processor
 {
-    use \M2E\Temu\Model\Product\DataProvider\DataBuilderHelpTrait;
-
-    protected array $attributes;
-
+    /** @var \M2E\Temu\Model\Category\Dictionary\Attribute\ProductAttribute[] */
+    private array $attributes;
     private \M2E\Temu\Model\Category\Attribute\Repository $attributeRepository;
     private \M2E\Temu\Helper\Module\Renderer\Description $descriptionRender;
-    private \M2E\Core\Helper\Magento\Attribute $attributeHelper;
+    private \M2E\Temu\Model\Category\Attribute\Recommended\RetrieveValue $recommendedProcessor;
+    private \M2E\Temu\Model\Product\DataProvider\Attributes\NotFoundAttributeDetector $notFoundAttributeDetector;
 
     public function __construct(
         \M2E\Temu\Model\Category\Attribute\Repository $attributeRepository,
         \M2E\Temu\Helper\Module\Renderer\Description $descriptionRender,
-        \M2E\Core\Helper\Magento\Attribute $attributeHelper
+        \M2E\Temu\Model\Category\Attribute\Recommended\RetrieveValue $recommendedProcessor,
+        \M2E\Temu\Model\Product\DataProvider\Attributes\NotFoundAttributeDetector $notFoundAttributeDetector
     ) {
         $this->attributeRepository = $attributeRepository;
         $this->descriptionRender = $descriptionRender;
-        $this->attributeHelper = $attributeHelper;
-    }
-
-    public function execute(\M2E\Temu\Model\Product $product): array
-    {
-        return array_map(static function ($attribute) {
-            return [
-                'pid' => $attribute->getPid(),
-                'ref_pid' => $attribute->getRefPid(),
-                'template_pid' => $attribute->getTemplatePid(),
-                'value' => $attribute->getValue(),
-                'value_id' => $attribute->getValueId(),
-            ];
-        }, $this->getAttributesData($product));
+        $this->recommendedProcessor = $recommendedProcessor;
+        $this->notFoundAttributeDetector = $notFoundAttributeDetector;
     }
 
     /**
@@ -42,87 +30,89 @@ class Processor
      *
      * @return \M2E\Temu\Model\Product\DataProvider\Attributes\Item[]
      */
-    private function getAttributesData(
+    public function getAttributes(
         \M2E\Temu\Model\Product $listingProduct
     ): array {
         $result = [];
-        $attributes = $this->getDictionaryAttributes($listingProduct);
+
+        $this->initDictionaryProductAttributes($listingProduct);
+        $attributes = $this->getDictionaryCategoryAttributes($listingProduct->getTemplateCategoryId());
         $magentoProduct = $listingProduct->getMagentoProduct();
-        $this->searchNotFoundAttributes($magentoProduct);
+
+        $this->notFoundAttributeDetector->clearMessages();
+        $this->notFoundAttributeDetector->searchNotFoundAttributes($magentoProduct);
 
         foreach ($attributes as $attribute) {
-            $dictionaryAttribute = $this->getDictionaryAttributeById($attribute->getAttributeId());
-            if ($attribute->isValueModeNone()) {
-                continue;
-            }
-
-            if ($attribute->isValueModeRecommended()) {
-                foreach ($attribute->getRecommendedValue() as $valueId) {
-                    $result[] = new \M2E\Temu\Model\Product\DataProvider\Attributes\Item(
-                        $dictionaryAttribute->getPid(),
-                        $dictionaryAttribute->getRefPid(),
-                        $dictionaryAttribute->getTemplatePid(),
-                        null,
-                        (int)$valueId,
-                    );
-                }
-            }
-
-            if ($attribute->isValueModeCustomValue()) {
-                if (!empty($attribute->getCustomValue())) {
-                    $attributeVal = $this->descriptionRender->parseWithoutMagentoTemplate(
-                        $attribute->getCustomValue(),
-                        $magentoProduct
-                    );
-                    $result[] = new \M2E\Temu\Model\Product\DataProvider\Attributes\Item(
-                        $dictionaryAttribute->getPid(),
-                        $dictionaryAttribute->getRefPid(),
-                        $dictionaryAttribute->getTemplatePid(),
-                        $attributeVal,
-                        null
-                    );
-                }
-            }
-
-            if ($attribute->isValueModeCustomAttribute()) {
-                $attributeVal = $magentoProduct->getAttributeValue($attribute->getCustomAttributeValue());
-                if (!empty($attributeVal)) {
-                    $result[] = new \M2E\Temu\Model\Product\DataProvider\Attributes\Item(
-                        $dictionaryAttribute->getPid(),
-                        $dictionaryAttribute->getRefPid(),
-                        $dictionaryAttribute->getTemplatePid(),
-                        $attributeVal,
-                        null
-                    );
-                }
-            }
+            $this->processAttribute($attribute, $magentoProduct, $result);
         }
 
-        $this->processNotFoundAttributes(
+        $this->notFoundAttributeDetector->processNotFoundAttributes(
             $magentoProduct,
-            $listingProduct->getListing()->getStoreId()
+            $listingProduct->getListing()->getStoreId(),
+            (string)__('Product')
         );
 
         return $result;
     }
 
-    /**
-     * @param \M2E\Temu\Model\Product $listingProduct
-     *
-     * @return \M2E\Temu\Model\Category\CategoryAttribute[]
-     */
-    private function getDictionaryAttributes(\M2E\Temu\Model\Product $listingProduct): array
+    public function getWarningMessages(): array
     {
-        $categoryId = $listingProduct->getTemplateCategoryId();
+        return $this->notFoundAttributeDetector->getWarningMessages();
+    }
+
+    private function initDictionaryProductAttributes(\M2E\Temu\Model\Product $listingProduct): void
+    {
         $dictionary = $listingProduct->getCategoryDictionary();
         foreach ($dictionary->getProductAttributes() as $attribute) {
             $this->attributes[$attribute->getId()] = $attribute;
         }
+    }
 
+    /**
+     * @param int $categoryId
+     *
+     * @return \M2E\Temu\Model\Category\CategoryAttribute[]
+     */
+    private function getDictionaryCategoryAttributes(int $categoryId): array
+    {
         return $this->attributeRepository->findByDictionaryId(
             $categoryId,
             [\M2E\Temu\Model\Category\CategoryAttribute::ATTRIBUTE_TYPE_PRODUCT]
         );
+    }
+
+    private function processAttribute(
+        \M2E\Temu\Model\Category\CategoryAttribute $attribute,
+        \M2E\Temu\Model\Magento\Product $magentoProduct,
+        array &$result
+    ): void {
+        $dictionaryAttribute = $this->getDictionaryAttributeById($attribute->getAttributeId());
+        if ($attribute->isValueModeNone() || !$dictionaryAttribute) {
+            return;
+        }
+
+        $recommendedValue = $this->recommendedProcessor->retrieveValue(
+            $attribute,
+            $dictionaryAttribute,
+            $magentoProduct
+        );
+
+        if ($recommendedValue) {
+            $this->handleRecommendedValue($recommendedValue, $dictionaryAttribute, $result);
+            return;
+        }
+
+        switch ($attribute->getValueMode()) {
+            case \M2E\Temu\Model\Category\CategoryAttribute::VALUE_MODE_RECOMMENDED:
+                $this->handleRecommendedMode($attribute, $result);
+                break;
+            case \M2E\Temu\Model\Category\CategoryAttribute::VALUE_MODE_CUSTOM_VALUE:
+                $this->handleCustomValueMode($attribute, $magentoProduct, $result);
+                break;
+            case \M2E\Temu\Model\Category\CategoryAttribute::VALUE_MODE_CUSTOM_ATTRIBUTE:
+                $this->handleCustomAttributeMode($attribute, $magentoProduct, $result);
+                break;
+        }
     }
 
     private function getDictionaryAttributeById(
@@ -131,40 +121,78 @@ class Processor
         return $this->attributes[$attributeId] ?? null;
     }
 
-    private function getWarningTitle(): string
-    {
-        return (string)__('Product');
-    }
-
-    private function processNotFoundAttributes(
-        \M2E\Temu\Model\Magento\Product $magentoProduct,
-        int $storeId
+    private function handleRecommendedValue(
+        \M2E\Temu\Model\Category\Attribute\Recommended\Result $recommendedValue,
+        \M2E\Temu\Model\Category\Dictionary\Attribute\ProductAttribute $dictionaryAttribute,
+        array &$result
     ): void {
-        $attributes = $magentoProduct->getNotFoundAttributes();
-        if (!empty($attributes)) {
-            $this->addNotFoundAttributesMessages($attributes, $storeId);
+        if ($recommendedValue->isFail()) {
+            $this->notFoundAttributeDetector->addWarningMessage($recommendedValue->getFailMessages());
+        } else {
+            $result[] = $this->createAttributeItem(
+                $dictionaryAttribute,
+                null,
+                $recommendedValue->getResult()
+            );
         }
     }
 
-    private function addNotFoundAttributesMessages(array $attributes, int $storeId): void
-    {
-        $attributesTitles = [];
-
-        foreach ($attributes as $attribute) {
-            $attributesTitles[] = $this->attributeHelper
-                ->getAttributeLabel(
-                    $attribute,
-                    $storeId,
-                );
+    private function handleRecommendedMode(
+        \M2E\Temu\Model\Category\CategoryAttribute $attribute,
+        array &$result
+    ): void {
+        $dictionaryAttribute = $this->getDictionaryAttributeById($attribute->getAttributeId());
+        foreach ($attribute->getRecommendedValue() as $valueId) {
+            $result[] = $this->createAttributeItem(
+                $dictionaryAttribute,
+                null,
+                (int)$valueId
+            );
         }
+    }
 
-        $this->addWarningMessage(
-            (string)__(
-                '%1: Attribute(s) %2 were not found' .
-                ' in this Product and its value was not sent.',
-                $this->getWarningTitle(),
-                implode(', ', $attributesTitles),
-            ),
+    private function handleCustomValueMode(
+        \M2E\Temu\Model\Category\CategoryAttribute $attribute,
+        \M2E\Temu\Model\Magento\Product $magentoProduct,
+        array &$result
+    ): void {
+        $customValue = $attribute->getCustomValue();
+        if (!empty($customValue)) {
+            $dictionaryAttribute = $this->getDictionaryAttributeById($attribute->getAttributeId());
+            $parsedValue = $this->descriptionRender->parseWithoutMagentoTemplate($customValue, $magentoProduct);
+            $result[] = $this->createAttributeItem(
+                $dictionaryAttribute,
+                $parsedValue
+            );
+        }
+    }
+
+    private function handleCustomAttributeMode(
+        \M2E\Temu\Model\Category\CategoryAttribute $attribute,
+        \M2E\Temu\Model\Magento\Product $magentoProduct,
+        array &$result
+    ): void {
+        $attributeValue = $magentoProduct->getAttributeValue($attribute->getCustomAttributeValue());
+        if (!empty($attributeValue)) {
+            $dictionaryAttribute = $this->getDictionaryAttributeById($attribute->getAttributeId());
+            $result[] = $this->createAttributeItem(
+                $dictionaryAttribute,
+                $attributeValue
+            );
+        }
+    }
+
+    private function createAttributeItem(
+        $dictionaryAttribute,
+        ?string $customValue,
+        ?int $recommendedValue = null
+    ): \M2E\Temu\Model\Product\DataProvider\Attributes\Item {
+        return new \M2E\Temu\Model\Product\DataProvider\Attributes\Item(
+            $dictionaryAttribute->getPid(),
+            $dictionaryAttribute->getRefPid(),
+            $dictionaryAttribute->getTemplatePid(),
+            $customValue,
+            $recommendedValue
         );
     }
 }

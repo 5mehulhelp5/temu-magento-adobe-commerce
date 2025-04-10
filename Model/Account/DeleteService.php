@@ -16,8 +16,8 @@ class DeleteService
     private \M2E\Temu\Model\UnmanagedProduct\DeleteService $unmanagedProductDeleteService;
     private \M2E\Temu\Model\Listing\DeleteService $listingDeleteService;
     private \M2E\Temu\Model\Listing\Repository $listingRepository;
-    private \M2E\Temu\Model\Processing\DeleteService $processingDeleteService;
     private \M2E\Temu\Model\Order\DeleteService $deleteService;
+    private \M2E\Temu\Model\StopQueue\Repository $stopQueueRepository;
 
     public function __construct(
         Repository $accountRepository,
@@ -27,9 +27,9 @@ class DeleteService
         \M2E\Temu\Model\Listing\Log\Repository $listingLogRepository,
         \M2E\Temu\Model\UnmanagedProduct\DeleteService $unmanagedProductDeleteService,
         \M2E\Temu\Model\Listing\Repository $listingRepository,
-        \M2E\Temu\Model\Processing\DeleteService $processingDeleteService,
         \M2E\Temu\Helper\Data\Cache\Permanent $cache,
-        \M2E\Temu\Model\Order\DeleteService $deleteService
+        \M2E\Temu\Model\Order\DeleteService $deleteService,
+        \M2E\Temu\Model\StopQueue\Repository $stopQueueRepository
     ) {
         $this->accountRepository = $accountRepository;
         $this->orderLogRepository = $orderLogRepository;
@@ -39,8 +39,8 @@ class DeleteService
         $this->unmanagedProductDeleteService = $unmanagedProductDeleteService;
         $this->listingDeleteService = $listingDeleteService;
         $this->listingRepository = $listingRepository;
-        $this->processingDeleteService = $processingDeleteService;
         $this->deleteService = $deleteService;
+        $this->stopQueueRepository = $stopQueueRepository;
     }
 
     /**
@@ -63,6 +63,8 @@ class DeleteService
             $this->listingLogRepository->removeByAccountId($accountId);
 
             $this->unmanagedProductDeleteService->deleteUnmanagedByAccountId($accountId);
+
+            $this->stopQueueRepository->removeByAccountId($accountId);
 
             $this->removeListings($account);
 

@@ -164,8 +164,8 @@
                 <item name="package_weight" xsi:type="object">
                     M2E\Temu\Model\Product\Action\Validator\PackageWeightValidator
                 </item>
-                <item name="ean" xsi:type="object">
-                    M2E\Temu\Model\Product\Action\Validator\EanValidator
+                <item name="description" xsi:type="object">
+                    M2E\Temu\Model\Product\Action\Validator\DescriptionValidator
                 </item>
             </argument>
         </arguments>

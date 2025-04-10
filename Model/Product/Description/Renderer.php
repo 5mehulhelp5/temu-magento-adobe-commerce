@@ -56,12 +56,12 @@ class Renderer
 
     private function getQty(): int
     {
-        return $this->listingProduct->getQty();
+        return $this->listingProduct->getFirstVariant()->getDataProvider()->getQty()->getValue();
     }
 
     private function getFixedPrice(): string
     {
-        $price = $this->listingProduct->getFixedPrice();
+        $price = $this->listingProduct->getFirstVariant()->getDataProvider()->getPrice()->getValue()->price;
         if (empty($price)) {
             return 'N/A';
         }
@@ -71,6 +71,6 @@ class Renderer
 
     private function getTitle(): string
     {
-        return $this->listingProduct->getDescriptionTemplateSource()->getTitle();
+        return $this->listingProduct->getDataProvider()->getTitle()->getValue();
     }
 }

@@ -332,4 +332,23 @@ class Configurator
 
         return $this;
     }
+
+    public function isDescriptionAllowed(): bool
+    {
+        return $this->isAllowed(self::DATA_TYPE_DESCRIPTION);
+    }
+
+    public function allowDescription(): self
+    {
+        $this->allow(self::DATA_TYPE_DESCRIPTION);
+
+        return $this;
+    }
+
+    public function disallowDescription(): self
+    {
+        $this->disallow(self::DATA_TYPE_DESCRIPTION);
+
+        return $this;
+    }
 }

@@ -12,15 +12,18 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
     private $priceUpdateBySkuId = null;
     private $qtyUpdateBySkuId = null;
     protected \Magento\Framework\Locale\CurrencyInterface $localeCurrency;
+    private \M2E\Temu\Model\Product\Action\Type\Revise\LoggerFactory $loggerFactory;
 
     public function __construct(
         \M2E\Temu\Model\Product\Repository $productRepository,
         \Magento\Framework\Locale\CurrencyInterface $localeCurrency,
         \M2E\Temu\Model\Tag\ListingProduct\Buffer $tagBuffer,
-        \M2E\Temu\Model\TagFactory $tagFactory
+        \M2E\Temu\Model\TagFactory $tagFactory,
+        \M2E\Temu\Model\Product\Action\Type\Revise\LoggerFactory $loggerFactory
     ) {
         parent::__construct($tagBuffer, $tagFactory);
 
+        $this->loggerFactory = $loggerFactory;
         $this->productRepository = $productRepository;
         $this->localeCurrency = $localeCurrency;
     }
@@ -89,6 +92,9 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
                 continue;
             }
 
+            $logger = $this->loggerFactory->create();
+            $logger->saveVariantOnlineDataBeforeUpdate($beforeData[$variant->getId()]);
+
             $variantSkuId = $variant->getSkuId();
 
             if (!isset($metadata[DataProvider\VariantsProvider::NICK][$variantSkuId])) {
@@ -96,11 +102,20 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
             }
 
             if ($this->isSuccessPrice($variantSkuId)) {
-                $this->processSuccessRevisePrice($beforeData[$variant->getId()], $variant);
+                $this->processSuccessRevisePrice($variant);
             }
 
             if ($this->isSuccessQty($variantSkuId)) {
-                $this->processSuccessReviseQty($beforeData[$variant->getId()], $variant);
+                $this->processSuccessReviseQty($variant);
+            }
+
+            $messages = $logger->collectSuccessMessages($variant);
+            if (empty($messages)) {
+                $this->getLogBuffer()->addSuccess('Item was revised');
+            }
+
+            foreach ($messages as $message) {
+                $this->getLogBuffer()->addSuccess($message);
             }
         }
     }
@@ -138,7 +153,6 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
     }
 
     private function processSuccessRevisePrice(
-        \M2E\Temu\Model\Product\VariantSku\OnlineData $beforeVariantOnlineData,
         \M2E\Temu\Model\Product\VariantSku $variant
     ): void {
         $variant->setOnlinePrice($this->getOnlinePriceForVariant($variant->getSkuId()));
@@ -147,35 +161,9 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
         );
 
         $this->productRepository->saveVariantSku($variant);
-
-        $from = $beforeVariantOnlineData->getPrice();
-        $currencyCode =  $this->getProduct()->getCurrencyCode();
-        $currency = $this->localeCurrency->getCurrency($currencyCode);
-
-        if ($from === $variant->getOnlinePrice()) {
-            return;
-        }
-
-        if ($this->getProduct()->isSimple()) {
-            $message = sprintf(
-                'Price was revised from %s to %s',
-                $currency->toCurrency($from),
-                $currency->toCurrency($variant->getOnlinePrice()),
-            );
-        } else {
-            $message = sprintf(
-                'SKU %s: Price was revised from %s to %s',
-                $variant->getSkuId(),
-                $currency->toCurrency($from),
-                $currency->toCurrency($variant->getOnlinePrice()),
-            );
-        }
-
-        $this->getLogBuffer()->addSuccess($message);
     }
 
     private function processSuccessReviseQty(
-        \M2E\Temu\Model\Product\VariantSku\OnlineData $beforeVariantOnlineData,
         \M2E\Temu\Model\Product\VariantSku $variant
     ): void {
         $variant->setOnlineQty($this->getOnlineQtyForVariant($variant->getSkuId()));
@@ -183,28 +171,6 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
             \M2E\Core\Helper\Date::createDateGmt($this->qtyUpdateBySkuId['request_time'])
         );
         $this->productRepository->saveVariantSku($variant);
-
-        $from = $beforeVariantOnlineData->getQty();
-        if ($from === $variant->getOnlineQty()) {
-            return;
-        }
-
-        if ($this->getProduct()->isSimple()) {
-            $message = sprintf(
-                'QTY was revised from %s to %s',
-                $from,
-                $variant->getOnlineQty()
-            );
-        } else {
-            $message = sprintf(
-                'SKU %s: QTY was revised from %s to %s',
-                $variant->getSkuId(),
-                $from,
-                $variant->getOnlineQty()
-            );
-        }
-
-        $this->getLogBuffer()->addSuccess($message);
     }
 
     private function getOnlinePriceForVariant(string $skuId): float

@@ -25,7 +25,6 @@ class AddCommand implements \M2E\Core\Model\Connector\CommandInterface
     {
         return [
             'auth_code' => $this->authCode,
-            'title' => $this->authCode,
             'region' => $this->region,
         ];
     }
