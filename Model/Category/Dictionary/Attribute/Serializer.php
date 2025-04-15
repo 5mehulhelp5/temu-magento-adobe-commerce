@@ -53,7 +53,7 @@ class Serializer
     {
         $attributes = [];
         foreach (json_decode($jsonAttributes, true) as $item) {
-            $values = $this->createValues($item['values']);
+            $values = $this->createValues($item['values'] ?? []);
             $attributes[] = $this->attributeFactory->createSalesAttribute(
                 (string)$item['id'],
                 $item['name'],
