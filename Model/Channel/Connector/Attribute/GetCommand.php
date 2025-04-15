@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace M2E\Temu\Model\Connector\Attribute;
+namespace M2E\Temu\Model\Channel\Connector\Attribute;
 
 class GetCommand implements \M2E\Core\Model\Connector\CommandInterface
 {
@@ -39,7 +39,7 @@ class GetCommand implements \M2E\Core\Model\Connector\CommandInterface
                 'min_value' => $attributeData['rules']['min_value'],
                 'max_value' => $attributeData['rules']['min_value'],
             ];
-            $attribute = new Attribute(
+            $attribute = new \M2E\Temu\Model\Channel\Attribute\Item(
                 (string)$attributeData['id'],
                 $attributeData['name'],
                 $this->getAttributeType($attributeData['is_sale']),
@@ -67,7 +67,7 @@ class GetCommand implements \M2E\Core\Model\Connector\CommandInterface
             $attributes[] = $attribute;
         }
 
-        return new \M2E\Temu\Model\Connector\Attribute\Get\Response(
+        return new \M2E\Temu\Model\Channel\Connector\Attribute\Get\Response(
             $attributes,
             [
                 /*'size_chart' => [
@@ -97,6 +97,8 @@ class GetCommand implements \M2E\Core\Model\Connector\CommandInterface
 
     private function getAttributeType(bool $isSale): string
     {
-        return $isSale ? Attribute::SALES_TYPE : Attribute::PRODUCT_TYPE;
+        return $isSale ?
+            \M2E\Temu\Model\Channel\Attribute\Item::SALES_TYPE
+            : \M2E\Temu\Model\Channel\Attribute\Item::PRODUCT_TYPE;
     }
 }

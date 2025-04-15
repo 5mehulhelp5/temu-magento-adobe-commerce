@@ -6,6 +6,9 @@ namespace M2E\Temu\Model\Category\Dictionary;
 
 class AttributeFactory
 {
+    /**
+     * @param \M2E\Temu\Model\Category\Dictionary\Attribute\Value[] $values
+     */
     public function createSalesAttribute(
         string $id,
         string $name,
@@ -18,7 +21,8 @@ class AttributeFactory
         int $pid,
         int $refPid,
         int $templatePid,
-        ?int $parentSpecId
+        ?int $parentSpecId,
+        array $values
     ): \M2E\Temu\Model\Category\Dictionary\Attribute\SalesAttribute {
         return new \M2E\Temu\Model\Category\Dictionary\Attribute\SalesAttribute(
             $id,
@@ -32,7 +36,8 @@ class AttributeFactory
             $pid,
             $refPid,
             $templatePid,
-            $parentSpecId
+            $parentSpecId,
+            $values
         );
     }
 
@@ -71,8 +76,12 @@ class AttributeFactory
         );
     }
 
-    public function createValue(string $id, string $name, ?int $specId, ?int $groupId): \M2E\Temu\Model\Category\Dictionary\Attribute\Value
-    {
+    public function createValue(
+        string $id,
+        string $name,
+        ?int $specId,
+        ?int $groupId
+    ): \M2E\Temu\Model\Category\Dictionary\Attribute\Value {
         return new \M2E\Temu\Model\Category\Dictionary\Attribute\Value($id, $name, $specId, $groupId);
     }
 }

@@ -48,8 +48,8 @@ class RetrieveValue
         }
 
         $message = $attribute->isRequired()
-            ? $this->compileErrorMessage($attributeName)
-            : $this->compileWarningMessage($attributeName);
+            ? $this->compileErrorMessage($attributeName, $attributeVal)
+            : $this->compileWarningMessage($attributeName, $attributeVal);
 
         return Result::createFail($message);
     }
@@ -78,23 +78,27 @@ class RetrieveValue
 
     private function normalizeAttributeValue(string $value): string
     {
-        return strtolower(trim($value));
+        $removePunctuation = str_replace([' ', '_', '-', '.'], '', $value);
+
+        return strtolower($removePunctuation);
     }
 
-    private function compileWarningMessage(string $attributeName): string
+    private function compileWarningMessage(string $attributeName, string $attributeValue): string
     {
         return (string)__(
-            'The value set for the attribute: %1 does not match any of the supported options'
+            'The value: <b>%1</b> set for the attribute: <b>%2</b> does not match any of the supported options'
             . ' and was not synchronized to the channel.',
+            $attributeValue,
             $attributeName
         );
     }
 
-    private function compileErrorMessage(string $attributeName): string
+    private function compileErrorMessage(string $attributeName, string $attributeValue): string
     {
         return (string)__(
-            'Invalid value set for attribute: %1. The provided value does not match any of the '
+            'Invalid value: <b>%1</b> set for attribute: <b>%2</b>. The provided value does not match any of the '
             . 'supported options.',
+            $attributeValue,
             $attributeName
         );
     }

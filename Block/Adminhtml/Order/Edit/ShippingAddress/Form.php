@@ -181,7 +181,7 @@ class Form extends AbstractForm
             [
                 'name' => 'phone',
                 'label' => __('Telephone'),
-                'value' => $address['phone'] ?? null,
+                'value' => $order->getBuyerPhone(),
             ]
         );
 

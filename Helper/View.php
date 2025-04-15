@@ -54,7 +54,7 @@ class View
     {
         return \M2E\Core\Helper\Data::escapeHtml(
             \M2E\Temu\Helper\Module\Log::decodeDescription($logMessage),
-            ['a'],
+            ['a', 'b'],
             ENT_NOQUOTES
         );
     }

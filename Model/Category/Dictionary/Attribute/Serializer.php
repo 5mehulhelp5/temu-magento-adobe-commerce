@@ -25,6 +25,7 @@ class Serializer
                 throw new \LogicException('Invalid attribute instance');
             }
 
+            $values = $this->getValues($attribute);
             $data[] = [
                 'id' => $attribute->getId(),
                 'name' => $attribute->getName(),
@@ -37,7 +38,8 @@ class Serializer
                 'pid' => $attribute->getPid(),
                 'ref_pid' => $attribute->getRefPid(),
                 'template_pid' => $attribute->getTemplatePid(),
-                'parent_spec_id' => $attribute->getParentSpecId()
+                'parent_spec_id' => $attribute->getParentSpecId(),
+                'values' => $values
             ];
         }
 
@@ -51,6 +53,7 @@ class Serializer
     {
         $attributes = [];
         foreach (json_decode($jsonAttributes, true) as $item) {
+            $values = $this->createValues($item['values']);
             $attributes[] = $this->attributeFactory->createSalesAttribute(
                 (string)$item['id'],
                 $item['name'],
@@ -63,7 +66,8 @@ class Serializer
                 $item['pid'],
                 $item['ref_pid'],
                 $item['template_pid'],
-                $item['parent_spec_id']
+                $item['parent_spec_id'],
+                $values
             );
         }
 
@@ -83,16 +87,7 @@ class Serializer
                 throw new \LogicException('Invalid attribute instance');
             }
 
-            $values = [];
-            foreach ($attribute->getValues() as $value) {
-                $values[] = [
-                    'id' => $value->getId(),
-                    'name' => $value->getName(),
-                    'spec_id' => $value->getSpecId(),
-                    'group_id' => $value->getGroupId()
-                ];
-            }
-
+            $values = $this->getValues($attribute);
             $data[] = [
                 'id' => $attribute->getId(),
                 'name' => $attribute->getName(),
@@ -120,16 +115,7 @@ class Serializer
     {
         $attributes = [];
         foreach (json_decode($jsonAttributes, true) as $item) {
-            $values = [];
-            foreach ($item['values'] as $value) {
-                $values[] = $this->attributeFactory->createValue(
-                    $value['id'],
-                    $value['name'],
-                    $value['spec_id'],
-                    $value['group_id']
-                );
-            }
-
+            $values = $this->createValues($item['values']);
             $attributes[] = $this->attributeFactory->createProductAttribute(
                 (string)$item['id'],
                 $item['name'],
@@ -148,5 +134,40 @@ class Serializer
         }
 
         return $attributes;
+    }
+
+    private function getValues(\M2E\Temu\Model\Category\Dictionary\AbstractAttribute $attribute): array
+    {
+        $values = [];
+        foreach ($attribute->getValues() as $value) {
+            $values[] = [
+                'id' => $value->getId(),
+                'name' => $value->getName(),
+                'spec_id' => $value->getSpecId(),
+                'group_id' => $value->getGroupId()
+            ];
+        }
+
+        return $values;
+    }
+
+    /**
+     * @param array $values
+     *
+     * @return \M2E\Temu\Model\Category\Dictionary\Attribute\Value[]
+     */
+    private function createValues(array $values): array
+    {
+        $result = [];
+        foreach ($values as $value) {
+            $result[] = $this->attributeFactory->createValue(
+                $value['id'],
+                $value['name'],
+                $value['spec_id'],
+                $value['group_id']
+            );
+        }
+
+        return $result;
     }
 }

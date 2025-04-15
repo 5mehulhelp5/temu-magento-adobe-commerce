@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace M2E\Temu\Model\Connector\Attribute;
+namespace M2E\Temu\Model\Channel\Attribute;
 
-class Attribute
+class Item
 {
     public const SALES_TYPE = 'SALES_PROPERTY';
     public const PRODUCT_TYPE = 'PRODUCT_PROPERTY';

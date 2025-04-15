@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace M2E\Temu\Model\Connector\Category;
+namespace M2E\Temu\Model\Channel\Category;
 
-class Category
+class Item
 {
     private int $id;
     private string $title;

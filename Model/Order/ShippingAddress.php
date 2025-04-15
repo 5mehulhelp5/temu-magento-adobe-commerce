@@ -173,7 +173,7 @@ class ShippingAddress extends \Magento\Framework\DataObject
 
     protected function getPhone()
     {
-        $phone = $this->getData('phone');
+        $phone = $this->order->getBuyerPhone();
 
         if (!is_string($phone)) {
             $phone = '';

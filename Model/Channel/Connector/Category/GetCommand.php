@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace M2E\Temu\Model\Connector\Category;
+namespace M2E\Temu\Model\Channel\Connector\Category;
 
 class GetCommand implements \M2E\Core\Model\Connector\CommandInterface
 {
@@ -39,7 +39,7 @@ class GetCommand implements \M2E\Core\Model\Connector\CommandInterface
 
         foreach ($responseData[self::RESPONSE_CATEGORIES_KEY] as $categoryData) {
             $result->addCategory(
-                new Category(
+                new \M2E\Temu\Model\Channel\Category\Item(
                     $categoryData['id'],
                     $categoryData['title'],
                     $categoryData['is_leaf'],

@@ -6,12 +6,12 @@ namespace M2E\Temu\Model\Category\Dictionary;
 
 class AttributeService
 {
-    private \M2E\Temu\Model\Connector\Attribute\Get\Processor $attributeGetProcessor;
+    private \M2E\Temu\Model\Channel\Attribute\Processor $attributeGetProcessor;
     private \M2E\Temu\Model\Connector\Brands\Get\Processor $brandGetProcessor;
     private \M2E\Temu\Model\Category\Dictionary\AttributeFactory $attributeFactory;
 
     public function __construct(
-        \M2E\Temu\Model\Connector\Attribute\Get\Processor $attributeGetProcessor,
+        \M2E\Temu\Model\Channel\Attribute\Processor $attributeGetProcessor,
         \M2E\Temu\Model\Connector\Brands\Get\Processor $brandGetProcessor,
         \M2E\Temu\Model\Category\Dictionary\AttributeFactory $attributeFactory
     ) {
@@ -23,13 +23,13 @@ class AttributeService
     public function getCategoryDataFromServer(
         string $region,
         int $categoryId
-    ): \M2E\Temu\Model\Connector\Attribute\Get\Response {
+    ): \M2E\Temu\Model\Channel\Connector\Attribute\Get\Response {
         return $this->attributeGetProcessor
             ->process($region, $categoryId);
     }
 
     /*
-        public function getBrandsDataFromServer(
+        public function getBrandsDataFromServer( //TODO: brands
             \M2E\Temu\Model\Shop $shop,
             string $categoryId
         ): \M2E\Temu\Model\Connector\Brands\Get\Response {
@@ -38,23 +38,15 @@ class AttributeService
         }
     */
     public function getProductAttributes(
-        \M2E\Temu\Model\Connector\Attribute\Get\Response $categoryData
+        \M2E\Temu\Model\Channel\Connector\Attribute\Get\Response $categoryData
     ): array {
         $productAttributes = [];
         foreach ($categoryData->getAttributes() as $responseAttribute) {
             if ($responseAttribute->isSalesType()) {
                 continue;
             }
-            $values = [];
-            foreach ($responseAttribute->getValues() as $value) {
-                $values[] = $this->attributeFactory->createValue(
-                    $value['id'],
-                    $value['name'],
-                    $value['spec_id'],
-                    $value['group_id']
-                );
-            }
 
+            $values = $this->getValues($responseAttribute);
             $productAttributes[] = $this->attributeFactory->createProductAttribute(
                 $responseAttribute->getId(),
                 $responseAttribute->getName(),
@@ -76,13 +68,14 @@ class AttributeService
     }
 
     public function getSalesAttributes(
-        \M2E\Temu\Model\Connector\Attribute\Get\Response $categoryData
+        \M2E\Temu\Model\Channel\Connector\Attribute\Get\Response $categoryData
     ): array {
         $salesAttributes = [];
         foreach ($categoryData->getAttributes() as $responseAttribute) {
             if (!$responseAttribute->isSalesType()) {
                 continue;
             }
+            $values = $this->getValues($responseAttribute);
             $salesAttributes[] = $this->attributeFactory->createSalesAttribute(
                 $responseAttribute->getId(),
                 $responseAttribute->getName(),
@@ -95,7 +88,8 @@ class AttributeService
                 $responseAttribute->getPid(),
                 $responseAttribute->getRefPid(),
                 $responseAttribute->getTemplatePid(),
-                $responseAttribute->getParentSpecId()
+                $responseAttribute->getParentSpecId(),
+                $values
             );
         }
 
@@ -103,7 +97,7 @@ class AttributeService
     }
 
     public function getTotalProductAttributes(
-        \M2E\Temu\Model\Connector\Attribute\Get\Response $categoryData
+        \M2E\Temu\Model\Channel\Connector\Attribute\Get\Response $categoryData
     ): int {
         $productAttributesCount = 0;
 
@@ -126,7 +120,7 @@ class AttributeService
     }
 
     public function getTotalSalesAttributes(
-        \M2E\Temu\Model\Connector\Attribute\Get\Response $categoryData
+        \M2E\Temu\Model\Channel\Connector\Attribute\Get\Response $categoryData
     ): int {
         $salesAttributesCount = 0;
 
@@ -140,7 +134,7 @@ class AttributeService
     }
 
     public function getHasRequiredAttributes(
-        \M2E\Temu\Model\Connector\Attribute\Get\Response $categoryData
+        \M2E\Temu\Model\Channel\Connector\Attribute\Get\Response $categoryData
     ): bool {
         foreach ($categoryData->getAttributes() as $attribute) {
             if ($attribute->isProductType() && $attribute->isRequired()) {
@@ -152,7 +146,7 @@ class AttributeService
     }
 
     public function getHasRequiredSalesAttributes(
-        \M2E\Temu\Model\Connector\Attribute\Get\Response $categoryData
+        \M2E\Temu\Model\Channel\Connector\Attribute\Get\Response $categoryData
     ): bool {
         foreach ($categoryData->getAttributes() as $attribute) {
             if ($attribute->isSalesType() && $attribute->isRequired()) {
@@ -161,5 +155,25 @@ class AttributeService
         }
 
         return false;
+    }
+
+    /**
+     * @param \M2E\Temu\Model\Channel\Attribute\Item $responseAttribute
+     *
+     * @return \M2E\Temu\Model\Category\Dictionary\Attribute\Value[]
+     */
+    private function getValues(\M2E\Temu\Model\Channel\Attribute\Item $responseAttribute): array
+    {
+        $values = [];
+        foreach ($responseAttribute->getValues() as $value) {
+            $values[] = $this->attributeFactory->createValue(
+                $value['id'],
+                $value['name'],
+                $value['spec_id'],
+                $value['group_id']
+            );
+        }
+
+        return $values;
     }
 }

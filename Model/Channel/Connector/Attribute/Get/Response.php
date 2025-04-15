@@ -1,10 +1,10 @@
 <?php
 
-namespace M2E\Temu\Model\Connector\Attribute\Get;
+namespace M2E\Temu\Model\Channel\Connector\Attribute\Get;
 
 class Response
 {
-    /** @var \M2E\Temu\Model\Connector\Attribute\Attribute[] */
+    /** @var \M2E\Temu\Model\Channel\Attribute\Item[] */
     private array $attributes;
     private array $rules;
 
@@ -15,7 +15,7 @@ class Response
     }
 
     /**
-     * @return \M2E\Temu\Model\Connector\Attribute\Attribute[]
+     * @return \M2E\Temu\Model\Channel\Attribute\Item[]
      */
     public function getAttributes(): array
     {

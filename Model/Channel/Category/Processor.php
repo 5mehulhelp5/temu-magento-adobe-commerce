@@ -1,6 +1,8 @@
 <?php
 
-namespace M2E\Temu\Model\Connector\Attribute\Get;
+declare(strict_types=1);
+
+namespace M2E\Temu\Model\Channel\Category;
 
 class Processor
 {
@@ -13,14 +15,14 @@ class Processor
 
     public function process(
         string $region,
-        int $categoryId
-    ): Response {
-        $command = new \M2E\Temu\Model\Connector\Attribute\GetCommand(
+        int $parentId = null
+    ): \M2E\Temu\Model\Channel\Connector\Category\Get\Response {
+        $command = new \M2E\Temu\Model\Channel\Connector\Category\GetCommand(
             $region,
-            $categoryId
+            $parentId
         );
 
-        /** @var Response */
+        /** @var \M2E\Temu\Model\Channel\Connector\Category\Get\Response */
         return $this->serverClient->process($command);
     }
 }

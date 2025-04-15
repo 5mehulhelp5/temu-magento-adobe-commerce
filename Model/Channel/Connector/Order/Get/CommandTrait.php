@@ -73,7 +73,7 @@ trait CommandTrait
                 $buyer = new \M2E\Temu\Model\Channel\Order\Buyer(
                     $order['buyer']['name'],
                     $order['buyer']['email'],
-                    $order['buyer']['phone'],
+                    $order['buyer']['phone'] ?? null,
                 );
             }
 
