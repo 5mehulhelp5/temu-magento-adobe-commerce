@@ -6,7 +6,6 @@ namespace M2E\Temu\Model\Product\Action\Validator;
 
 class PackageWeightValidator implements ValidatorInterface
 {
-    public const MAX_WEIGHT = 9999.9;
     private \M2E\Temu\Model\Product\PackageDimensionFinder $packageDimensionFinder;
 
     public function __construct(
@@ -23,11 +22,10 @@ class PackageWeightValidator implements ValidatorInterface
             $weight = $this->packageDimensionFinder->getWeight($product);
             $value = $weight->getValue();
 
-            if ($value <= 0 || $value > self::MAX_WEIGHT) {
-                return sprintf(
-                    'The product package weight must be within %s %s.',
-                    self::MAX_WEIGHT,
-                    $weight->getUnit()
+            if ($value <= 0) {
+                return (string)__(
+                    'The product package weight is missing or invalid.
+                To list the Product, please make sure that the Package settings are correct.'
                 );
             }
         } catch (\M2E\Temu\Model\Product\PackageDimension\PackageDimensionException $exception) {
