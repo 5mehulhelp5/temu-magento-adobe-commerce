@@ -57,6 +57,11 @@ class Item
         $this->currency = $currency;
     }
 
+    public function getCurrency(): string
+    {
+        return $this->currency;
+    }
+
     public function getPrice(): float
     {
         return $this->price;
@@ -80,34 +85,6 @@ class Item
     public function getVariationAttributes(): array
     {
         return $this->variationAttributes;
-    }
-
-    public function toArray(): array
-    {
-        $data = [
-            'id' => $this->skuId,
-            'price' => $this->price,
-            'currency_code' => $this->currency,
-            'qty' => $this->qty,
-        ];
-
-        return $data;
-    }
-
-    public function toArrayForList(): array
-    {
-        $data = [
-            'sku' => $this->sku,
-            'identifier' => $this->identifier,
-            'price_base' => $this->price,
-            'qty' => $this->qty,
-            'images' => $this->images,
-            'variation_attributes' => $this->variationAttributes,
-            'package_weight' => $this->packageWeight,
-            'package_dimensions' => $this->packageDimensions,
-        ];
-
-        return $data;
     }
 
     public function getPackageWeight(): array

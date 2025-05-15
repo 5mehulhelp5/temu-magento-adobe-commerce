@@ -473,6 +473,32 @@ class Repository
     }
 
     /**
+     * @param int $storeId
+     *
+     * @return \M2E\Temu\Model\ResourceModel\Product\Collection
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function getProductCollectionByStoreId(int $storeId): ProductResource\Collection
+    {
+        $collection = $this->productCollectionFactory->create();
+        $collection->joinLeft(
+            ['listing' => $this->listingResource->getMainTable()],
+            sprintf(
+                'listing.%s = main_table.%s',
+                \M2E\Temu\Model\ResourceModel\Listing::COLUMN_ID,
+                \M2E\Temu\Model\ResourceModel\Product::COLUMN_LISTING_ID
+            ),
+            [\M2E\Temu\Model\ResourceModel\Listing::COLUMN_STORE_ID]
+        );
+        $collection->addFieldToFilter(
+            \M2E\Temu\Model\ResourceModel\Listing::COLUMN_STORE_ID,
+            $storeId
+        );
+
+        return $collection;
+    }
+
+    /**
      * @param \Magento\Ui\Component\MassAction\Filter $filter
      *
      * @return \M2E\Temu\Model\Product[]

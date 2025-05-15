@@ -93,6 +93,7 @@ class Form extends \M2E\Temu\Block\Adminhtml\Magento\Form\AbstractForm
 
         $config = [
             'specifics' => $attributes,
+            'attribute_type' => $id,
         ];
 
         $field = $fieldset->addField($id, AttributesForm\Element\Dictionary::class, $config);

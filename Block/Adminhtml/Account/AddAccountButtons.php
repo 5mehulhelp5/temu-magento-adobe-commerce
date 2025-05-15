@@ -48,6 +48,16 @@ class AddAccountButtons implements \Magento\Framework\View\Element\UiComponent\C
                         ['_current' => true, 'region' => 'EU']
                     ),
                 ],
+            ],
+            [
+                'label' => 'Global',
+                'id' => 'Global',
+                'onclick' => 'setLocation(this.getAttribute("data-url"))',
+                'data_attribute' => [
+                    'url' => $this->accountUrlHelper->getBeforeGetTokenUrl(
+                        ['_current' => true, 'region' => 'global']
+                    ),
+                ],
             ]
         ];
     }

@@ -9,6 +9,7 @@ class Item
     private int $pid;
     private int $refPid;
     private int $templatePid;
+    private string $name;
     private ?string $value;
     private ?int $valueId;
 
@@ -16,6 +17,7 @@ class Item
         int $pid,
         int $refPid,
         int $templatePid,
+        string $name,
         ?string $value,
         ?int $valueId
     ) {
@@ -23,6 +25,7 @@ class Item
         $this->templatePid = $templatePid;
         $this->value = $value;
         $this->valueId = $valueId;
+        $this->name = $name;
         $this->pid = $pid;
     }
 
@@ -44,6 +47,11 @@ class Item
     public function getValue(): ?string
     {
         return $this->value;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     public function getValueId(): ?int

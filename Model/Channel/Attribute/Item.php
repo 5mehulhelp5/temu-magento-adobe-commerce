@@ -23,6 +23,7 @@ class Item
     private bool $isCustomised;
     private string $typeFormat;
     private array $rules;
+    private ?int $parentTemplatePid;
 
     public function __construct(
         string $id,
@@ -37,7 +38,8 @@ class Item
         int $pid,
         int $refPid,
         int $templatePid,
-        ?int $parentSpecId
+        ?int $parentSpecId,
+        ?int $parentTemplatePid
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -52,6 +54,7 @@ class Item
         $this->typeFormat = $typeFormat;
         $this->rules = $rules;
         $this->pid = $pid;
+        $this->parentTemplatePid = $parentTemplatePid;
     }
 
     public function getId(): string
@@ -85,20 +88,21 @@ class Item
     }
 
     /**
-     * @return list<array{id:string, name:string, spec_id:int|null, group_id:int|null}>
+     * @return list<array{id:string, name:string, spec_id:int|null, group_id:int|null, children_relation:array}>
      */
     public function getValues(): array
     {
         return $this->values;
     }
 
-    public function addValue(string $id, string $name, ?int $specId, ?int $groupId): void
+    public function addValue(string $id, string $name, ?int $specId, ?int $groupId, array $childrenRelation): void
     {
         $this->values[] = [
             'id' => $id,
             'name' => $name,
             'spec_id' => $specId,
-            'group_id' => $groupId
+            'group_id' => $groupId,
+            'children_relation' => $childrenRelation
         ];
     }
 
@@ -140,5 +144,10 @@ class Item
     public function getPid(): int
     {
         return $this->pid;
+    }
+
+    public function getParentTemplatePid(): ?int
+    {
+        return $this->parentTemplatePid;
     }
 }

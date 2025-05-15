@@ -191,6 +191,7 @@ class Processor
             $dictionaryAttribute->getPid(),
             $dictionaryAttribute->getRefPid(),
             $dictionaryAttribute->getTemplatePid(),
+            $dictionaryAttribute->getName(),
             $customValue,
             $recommendedValue
         );

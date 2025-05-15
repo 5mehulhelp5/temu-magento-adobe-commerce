@@ -93,6 +93,10 @@ class SaveCategoryAttributesAjax extends \M2E\Temu\Controller\Adminhtml\Abstract
             if (!empty($inputAttribute['value_temu_recommended'])) {
                 $recommendedValues = $this->getRecommendedValues($inputAttribute['value_temu_recommended']);
             }
+            if (!isset($inputAttribute['value_mode'])) {
+                $inputAttribute['value_mode'] = 0;
+            }
+
             $attributes[] = $this->attributeFactory->create()->create(
                 $dictionaryId,
                 $inputAttribute['attribute_type'],

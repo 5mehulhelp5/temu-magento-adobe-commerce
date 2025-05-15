@@ -44,6 +44,7 @@ class CredentialsFormFactory
                 'values' => [
                     'US' => __('US'),
                     'EU' => __('EU'),
+                    'global' => __('Global'),
                 ],
             ]
         );

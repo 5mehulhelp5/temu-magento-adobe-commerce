@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace M2E\Temu\Setup\Update\y25_m03;
 
-use M2E\Temu\Helper\Module\Database\Tables as TablesHelper;
-use M2E\Temu\Model\ResourceModel\AttributeMapping\Pair as PairResource;
 use Magento\Framework\DB\Ddl\Table;
 
 class AddAttributeMappingTable extends \M2E\Core\Model\Setup\Upgrade\Entity\AbstractFeature
@@ -14,11 +12,11 @@ class AddAttributeMappingTable extends \M2E\Core\Model\Setup\Upgrade\Entity\Abst
     {
         $table = $this
             ->getConnection()
-            ->newTable($this->getFullTableName(TablesHelper::TABLE_NAME_ATTRIBUTE_MAPPING));
+            ->newTable($this->getFullTableName('m2e_temu_attribute_mapping'));
 
         $table
             ->addColumn(
-                PairResource::COLUMN_ID,
+                'id',
                 Table::TYPE_INTEGER,
                 null,
                 [
@@ -29,43 +27,43 @@ class AddAttributeMappingTable extends \M2E\Core\Model\Setup\Upgrade\Entity\Abst
                 ]
             )
             ->addColumn(
-                PairResource::COLUMN_TYPE,
+                'type',
                 Table::TYPE_TEXT,
                 100,
                 ['nullable' => false]
             )
             ->addColumn(
-                PairResource::COLUMN_CHANNEL_ATTRIBUTE_TITLE,
+                'channel_attribute_title',
                 Table::TYPE_TEXT,
                 255,
                 ['nullable' => false]
             )
             ->addColumn(
-                PairResource::COLUMN_CHANNEL_ATTRIBUTE_CODE,
+                'channel_attribute_code',
                 Table::TYPE_TEXT,
                 255,
                 ['nullable' => false]
             )
             ->addColumn(
-                PairResource::COLUMN_MAGENTO_ATTRIBUTE_CODE,
+                'magento_attribute_code',
                 Table::TYPE_TEXT,
                 255,
                 ['nullable' => false]
             )
             ->addColumn(
-                PairResource::COLUMN_UPDATE_DATE,
+                'update_date',
                 Table::TYPE_DATETIME,
                 null,
                 ['default' => null]
             )
             ->addColumn(
-                PairResource::COLUMN_CREATE_DATE,
+                'create_date',
                 Table::TYPE_DATETIME,
                 null,
                 ['default' => null]
             )
-            ->addIndex('type', PairResource::COLUMN_TYPE)
-            ->addIndex('create_date', PairResource::COLUMN_CREATE_DATE)
+            ->addIndex('type', 'type')
+            ->addIndex('create_date', 'create_date')
             ->setOption('type', 'INNODB')
             ->setOption('charset', 'utf8')
             ->setOption('collate', 'utf8_general_ci')

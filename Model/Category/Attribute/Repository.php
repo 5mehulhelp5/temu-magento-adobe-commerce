@@ -70,22 +70,26 @@ class Repository
     }
 
     /**
-     * @return CategoryAttribute[]
+     * @return string[]
      */
-    public function findByDictionaryIdAndAttributeIds(
-        int $dictionaryId,
-        array $attributeIds
-    ): array {
+    public function getAllCustomAttributesNames(): array
+    {
         $collection = $this->attributeCollectionFactory->create();
         $collection->addFieldToFilter(
-            AttributeResource::COLUMN_CATEGORY_DICTIONARY_ID,
-            ['eq' => $dictionaryId]
-        );
-        $collection->addFieldToFilter(
-            AttributeResource::COLUMN_ATTRIBUTE_ID,
-            ['in' => $attributeIds]
+            AttributeResource::COLUMN_VALUE_MODE,
+            \M2E\Temu\Model\Category\CategoryAttribute::VALUE_MODE_CUSTOM_ATTRIBUTE
         );
 
-        return array_values($collection->getItems());
+        $collection->removeAllFieldsFromSelect();
+
+        $collection->addFieldToSelect(AttributeResource::COLUMN_ATTRIBUTE_NAME);
+        $collection->distinct(true);
+
+        $result = [];
+        foreach ($collection->getItems() as $item) {
+            $result[] = $item->getAttributeName();
+        }
+
+        return $result;
     }
 }

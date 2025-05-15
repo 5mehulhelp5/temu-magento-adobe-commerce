@@ -129,6 +129,7 @@ JS
 
         $config = [
             'specifics' => $attributes,
+            'attribute_type' => $id,
         ];
 
         $field = $fieldset->addField($id, AttributesForm\Element\Dictionary::class, $config);

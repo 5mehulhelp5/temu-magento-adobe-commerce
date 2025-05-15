@@ -19,8 +19,10 @@ class ProductAttributesProvider implements DataBuilderInterface
         $this->attributeProcessor = $attributeProcessor;
     }
 
-    public function getProductAttributesData(\M2E\Temu\Model\Product $product): array
+    public function getProductAttributesData(\M2E\Temu\Model\Product $product): Attributes\Value
     {
+        $attributes = $this->attributeProcessor->getAttributes($product);
+
         $result = array_map(static function (\M2E\Temu\Model\Product\DataProvider\Attributes\Item $attribute) {
             return [
                 'pid' => $attribute->getPid(),
@@ -29,12 +31,14 @@ class ProductAttributesProvider implements DataBuilderInterface
                 'value' => $attribute->getValue(),
                 'value_id' => $attribute->getValueId(),
             ];
-        }, $this->attributeProcessor->getAttributes($product));
+        }, $attributes);
+
         $this->collectWarningMessages($this->attributeProcessor->getWarningMessages());
 
-        $this->encodedProductAttributes = json_encode($result);
+        sort($result);
+        $this->encodedProductAttributes = \M2E\Core\Helper\Data::md5String(json_encode($result));
 
-        return $result;
+        return new \M2E\Temu\Model\Product\DataProvider\Attributes\Value($attributes);
     }
 
     public function getMetaData(): array

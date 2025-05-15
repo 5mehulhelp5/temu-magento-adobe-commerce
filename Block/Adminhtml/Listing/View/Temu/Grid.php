@@ -107,6 +107,7 @@ class Grid extends \M2E\Temu\Block\Adminhtml\Listing\View\AbstractGrid
                 'additional_data' => ListingProductResource::COLUMN_ADDITIONAL_DATA,
                 'online_title' => ListingProductResource::COLUMN_ONLINE_TITLE,
                 'online_qty' => ListingProductResource::COLUMN_ONLINE_QTY,
+                'online_sku' => ListingProductResource::COLUMN_ONLINE_SKU,
                 'online_min_price' => ListingProductResource::COLUMN_ONLINE_MIN_PRICE,
                 'online_max_price' => ListingProductResource::COLUMN_ONLINE_MAX_PRICE,
                 'listing_id' => ListingProductResource::COLUMN_LISTING_ID,

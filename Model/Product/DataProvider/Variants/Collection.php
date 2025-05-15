@@ -7,23 +7,7 @@ namespace M2E\Temu\Model\Product\DataProvider\Variants;
 class Collection
 {
     /** @var Item[] */
-    private array $items = [];
-
-    public function toArray(): array
-    {
-        return array_map(
-            fn(Item $item) => $item->toArray(),
-            $this->items
-        );
-    }
-
-    public function toArrayForList(): array
-    {
-        return array_map(
-            fn(Item $item) => $item->toArrayForList(),
-            $this->items
-        );
-    }
+    public array $items = [];
 
     public function addItem(Item $item)
     {
@@ -48,11 +32,13 @@ class Collection
     {
         $onlineData = [];
         foreach ($this->items as $item) {
+            $images = $item->getImages();
+            sort($images);
             $onlineData[$item->getSku()] = [
                 'online_sku' => $item->getSku(),
                 'online_price' => $item->getPrice(),
                 'online_qty' => $item->getQty(),
-                'images' => \M2E\Core\Helper\Data::md5String(json_encode($item->getImages())),
+                'images' => \M2E\Core\Helper\Data::md5String(json_encode($images)),
                 'variation_attributes' => $item->getVariationAttributes(),
                 'package_weight' => $item->getPackageWeight(),
                 'package_dimensions' => $item->getPackageDimensions(),

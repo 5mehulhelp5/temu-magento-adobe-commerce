@@ -3,7 +3,6 @@
 namespace M2E\Temu\Block\Adminhtml\Template\Category\Chooser\Specific\Form\Element;
 
 use M2E\Temu\Block\Adminhtml\Template\Category\Chooser\Specific\Form\Element\Dictionary\Multiselect;
-use M2E\Temu\Model\Category\CategoryAttribute;
 use Magento\Framework\Data\Form\Element\CollectionFactory;
 use Magento\Framework\Data\Form\Element\Factory;
 use Magento\Framework\Escaper;
@@ -14,6 +13,9 @@ class Dictionary extends \Magento\Framework\Data\Form\Element\AbstractElement
 
     public \Magento\Framework\View\LayoutInterface $layout;
     private \M2E\Core\Helper\Magento\Attribute $magentoAttributeHelper;
+    /** @var array */
+    private array $magentoAttributes;
+    private \M2E\Temu\Block\Adminhtml\Magento\Renderer\JsRenderer $js;
 
     public function __construct(
         \M2E\Core\Helper\Magento\Attribute $magentoAttributeHelper,
@@ -21,10 +23,12 @@ class Dictionary extends \Magento\Framework\Data\Form\Element\AbstractElement
         Factory $factoryElement,
         CollectionFactory $factoryCollection,
         Escaper $escaper,
+        \M2E\Temu\Block\Adminhtml\Magento\Renderer\JsRenderer $js,
         $data = []
     ) {
         $this->layout = $context->getLayout();
         $this->magentoAttributeHelper = $magentoAttributeHelper;
+        $this->js = $js;
         parent::__construct($factoryElement, $factoryCollection, $escaper, $data);
         $this->setType('specifics');
     }
@@ -34,6 +38,23 @@ class Dictionary extends \Magento\Framework\Data\Form\Element\AbstractElement
     public function getElementHtml()
     {
         return '';
+    }
+
+    public function toHtml()
+    {
+        if ($this->getData('attribute_type') === 'real_attributes') {
+            $json = $this->getRecommendedJsonRelations();
+            $this->js->addRequireJs(
+                [
+                    'childSelectUpdater' => 'Temu/Template/Category/AttributesRelation',
+                ],
+                <<<JS
+        childSelectUpdater({$json});
+JS
+            );
+        }
+
+        return parent::toHtml();
     }
 
     //########################################
@@ -155,15 +176,18 @@ class Dictionary extends \Magento\Framework\Data\Form\Element\AbstractElement
                 'value' => \M2E\Temu\Model\Template\Category::VALUE_MODE_TEMU_RECOMMENDED,
                 'label' => __('Temu Recommended'),
             ],
-            \M2E\Temu\Model\Template\Category::VALUE_MODE_CUSTOM_ATTRIBUTE => [
+        ];
+
+        if ($specific['is_customized']) {
+            $values[\M2E\Temu\Model\Template\Category::VALUE_MODE_CUSTOM_ATTRIBUTE] = [
                 'value' => \M2E\Temu\Model\Template\Category::VALUE_MODE_CUSTOM_ATTRIBUTE,
                 'label' => __('Custom Attribute'),
-            ],
-            \M2E\Temu\Model\Template\Category::VALUE_MODE_CUSTOM_VALUE => [
+            ];
+            $values[\M2E\Temu\Model\Template\Category::VALUE_MODE_CUSTOM_VALUE] = [
                 'value' => \M2E\Temu\Model\Template\Category::VALUE_MODE_CUSTOM_VALUE,
                 'label' => __('Custom Value'),
-            ],
-        ];
+            ];
+        }
 
         if ($specific['required']) {
             $values[\M2E\Temu\Model\Template\Category::VALUE_MODE_NONE] = [
@@ -193,8 +217,11 @@ class Dictionary extends \Magento\Framework\Data\Form\Element\AbstractElement
             ],
         ]);
 
+        $variantValidator = ($specific['attribute_type'] === 'sales') ? 'variant-validator' : '';
         $element->setNoSpan(true);
-        $element->setClass('Temu-required-when-visible input-specific-value-mode collected-attribute');
+        $element->setClass(
+            'Temu-required-when-visible input-specific-value-mode collected-attribute ' . $variantValidator
+        );
         $element->setForm($this->getForm());
         $element->setId($this->makeElementId($index, 'value_mode'));
 
@@ -337,7 +364,11 @@ HTML;
 
     public function getValueCustomAttributeHtml($index, $specific): string
     {
-        $attributes = $this->magentoAttributeHelper->getAll();
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        if (!isset($this->magentoAttributes)) {
+            $this->magentoAttributes = $this->magentoAttributeHelper->getAll();
+        }
+        $attributes = $this->magentoAttributes;
 
         foreach ($attributes as &$attribute) {
             $attribute['value'] = $attribute['code'];
@@ -375,5 +406,67 @@ HTML;
         $element->setId($this->makeElementId($index, 'value_custom_attribute'));
 
         return $element->getElementHtml();
+    }
+
+    public function getRecommendedJsonRelations(): string
+    {
+        $formattedData = [];
+
+        foreach ($this->getSpecifics() as $index => $specific) {
+            $formattedData[] = [
+                'id' => $specific['id'],
+                'html_id' => $this->makeElementId($index, 'value_temu_recommended'),
+                'custom_html_id' => $this->makeElementId($index, 'value_custom_value'),
+                'attr_html_id' => $this->makeElementId($index, 'value_custom_attribute'),
+                'mode_value_html_id' => $this->makeElementId($index, 'value_mode'),
+                'parent_template_pid' => $specific['parent_template_pid'] ?? null,
+                'values' => $this->formatAttributeValues($specific),
+                'has_child' => $this->hasChild($specific),
+            ];
+        }
+
+        return json_encode($formattedData, JSON_PRETTY_PRINT);
+    }
+
+    public function isProductChildAttribute(array $specific): bool
+    {
+        return $this->getData('attribute_type') === 'real_attributes'
+            && !empty($specific['parent_template_pid']);
+    }
+
+    private function formatAttributeValues(array $specific): array
+    {
+        $selected = $specific['template_attribute']['value_temu_recommended'] ?? [];
+        $formattedValues = [];
+
+        foreach ($specific['values'] as $value) {
+            $relations = [];
+            foreach ($value['children_relation'] as $rel) {
+                $relations[$rel['child_template_pid']] = [];
+                foreach ($rel['values_ids'] as $relId) {
+                    $relations[$rel['child_template_pid']][] = (string)$relId;
+                }
+            }
+
+            $formattedValues[] = [
+                'id' => $value['id'],
+                'name' => $value['value'],
+                'selected' => $selected,
+                'children_relation' => $relations,
+            ];
+        }
+
+        return $formattedValues;
+    }
+
+    private function hasChild($specific): bool
+    {
+        foreach ($specific['values'] as $value) {
+            if (empty($value['children_relation'])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

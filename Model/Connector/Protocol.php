@@ -7,7 +7,7 @@ namespace M2E\Temu\Model\Connector;
 class Protocol implements \M2E\Core\Model\Connector\ProtocolInterface
 {
     public const COMPONENT_NAME = 'Temu';
-    public const COMPONENT_VERSION = 2;
+    public const COMPONENT_VERSION = 3;
 
     public function getComponent(): string
     {

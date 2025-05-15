@@ -22,6 +22,7 @@ class AttributeFactory
         int $refPid,
         int $templatePid,
         ?int $parentSpecId,
+        ?int $parentTemplatePid,
         array $values
     ): \M2E\Temu\Model\Category\Dictionary\Attribute\SalesAttribute {
         return new \M2E\Temu\Model\Category\Dictionary\Attribute\SalesAttribute(
@@ -37,6 +38,7 @@ class AttributeFactory
             $refPid,
             $templatePid,
             $parentSpecId,
+            $parentTemplatePid,
             $values
         );
     }
@@ -57,6 +59,7 @@ class AttributeFactory
         int $refPid,
         int $templatePid,
         ?int $parentSpecId,
+        ?int $parentTemplatePid,
         array $values
     ): \M2E\Temu\Model\Category\Dictionary\Attribute\ProductAttribute {
         return new \M2E\Temu\Model\Category\Dictionary\Attribute\ProductAttribute(
@@ -72,16 +75,34 @@ class AttributeFactory
             $refPid,
             $templatePid,
             $parentSpecId,
+            $parentTemplatePid,
             $values
         );
     }
 
+    /**
+     * @param string $id
+     * @param string $name
+     * @param int|null $specId
+     * @param int|null $groupId
+     * @param \M2E\Temu\Model\Category\Dictionary\Attribute\ValueRelation[] $valueRelation
+     *
+     * @return \M2E\Temu\Model\Category\Dictionary\Attribute\Value
+     */
     public function createValue(
         string $id,
         string $name,
         ?int $specId,
-        ?int $groupId
+        ?int $groupId,
+        array $valueRelation
     ): \M2E\Temu\Model\Category\Dictionary\Attribute\Value {
-        return new \M2E\Temu\Model\Category\Dictionary\Attribute\Value($id, $name, $specId, $groupId);
+        return new \M2E\Temu\Model\Category\Dictionary\Attribute\Value($id, $name, $specId, $groupId, $valueRelation);
+    }
+
+    public function createValueRelation(
+        int $childTemplatePid,
+        array $valueIds
+    ): \M2E\Temu\Model\Category\Dictionary\Attribute\ValueRelation {
+        return new \M2E\Temu\Model\Category\Dictionary\Attribute\ValueRelation($childTemplatePid, $valueIds);
     }
 }

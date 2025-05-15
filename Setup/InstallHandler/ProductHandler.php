@@ -33,7 +33,6 @@ class ProductHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
         $this->installUnmanagedVariantTable($setup);
         $this->installProductLockTable($setup);
         $this->installInventorySyncReceivedProductTable($setup);
-        $this->installAttributesMappingTable($setup);
     }
 
     private function installProductTable(\Magento\Framework\Setup\SetupInterface $setup): void
@@ -860,69 +859,6 @@ class ProductHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
             )
             ->addIndex('account_id', ReceivedProductResource::COLUMN_ACCOUNT_ID)
             ->addIndex('sku', ReceivedProductResource::COLUMN_CHANNEL_PRODUCT_ID)
-            ->setOption('type', 'INNODB')
-            ->setOption('charset', 'utf8')
-            ->setOption('collate', 'utf8_general_ci')
-            ->setOption('row_format', 'dynamic');
-
-        $setup->getConnection()->createTable($table);
-    }
-
-    private function installAttributesMappingTable(\Magento\Framework\Setup\SetupInterface $setup): void
-    {
-        $tableName = $this->tablesHelper->getFullName(TablesHelper::TABLE_NAME_ATTRIBUTE_MAPPING);
-        $table = $setup->getConnection()->newTable($tableName);
-
-        $table
-            ->addColumn(
-                PairResource::COLUMN_ID,
-                Table::TYPE_INTEGER,
-                null,
-                [
-                    'unsigned' => true,
-                    'primary' => true,
-                    'nullable' => false,
-                    'auto_increment' => true,
-                ]
-            )
-            ->addColumn(
-                PairResource::COLUMN_TYPE,
-                Table::TYPE_TEXT,
-                100,
-                ['nullable' => false]
-            )
-            ->addColumn(
-                PairResource::COLUMN_CHANNEL_ATTRIBUTE_TITLE,
-                Table::TYPE_TEXT,
-                255,
-                ['nullable' => false]
-            )
-            ->addColumn(
-                PairResource::COLUMN_CHANNEL_ATTRIBUTE_CODE,
-                Table::TYPE_TEXT,
-                255,
-                ['nullable' => false]
-            )
-            ->addColumn(
-                PairResource::COLUMN_MAGENTO_ATTRIBUTE_CODE,
-                Table::TYPE_TEXT,
-                255,
-                ['nullable' => false]
-            )
-            ->addColumn(
-                PairResource::COLUMN_UPDATE_DATE,
-                Table::TYPE_DATETIME,
-                null,
-                ['default' => null]
-            )
-            ->addColumn(
-                PairResource::COLUMN_CREATE_DATE,
-                Table::TYPE_DATETIME,
-                null,
-                ['default' => null]
-            )
-            ->addIndex('type', PairResource::COLUMN_TYPE)
-            ->addIndex('create_date', PairResource::COLUMN_CREATE_DATE)
             ->setOption('type', 'INNODB')
             ->setOption('charset', 'utf8')
             ->setOption('collate', 'utf8_general_ci')

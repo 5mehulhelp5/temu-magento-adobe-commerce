@@ -29,7 +29,8 @@ class SalesAttributesProvider implements DataBuilderInterface
                 'parent_spec_id' => $attribute->getParentSpecId(),
                 'spec_id' => $attribute->getSpecId(),
                 'value' => $attribute->getValue(),
-                'value_id' => $attribute->getValueId()
+                'value_id' => $attribute->getValueId(),
+                'name' => $attribute->getName()
             ];
         }, $this->attributeProcessor->getAttributes($product));
         $this->collectWarningMessages($this->attributeProcessor->getWarningMessages());

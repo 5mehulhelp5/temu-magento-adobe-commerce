@@ -126,6 +126,19 @@ class Repository
         return $account;
     }
 
+    public function findFirstForRegion(string $region): ?\M2E\Temu\Model\Account
+    {
+        $collection = $this->collectionFactory->create();
+        $collection->addFieldToFilter(AccountResource::COLUMN_REGION, $region);
+
+        $account = $collection->getFirstItem();
+        if ($account->isObjectNew()) {
+            return null;
+        }
+
+        return $account;
+    }
+
     /**
      * @return \M2E\Temu\Model\Account[]
      */

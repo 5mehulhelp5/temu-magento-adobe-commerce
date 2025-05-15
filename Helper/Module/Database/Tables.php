@@ -37,7 +37,6 @@ class Tables
 
     public const TABLE_NAME_CATEGORY_TREE = self::PREFIX . 'category_tree';
     public const TABLE_NAME_CATEGORY_DICTIONARY = self::PREFIX . 'category_dictionary';
-    public const TABLE_NAME_ATTRIBUTE_MAPPING = self::PREFIX . 'attribute_mapping';
     public const TABLE_NAME_TEMPLATE_CATEGORY_ATTRIBUTES = self::PREFIX . 'template_category_attributes';
 
     public const TABLE_NAME_PROCESSING_LOCK = self::PREFIX . 'processing_lock';
@@ -127,7 +126,6 @@ class Tables
             self::TABLE_NAME_CATEGORY_TREE => \M2E\Temu\Model\ResourceModel\Category\Tree::class,
             self::TABLE_NAME_CATEGORY_DICTIONARY => \M2E\Temu\Model\ResourceModel\Category\Dictionary::class,
             self::TABLE_NAME_TEMPLATE_CATEGORY_ATTRIBUTES => \M2E\Temu\Model\ResourceModel\Category\Attribute::class,
-            self::TABLE_NAME_ATTRIBUTE_MAPPING => \M2E\Temu\Model\ResourceModel\AttributeMapping\Pair::class,
         ];
     }
 
@@ -173,7 +171,6 @@ class Tables
             self::TABLE_NAME_CATEGORY_TREE => \M2E\Temu\Model\Category\Tree::class,
             self::TABLE_NAME_CATEGORY_DICTIONARY => \M2E\Temu\Model\Category\Dictionary::class,
             self::TABLE_NAME_TEMPLATE_CATEGORY_ATTRIBUTES => \M2E\Temu\Model\Category\CategoryAttribute::class,
-            self::TABLE_NAME_ATTRIBUTE_MAPPING => \M2E\Temu\Model\AttributeMapping\Pair::class,
         ];
     }
 

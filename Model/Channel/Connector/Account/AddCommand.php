@@ -7,13 +7,20 @@ namespace M2E\Temu\Model\Channel\Connector\Account;
 class AddCommand implements \M2E\Core\Model\Connector\CommandInterface
 {
     private string $authCode;
-
     private string $region;
+    private ?string $referer;
+    private ?string $callbackHost;
 
-    public function __construct(string $authCode, string $region)
-    {
+    public function __construct(
+        string $authCode,
+        string $region,
+        ?string $referer,
+        ?string $callbackHost
+    ) {
         $this->authCode = $authCode;
         $this->region = $region;
+        $this->referer = $referer;
+        $this->callbackHost = $callbackHost;
     }
 
     public function getCommand(): array
@@ -26,6 +33,8 @@ class AddCommand implements \M2E\Core\Model\Connector\CommandInterface
         return [
             'auth_code' => $this->authCode,
             'region' => $this->region,
+            'referer' => $this->referer,
+            'callback_host' => $this->callbackHost,
         ];
     }
 

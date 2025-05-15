@@ -6,7 +6,7 @@ namespace M2E\Temu\Model\Product\DataProvider\Variants;
 
 class Result extends \M2E\Temu\Model\Product\DataProvider\AbstractResult
 {
-    public function getValue(): array
+    public function getValue(): \M2E\Temu\Model\Product\DataProvider\Variants\Collection
     {
         return $this->value;
     }

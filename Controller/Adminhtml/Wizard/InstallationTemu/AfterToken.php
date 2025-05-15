@@ -32,6 +32,10 @@ class AfterToken extends Installation
     {
         $authCode = $this->getRequest()->getParam('code');
         $region = $this->getRequest()->getParam('region');
+        /** @var string|null $referrer */
+        $referrer = $this->getRequest()->getParam('referrer');
+        /** @var string|null $callbackHost */
+        $callbackHost = $this->getRequest()->getParam('callback_host');
 
         if (!$authCode) {
             $this->messageManager->addError(__('Auth Code is not defined'));
@@ -40,7 +44,7 @@ class AfterToken extends Installation
         }
 
         try {
-            $this->accountCreate->create($authCode, $region);
+            $this->accountCreate->create($authCode, $region, $referrer, $callbackHost);
             $this->setStep($this->getNextStep());
         } catch (\Throwable $throwable) {
             $this->exceptionHelper->process($throwable);

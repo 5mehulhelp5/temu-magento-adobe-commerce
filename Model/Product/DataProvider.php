@@ -27,7 +27,7 @@ class DataProvider
         $this->dataBuilderFactory = $dataBuilderFactory;
     }
 
-    public function getVariantSkus(): DataProvider\Variants\Result
+    public function getVariantSkusForRevise(): DataProvider\Variants\Result
     {
         if ($this->hasResult(DataProvider\VariantsProvider::NICK)) {
             /** @var DataProvider\Variants\Result */
@@ -37,7 +37,7 @@ class DataProvider
         /** @var \M2E\Temu\Model\Product\DataProvider\VariantsProvider $builder */
         $builder = $this->getBuilder(\M2E\Temu\Model\Product\DataProvider\VariantsProvider::NICK);
 
-        $value = $builder->getVariantSkus($this->product, $this->variantSettings);
+        $value = $builder->getVariantSkusForRevise($this->product, $this->variantSettings);
 
         $result = DataProvider\Variants\Result::success($value, $builder->getWarningMessages());
 

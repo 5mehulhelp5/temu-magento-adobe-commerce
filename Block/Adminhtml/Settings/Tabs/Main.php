@@ -326,13 +326,13 @@ HTML
     {
         switch ($type) {
             case Settings::DIMENSION_TYPE_WEIGHT:
-                return (string)__("The package weight must be a positive number. ( kg (EU), lb (US))");
+                return (string)__("The package weight must be a positive number. ( kg (EU, Global), lb (US))");
             case Settings::DIMENSION_TYPE_LENGTH:
-                return (string)__("The package length needs to be a whole number that's not negative. (cm (EU), in (US))");
+                return (string)__("The package length needs to be a whole number that's not negative. (cm (EU, Global), in (US))");
             case Settings::DIMENSION_TYPE_WIDTH:
-                return (string)__("The package width needs to be a whole number that's not negative. (cm (EU), in (US))");
+                return (string)__("The package width needs to be a whole number that's not negative. (cm (EU, Global), in (US))");
             case Settings::DIMENSION_TYPE_HEIGHT:
-                return (string)__("The package height needs to be a whole number that's not negative. (cm (EU), in (US))");
+                return (string)__("The package height needs to be a whole number that's not negative. (cm (EU, Global), in (US))");
         }
 
         return 'N/A';

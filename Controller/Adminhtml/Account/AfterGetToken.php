@@ -35,6 +35,10 @@ class AfterGetToken extends AbstractAccount
         $authCode = $this->getRequest()->getParam('code');
         $region = $this->getRequest()->getParam('region');
         $specificEndUrl = $this->getRequest()->getParam('specific_end_url');
+        /** @var string|null $referrer */
+        $referrer = $this->getRequest()->getParam('referrer');
+        /** @var string|null $callbackHost */
+        $callbackHost = $this->getRequest()->getParam('callback_host');
 
         if ($authCode === null) {
             $this->_redirect('*/*/index');
@@ -43,7 +47,7 @@ class AfterGetToken extends AbstractAccount
         $accountId = (int)$this->getRequest()->getParam('id');
         try {
             if (empty($accountId)) {
-                $account = $this->accountCreate->create($authCode, $region);
+                $account = $this->accountCreate->create($authCode, $region, $referrer, $callbackHost);
 
                 if ($specificEndUrl !== null) {
                     return $this->_redirect($specificEndUrl);

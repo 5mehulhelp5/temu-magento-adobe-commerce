@@ -20,6 +20,9 @@ class Config implements \M2E\Core\Model\Setup\Upgrade\Entity\ConfigInterface
                 \M2E\Temu\Setup\Update\y25_m03\AddOnlineImageVariantSku::class,
                 \M2E\Temu\Setup\Update\y25_m03\AddAttributeMappingTable::class
             ],
+            'y25_m04' => [
+                \M2E\Temu\Setup\Update\y25_m04\RemoveAttributeMappingTable::class,
+            ],
         ];
     }
 }

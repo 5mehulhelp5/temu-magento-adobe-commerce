@@ -12,20 +12,19 @@ class ImagesProvider implements DataBuilderInterface
 
     private string $images = '';
 
-    public function getImages(\M2E\Temu\Model\Product $product): array
+    public function getImages(\M2E\Temu\Model\Product $product): Images\Value
     {
         $productImageSet = $product->getDescriptionTemplateSource()->getImageSet();
 
-        $result = [];
+        $set = [];
 
         foreach ($productImageSet->getAll() as $productImage) {
-            $result[] = $productImage->getUrl();
+            $set[] = new \M2E\Temu\Model\Product\DataProvider\Images\Image($productImage->getUrl());
         }
 
-        $data = json_encode($result);
-        $this->images =  \M2E\Core\Helper\Data::md5String($data);
+        $this->images = $this->generateImagesHash($set);
 
-        return $result;
+        return new Images\Value($set);
     }
 
     public function getMetaData(): array
@@ -33,5 +32,22 @@ class ImagesProvider implements DataBuilderInterface
         return [
             self::NICK => ['images' => $this->images],
         ];
+    }
+
+    /**
+     * @param \M2E\Temu\Model\Product\DataProvider\Images\Image[] $set
+     *
+     * @return string
+     */
+    private function generateImagesHash(array $set): string
+    {
+        $flatImages = [];
+        foreach ($set as $image) {
+            $flatImages[] = $image->url;
+        }
+
+        sort($flatImages);
+
+        return \M2E\Core\Helper\Data::md5String(json_encode($flatImages));
     }
 }

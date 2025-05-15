@@ -304,7 +304,10 @@ class Reserve
                 $qty = $item->getQtyReserved();
                 $item->setQtyReserved(0);
 
-                if ($item->getMagentoProduct()->isBundleType()) {
+                if (
+                    $item->getMagentoProduct() !== null
+                    && $item->getMagentoProduct()->isBundleType()
+                ) {
                     $this->ensureParentStockStatusInStock($item->getMagentoProduct()->getProductId());
                 }
             }

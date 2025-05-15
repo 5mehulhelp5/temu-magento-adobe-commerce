@@ -18,6 +18,7 @@ class Manager
     private \M2E\Temu\Model\Template\Category\DiffFactory $diffFactory;
     private \M2E\Temu\Model\Template\Category\ChangeProcessorFactory $changeProcessorFactory;
     private \M2E\Temu\Model\Template\Category\AffectedListingsProductsFactory $affectedListingsProductsFactory;
+    private \M2E\Temu\Model\AttributeMapping\GeneralService $attributeMappingGeneralService;
 
     public function __construct(
         \M2E\Temu\Model\Category\Dictionary\Repository $categoryDictionaryRepository,
@@ -26,7 +27,8 @@ class Manager
         \M2E\Temu\Model\Template\Category\SnapshotBuilderFactory $snapshotBuilderFactory,
         \M2E\Temu\Model\Template\Category\DiffFactory $diffFactory,
         \M2E\Temu\Model\Template\Category\ChangeProcessorFactory $changeProcessorFactory,
-        \M2E\Temu\Model\Template\Category\AffectedListingsProductsFactory $affectedListingsProductsFactory
+        \M2E\Temu\Model\Template\Category\AffectedListingsProductsFactory $affectedListingsProductsFactory,
+        \M2E\Temu\Model\AttributeMapping\GeneralService $attributeMappingGeneralService
     ) {
         $this->categoryDictionaryRepository = $categoryDictionaryRepository;
         $this->categoryAttributeRepository = $categoryAttributeRepository;
@@ -35,6 +37,7 @@ class Manager
         $this->diffFactory = $diffFactory;
         $this->changeProcessorFactory = $changeProcessorFactory;
         $this->affectedListingsProductsFactory = $affectedListingsProductsFactory;
+        $this->attributeMappingGeneralService = $attributeMappingGeneralService;
     }
 
     /**
@@ -90,6 +93,8 @@ class Manager
             $dictionary->setUsedProductAttributes($countOfUsedAttributes);
             $dictionary->installStateSaved();
             $this->categoryDictionaryRepository->save($dictionary);
+
+            $this->attributeMappingGeneralService->create($dictionary->getRelatedAttributes());
         } catch (\Throwable $exception) {
             $transaction->rollBack();
             throw $exception;

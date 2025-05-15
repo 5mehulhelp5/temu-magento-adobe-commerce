@@ -12,10 +12,10 @@ class VariantsProvider implements DataBuilderInterface
 
     private array $onlineDataForSku = [];
 
-    public function getVariantSkus(
+    public function getVariantSkusForRevise(
         \M2E\Temu\Model\Product $product,
         \M2E\Temu\Model\Product\Action\VariantSettings $variantSettings
-    ): array {
+    ): \M2E\Temu\Model\Product\DataProvider\Variants\Collection {
         $variants = $product->getVariants();
         $skuItems = new \M2E\Temu\Model\Product\DataProvider\Variants\Collection();
 
@@ -56,13 +56,13 @@ class VariantsProvider implements DataBuilderInterface
 
         $this->onlineDataForSku = $skuItems->collectOnlineData();
 
-        return $skuItems->toArray();
+        return $skuItems;
     }
 
     public function getVariantSkusForList(
         \M2E\Temu\Model\Product $product,
         \M2E\Temu\Model\Product\Action\VariantSettings $variantSettings
-    ): array {
+    ): \M2E\Temu\Model\Product\DataProvider\Variants\Collection {
         $variants = $product->getVariants();
         $skuItems = new \M2E\Temu\Model\Product\DataProvider\Variants\Collection();
 
@@ -114,7 +114,7 @@ class VariantsProvider implements DataBuilderInterface
 
         $this->onlineDataForSku = $skuItems->collectOnlineDataForList();
 
-        return $skuItems->toArrayForList();
+        return $skuItems;
     }
 
     public function getMetaData(): array

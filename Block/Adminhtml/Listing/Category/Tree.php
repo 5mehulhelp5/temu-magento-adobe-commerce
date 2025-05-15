@@ -5,7 +5,6 @@ namespace M2E\Temu\Block\Adminhtml\Listing\Category;
 class Tree extends \M2E\Temu\Block\Adminhtml\Magento\Category\AbstractCategory
 {
     public bool $_isAjax = false;
-    protected $_template = 'listing/category/tree.phtml';
 
     protected array $_selectedCategories = [];
     protected array $_highlightedCategories = [];

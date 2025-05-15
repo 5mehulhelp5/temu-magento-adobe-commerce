@@ -39,7 +39,8 @@ class Serializer
                 'ref_pid' => $attribute->getRefPid(),
                 'template_pid' => $attribute->getTemplatePid(),
                 'parent_spec_id' => $attribute->getParentSpecId(),
-                'values' => $values
+                'parent_template_pid' => $attribute->getParentTemplatePid(),
+                'values' => $values,
             ];
         }
 
@@ -67,6 +68,7 @@ class Serializer
                 $item['ref_pid'],
                 $item['template_pid'],
                 $item['parent_spec_id'],
+                $item['parent_template_pid'] ?? null,
                 $values
             );
         }
@@ -101,7 +103,8 @@ class Serializer
                 'ref_pid' => $attribute->getRefPid(),
                 'template_pid' => $attribute->getTemplatePid(),
                 'parent_spec_id' => $attribute->getParentSpecId(),
-                'values' => $values
+                'parent_template_pid' => $attribute->getParentTemplatePid(),
+                'values' => $values,
             ];
         }
 
@@ -129,6 +132,7 @@ class Serializer
                 $item['ref_pid'],
                 $item['template_pid'],
                 $item['parent_spec_id'],
+                $item['parent_template_pid'] ?? null,
                 $values
             );
         }
@@ -144,7 +148,8 @@ class Serializer
                 'id' => $value->getId(),
                 'name' => $value->getName(),
                 'spec_id' => $value->getSpecId(),
-                'group_id' => $value->getGroupId()
+                'group_id' => $value->getGroupId(),
+                'children_relation' => $this->getValueRelation($value),
             ];
         }
 
@@ -160,12 +165,45 @@ class Serializer
     {
         $result = [];
         foreach ($values as $value) {
+            $valueRelation = $this->createValueRelation($value);
             $result[] = $this->attributeFactory->createValue(
                 $value['id'],
                 $value['name'],
                 $value['spec_id'],
-                $value['group_id']
+                $value['group_id'],
+                $valueRelation
             );
+        }
+
+        return $result;
+    }
+
+    private function createValueRelation(array $value): array
+    {
+        $result = [];
+        if (!empty($value['children_relation'])) {
+            foreach ($value['children_relation'] as $childRelation) {
+                if (empty($childRelation)) {
+                    continue;
+                }
+                $result[] = $this->attributeFactory->createValueRelation(
+                    $childRelation['child_template_pid'],
+                    $childRelation['values_ids']
+                );
+            }
+        }
+
+        return $result;
+    }
+
+    private function getValueRelation(Value $value): array
+    {
+        $result = [];
+        foreach ($value->getValueRelation() as $childRelation) {
+            $result[] = [
+                'child_template_pid' => $childRelation->getChildTemplatePid(),
+                'values_ids' => $childRelation->getValueIds(),
+            ];
         }
 
         return $result;

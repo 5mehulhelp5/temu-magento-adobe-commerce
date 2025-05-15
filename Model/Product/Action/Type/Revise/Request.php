@@ -17,10 +17,20 @@ class Request extends \M2E\Temu\Model\Product\Action\AbstractRequest
         array $params
     ): array {
         $dataProvider = $product->getDataProvider();
-        $variantSkus = $dataProvider->getVariantSkus()->getValue();
-
+        $variantSkus = $dataProvider->getVariantSkusForRevise()->getValue();
         $request['id'] = $product->getChannelProductId();
-        $request['skus'] = $variantSkus;
+
+        $request['skus'] = array_map(
+            static function (\M2E\Temu\Model\Product\DataProvider\Variants\Item $item) {
+                return [
+                    'id' => $item->getSkuId(),
+                    'price' => $item->getPrice(),
+                    'currency_code' => $item->getCurrency(),
+                    'qty' => $item->getQty(),
+                ];
+            },
+            $variantSkus->items
+        );
 
         $this->metadata = $dataProvider->getMetaData();
 

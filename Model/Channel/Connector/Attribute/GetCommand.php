@@ -8,11 +8,13 @@ class GetCommand implements \M2E\Core\Model\Connector\CommandInterface
 {
     private string $region;
     private int $categoryId;
+    private string $account;
 
-    public function __construct(string $region, int $categoryId)
+    public function __construct(string $region, int $categoryId, string $account)
     {
         $this->region = $region;
         $this->categoryId = $categoryId;
+        $this->account = $account;
     }
 
     public function getCommand(): array
@@ -25,6 +27,7 @@ class GetCommand implements \M2E\Core\Model\Connector\CommandInterface
         return [
             'region' => $this->region,
             'category_id' => $this->categoryId,
+            'account' => $this->account,
         ];
     }
 
@@ -52,7 +55,8 @@ class GetCommand implements \M2E\Core\Model\Connector\CommandInterface
                 $attributeData['pid'],
                 $attributeData['ref_pid'],
                 $attributeData['template_pid'],
-                $attributeData['parent_spec_id']
+                $attributeData['parent_spec_id'],
+                $attributeData['parent_template_pid']
             );
 
             foreach ($attributeData['options'] as $value) {
@@ -60,7 +64,8 @@ class GetCommand implements \M2E\Core\Model\Connector\CommandInterface
                     (string)$value['id'],
                     $value['value'],
                     $value['spec_id'],
-                    $value['group_id']
+                    $value['group_id'],
+                    $value['children_relation']
                 );
             }
 

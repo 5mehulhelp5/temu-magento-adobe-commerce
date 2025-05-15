@@ -151,6 +151,7 @@ class Processor
         return $this->createAttributeItem(
             $parentSpecId,
             null,
+            $attribute->getAttributeName(),
             $specId,
             $valueId
         );
@@ -169,7 +170,8 @@ class Processor
 
             $result[] = $this->createAttributeItem(
                 $this->getParentSpecId($attribute),
-                $attributeVal
+                $attributeVal,
+                $attribute->getAttributeName()
             );
         }
     }
@@ -183,7 +185,8 @@ class Processor
         if (!empty($attributeValue)) {
             $result[] = $this->createAttributeItem(
                 $this->getParentSpecId($attribute),
-                $attributeValue
+                $attributeValue,
+                $attribute->getAttributeName()
             );
         }
     }
@@ -191,12 +194,14 @@ class Processor
     private function createAttributeItem(
         ?int $parentSpecId,
         ?string $value,
+        ?string $name,
         ?int $specId = null,
         ?int $valueId = null
     ): \M2E\Temu\Model\Product\VariantSku\DataProvider\Attributes\Item {
         return new \M2E\Temu\Model\Product\VariantSku\DataProvider\Attributes\Item(
             $parentSpecId,
             $value,
+            $name,
             $specId,
             $valueId
         );

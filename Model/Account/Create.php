@@ -42,11 +42,15 @@ class Create
      */
     public function create(
         string $authCode,
-        string $region
+        string $region,
+        ?string $referer,
+        ?string $callbackHost
     ): \M2E\Temu\Model\Account {
         $response = $this->createOnServer(
             $authCode,
-            $region
+            $region,
+            $referer,
+            $callbackHost
         );
 
         $channelAccount = $response->getAccount();
@@ -96,11 +100,15 @@ class Create
      */
     private function createOnServer(
         string $authCode,
-        string $region
+        string $region,
+        ?string $referer,
+        ?string $callbackHost
     ): \M2E\Temu\Model\Channel\Connector\Account\Add\Response {
         return $this->addProcessor->process(
             $authCode,
-            $region
+            $region,
+            $referer,
+            $callbackHost
         );
     }
 

@@ -14,7 +14,7 @@ class ImagesValidator implements ValidatorInterface
             return null;
         }
 
-        $images = $product->getDataProvider()->getImages()->getValue();
+        $images = $product->getDataProvider()->getImages()->getValue()->set;
 
         if (count($images) === 0) {
             return (string)__(
@@ -25,7 +25,7 @@ class ImagesValidator implements ValidatorInterface
         }
 
         foreach ($images as $image) {
-            if (!$this->isValidUrl($image)) {
+            if (!$this->isValidUrl($image->url)) {
                 return (string)__(
                     'Product Images are invalid. To list the Product, ' .
                     'please make sure that the Image settings in the Description policy are correct and the Images ' .

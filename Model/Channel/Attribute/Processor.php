@@ -13,11 +13,13 @@ class Processor
 
     public function process(
         string $region,
-        int $categoryId
+        int $categoryId,
+        string $account
     ): \M2E\Temu\Model\Channel\Connector\Attribute\Get\Response {
         $command = new \M2E\Temu\Model\Channel\Connector\Attribute\GetCommand(
             $region,
-            $categoryId
+            $categoryId,
+            $account
         );
 
         /** @var \M2E\Temu\Model\Channel\Connector\Attribute\Get\Response */

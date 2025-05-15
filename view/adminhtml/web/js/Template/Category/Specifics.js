@@ -7,6 +7,8 @@ define([
 
         maxSelectedSpecifics: 45,
         specificsSnapshot: {},
+        maxVariantAttrs: 2,
+        minVariantAttrs: 1,
 
         // ---------------------------------------
 
@@ -42,6 +44,7 @@ define([
                     }, $t('Item Specifics cannot have the same Labels.')
             );
 
+            this.addVariantsValidator();
             this.createSpecificsSnapshot();
         },
 
@@ -61,6 +64,60 @@ define([
 
             $$('.remove_custom_specific_button').each(function (el) {
                 el.simulate('click');
+            });
+        },
+
+        // ---------------------------------------
+
+        addVariantsValidator: function () {
+            jQuery.validator.addMethod('variant-validator', function (val, element) {
+                const filledCount = jQuery('.variant-validator').filter((_, e) => e.value !== '0').length;
+                const shouldHighlight =
+                        (filledCount > this.maxVariantAttrs && val !== '0') ||
+                        (filledCount < this.minVariantAttrs && val === '0');
+
+                if (!shouldHighlight) {
+                    return true;
+                }
+
+                jQuery(element).addClass('mage-error').attr('aria-invalid', 'true');
+                let messageBlock = jQuery('#messages');
+                if (!messageBlock.length) {
+                    const container = jQuery('#chooser_container_specific').length
+                            ? '#chooser_container_specific'
+                            : '.page-main-actions';
+                    jQuery(container).before('<div id="messages"></div>');
+                    messageBlock = jQuery('#messages');
+                }
+
+                if (!messageBlock.hasClass('variation-error')) {
+                    const errorMessage = $t(
+                            'Invalid variant attributes: You must select at least %1 and no more than %2 variant attributes.'
+                    )
+                            .replace('%1', this.minVariantAttrs)
+                            .replace('%2', this.maxVariantAttrs);
+
+                    messageBlock
+                            .append(`
+                            <div class="messages">
+                                <div class="message message-error error variant-error">
+                                    <div data-ui-id="messages-message-error">
+                                        ${errorMessage}
+                                    </div>
+                                </div>
+                            </div>
+                        `)
+                            .addClass('variation-error');
+                }
+
+                return false;
+            }.bind(this), '');
+
+            jQuery(document).on('change', '.variant-validator', function () {
+                const messageBlock = jQuery('#messages');
+                if (messageBlock && messageBlock.hasClass('variation-error')) {
+                    messageBlock.removeClass('variation-error').empty();
+                }
             });
         },
 

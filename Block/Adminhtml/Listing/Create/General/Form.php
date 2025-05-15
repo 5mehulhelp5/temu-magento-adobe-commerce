@@ -318,6 +318,16 @@ JS
                         ['_current' => true, 'region' => 'EU', 'specific_end_url' => $this->getUrl('*/*/*', ['_current' => true]),]
                     ),
                 ],
+            ],
+            [
+                'label' => 'Global',
+                'id' => 'Global',
+                'onclick' => 'setLocation(this.getAttribute("data-url"))',
+                'data_attribute' => [
+                    'url' => $this->accountUrlHelper->getBeforeGetTokenUrl(
+                        ['_current' => true, 'region' => 'global', 'specific_end_url' => $this->getUrl('*/*/*', ['_current' => true]),]
+                    ),
+                ],
             ]
         ];
     }

@@ -616,3 +616,32 @@ button.action * {
 .data-grid .m2e-variation-attributes a:hover {
     text-decoration: underline;
 }
+
+.temu_channel_attribute {
+    width: 45%;
+}
+.Temu-fieldset .specific-table .variant-validator.mage-error{
+    border: 1px solid #e22626 !important;
+}
+.Temu-fieldset .specific-table .variant-validator.mage-error + label.mage-error{
+    display: none !important;
+}
+
+.specific-table tr.child-relation-row td:first-child span{
+    padding-left: 15px;
+}
+
+.specific-table tr.child-relation-row {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    visibility: hidden;
+    position: absolute;
+}
+
+.specific-table tr.child-relation-row.visible {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    position: static;
+}

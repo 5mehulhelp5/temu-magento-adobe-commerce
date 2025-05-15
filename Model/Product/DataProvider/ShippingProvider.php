@@ -9,7 +9,7 @@ class ShippingProvider implements DataBuilderInterface
     public const NICK = 'Shipping';
     private array $shipping = [];
 
-    public function getShippingData(\M2E\Temu\Model\Product $product): ?array
+    public function getShippingData(\M2E\Temu\Model\Product $product): ?\M2E\Temu\Model\Product\DataProvider\Shipping\Value
     {
         $listing = $product->getListing();
 
@@ -26,7 +26,10 @@ class ShippingProvider implements DataBuilderInterface
 
         $this->shipping = $shippingData;
 
-        return $shippingData;
+        return new \M2E\Temu\Model\Product\DataProvider\Shipping\Value(
+            $shippingPolicy->getShippingTemplateId(),
+            $shippingPolicy->getPreparationTime()
+        );
     }
 
     public function getWarningMessages(): array

@@ -21,7 +21,8 @@ $element = $this->getElement();
     <tbody>
     <?php
     foreach ($element->getSpecifics() as $index => $specific) { ?>
-        <tr style="height: 25px;">
+        <tr style="height: 25px;" <?php
+        echo ($element->isProductChildAttribute($specific)) ? 'class="child-relation-row"' : ''; ?>>
             <td style="vertical-align:top;">
                 <?php
                 echo $element->getAttributeIdHiddenHtml($index, $specific); ?>
@@ -49,7 +50,7 @@ $element = $this->getElement();
                 echo $element->getValueCustomAttributeHtml($index, $specific); ?>
             </td>
         </tr>
-    <?php
+        <?php
     } ?>
     </tbody>
 </table>

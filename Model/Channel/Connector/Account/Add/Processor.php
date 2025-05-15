@@ -14,19 +14,26 @@ class Processor
     }
 
     /**
-     * @param string $title
-     * @param string $token
+     * @param string $authCode
      * @param string $region
+     * @param string|null $referer
+     * @param string|null $callbackHost
      *
      * @return \M2E\Temu\Model\Channel\Connector\Account\Add\Response
      * @throws \M2E\Core\Model\Exception
      * @throws \M2E\Core\Model\Exception\Connection
      */
-    public function process(string $authCode, string $region): Response
-    {
+    public function process(
+        string $authCode,
+        string $region,
+        ?string $referer,
+        ?string $callbackHost
+    ): Response {
         $command = new \M2E\Temu\Model\Channel\Connector\Account\AddCommand(
             $authCode,
-            $region
+            $region,
+            $referer,
+            $callbackHost
         );
 
         /** @var Response */

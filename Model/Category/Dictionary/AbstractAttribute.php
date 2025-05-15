@@ -20,6 +20,7 @@ abstract class AbstractAttribute
     private string $typeFormat;
     private array $rules;
     private int $pid;
+    private ?int $parentTemplatePid;
 
     public function __construct(
         string $id,
@@ -34,6 +35,7 @@ abstract class AbstractAttribute
         int $refPid,
         int $templatePid,
         ?int $parentSpecId,
+        ?int $parentTemplatePid,
         array $recommendedValues = []
     ) {
         $this->id = $id;
@@ -49,6 +51,7 @@ abstract class AbstractAttribute
         $this->typeFormat = $typeFormat;
         $this->rules = $rules;
         $this->pid = $pid;
+        $this->parentTemplatePid = $parentTemplatePid;
     }
 
     abstract public function getType(): string;
@@ -119,5 +122,10 @@ abstract class AbstractAttribute
     public function getPid(): int
     {
         return $this->pid;
+    }
+
+    public function getParentTemplatePid(): ?int
+    {
+        return $this->parentTemplatePid;
     }
 }

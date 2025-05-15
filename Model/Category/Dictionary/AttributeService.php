@@ -22,10 +22,11 @@ class AttributeService
 
     public function getCategoryDataFromServer(
         string $region,
-        int $categoryId
+        int $categoryId,
+        string $account
     ): \M2E\Temu\Model\Channel\Connector\Attribute\Get\Response {
         return $this->attributeGetProcessor
-            ->process($region, $categoryId);
+            ->process($region, $categoryId, $account);
     }
 
     /*
@@ -60,6 +61,7 @@ class AttributeService
                 $responseAttribute->getRefPid(),
                 $responseAttribute->getTemplatePid(),
                 $responseAttribute->getParentSpecId(),
+                $responseAttribute->getParentTemplatePid(),
                 $values
             );
         }
@@ -89,6 +91,7 @@ class AttributeService
                 $responseAttribute->getRefPid(),
                 $responseAttribute->getTemplatePid(),
                 $responseAttribute->getParentSpecId(),
+                $responseAttribute->getParentTemplatePid(),
                 $values
             );
         }
@@ -166,14 +169,31 @@ class AttributeService
     {
         $values = [];
         foreach ($responseAttribute->getValues() as $value) {
+            $valueRelation = $this->getValueRelation($value);
             $values[] = $this->attributeFactory->createValue(
                 $value['id'],
                 $value['name'],
                 $value['spec_id'],
-                $value['group_id']
+                $value['group_id'],
+                $valueRelation
             );
         }
 
         return $values;
+    }
+
+    private function getValueRelation(array $value): array
+    {
+        $result = [];
+        if ($value['children_relation']) {
+            foreach ($value['children_relation'] as $childRelation) {
+                $result[] = $this->attributeFactory->createValueRelation(
+                    $childRelation['child_template_pid'],
+                    $childRelation['values_ids']
+                );
+            }
+        }
+
+        return $result;
     }
 }

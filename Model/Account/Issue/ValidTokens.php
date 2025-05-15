@@ -106,11 +106,12 @@ class ValidTokens implements \M2E\Temu\Model\Issue\LocatorInterface
     private function getIssue(string $accountName): Issue
     {
         $text = __(
-            "The token of %channel_title account \"%account_name\" is no longer valid.
-         Please edit your %channel_title account and get a new token.",
+            'The token of %channel_title account "%account_name" is no longer valid.
+         Please edit your %channel_title account and get a new token following <a href="%url" target ="_blank">these instructions.</a>',
             [
                 'account_name' => $accountName,
                 'channel_title' => \M2E\Temu\Helper\Module::getChannelTitle(),
+                'url' => 'https://help.m2epro.com/en/support/solutions/articles/9000267986-the-token-of-temu-account-is-no-longer-valid-',
             ],
         );
 
