@@ -84,7 +84,7 @@ class Save extends \M2E\Temu\Controller\Adminhtml\AbstractAccount
 
             $this->messageManager->addError($message);
 
-            return $this->_redirect('*/temu_account');
+            return $this->_redirect('*/account');
         }
 
         if ($this->isAjax()) {

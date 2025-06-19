@@ -6,18 +6,23 @@ namespace M2E\Temu\Model\Product;
 
 class CreateService
 {
+    private const MAX_CONFIGURABLE_ATTRIBUTE_COUNT = 2;
+
     private \M2E\Temu\Model\ProductFactory $listingProductFactory;
     private \M2E\Temu\Model\Product\VariantSkuFactory $variantSkuFactory;
     private Repository $listingProductRepository;
+    private \Magento\Framework\App\ResourceConnection $resource;
 
     public function __construct(
         \M2E\Temu\Model\ProductFactory $listingProductFactory,
         \M2E\Temu\Model\Product\VariantSkuFactory $variantSkuFactory,
-        Repository $listingProductRepository
+        Repository $listingProductRepository,
+        \Magento\Framework\App\ResourceConnection $resource
     ) {
         $this->listingProductFactory = $listingProductFactory;
         $this->variantSkuFactory = $variantSkuFactory;
         $this->listingProductRepository = $listingProductRepository;
+        $this->resource = $resource;
     }
 
     public function create(
@@ -42,11 +47,26 @@ class CreateService
             $listingProduct->setTemplateCategoryId($categoryDictionaryId);
         }
 
-        $this->listingProductRepository->create($listingProduct);
-        $variants = $this->createVariants($listingProduct, $m2eMagentoProduct, $unmanagedProduct);
+        if ($m2eMagentoProduct->isConfigurableType()) {
+            $listingProduct->setVariationAttributes(
+                $this->collectVariationAttributes($m2eMagentoProduct)
+            );
+        }
 
-        $this->listingProductRepository->createVariantsSku($variants);
-        $this->listingProductRepository->save($listingProduct->recalculateOnlineDataByVariants());
+        $transaction = $this->resource->getConnection()->beginTransaction();
+        try {
+            $this->listingProductRepository->create($listingProduct);
+            $variants = $this->createVariants($listingProduct, $m2eMagentoProduct, $unmanagedProduct);
+
+            $this->listingProductRepository->createVariantsSku($variants);
+            $this->listingProductRepository->save($listingProduct->recalculateOnlineDataByVariants());
+        } catch (\Throwable $exception) {
+            $transaction->rollBack();
+
+            throw $exception;
+        }
+
+        $transaction->commit();
 
         return $listingProduct;
     }
@@ -65,30 +85,56 @@ class CreateService
             }
         }
 
-        if (!$m2eMagentoProduct->isSimpleType()) {
-            return [];
+        if ($m2eMagentoProduct->isSimpleType()) {
+            return [
+                $this->createVariantEntity(
+                    $listingProduct,
+                    $m2eMagentoProduct,
+                    $unmanagedVariants[$m2eMagentoProduct->getProductId()] ?? null
+                ),
+            ];
         }
 
-        return [
-            $this->createVariantEntity(
+        $variants = [];
+        foreach ($m2eMagentoProduct->getConfigurableChildren() as $child) {
+            $variants[] = $this->createVariantEntity(
                 $listingProduct,
-                $m2eMagentoProduct,
-                $unmanagedVariants[$m2eMagentoProduct->getProductId()] ?? null
-            ),
-        ];
+                $child,
+                $unmanagedVariants[$child->getProductId()] ?? null
+            );
+        }
+
+        return $variants;
     }
 
     private function createVariantEntity(
         \M2E\Temu\Model\Product $listingProduct,
         \M2E\Temu\Model\Magento\Product $m2eMagentoProduct,
-        ?\M2E\Temu\Model\UnmanagedProduct\VariantSku $variant = null
+        ?\M2E\Temu\Model\UnmanagedProduct\VariantSku $unmanagedVariantSku = null
     ): VariantSku {
         $variantSku = $this->variantSkuFactory->create();
         $variantSku->init($listingProduct, $m2eMagentoProduct->getProductId());
 
-        if ($variant !== null) {
-            $variantSku->fillFromUnmanagedVariant($variant);
+        if ($unmanagedVariantSku !== null) {
+            $variantSku->fillFromUnmanagedVariant($unmanagedVariantSku);
         }
+
+        if ($listingProduct->isSimple()) {
+            return $variantSku;
+        }
+
+        $variationData = new \M2E\Temu\Model\Product\VariantSku\Dto\VariationData();
+        foreach ($listingProduct->getVariationAttributes()->getItems() as $variationAttributeItem) {
+            $variationData->add(
+                new \M2E\Temu\Model\Product\VariantSku\Dto\VariationDataItem(
+                    $variationAttributeItem->getAttributeCode(),
+                    $variationAttributeItem->getName(),
+                    $m2eMagentoProduct->getAttributeValue($variationAttributeItem->getAttributeCode())
+                )
+            );
+        }
+
+        $variantSku->setVariationData($variationData);
 
         return $variantSku;
     }
@@ -108,6 +154,32 @@ class CreateService
 
     private function isSupportedMagentoProductType(\M2E\Temu\Model\Magento\Product $ourMagentoProduct): bool
     {
-        return $ourMagentoProduct->isSimpleType();
+        return $ourMagentoProduct->isSimpleType() || $ourMagentoProduct->isConfigurableType();
+    }
+
+    private function collectVariationAttributes(
+        \M2E\Temu\Model\Magento\Product $m2eMagentoProduct
+    ): Dto\VariationAttributes {
+        $configurableAttributes = $m2eMagentoProduct->getConfigurableAttributes();
+
+        if (count($configurableAttributes) > self::MAX_CONFIGURABLE_ATTRIBUTE_COUNT) {
+            $configurableAttributes = array_slice(
+                $configurableAttributes,
+                0,
+                self::MAX_CONFIGURABLE_ATTRIBUTE_COUNT
+            );
+        }
+
+        $variationAttributes = new \M2E\Temu\Model\Product\Dto\VariationAttributes();
+        foreach ($configurableAttributes as $configurableAttribute) {
+            $variationAttributes->addItem(
+                new \M2E\Temu\Model\Product\Dto\VariationAttributeItem(
+                    $configurableAttribute->getAttributeCode(),
+                    $configurableAttribute->getDefaultFrontendLabel()
+                )
+            );
+        }
+
+        return $variationAttributes;
     }
 }

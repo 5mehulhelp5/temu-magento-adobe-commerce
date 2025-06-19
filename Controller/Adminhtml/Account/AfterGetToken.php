@@ -78,7 +78,7 @@ class AfterGetToken extends AbstractAccount
                 ),
             );
 
-            return $this->_redirect('*/Temu_account');
+            return $this->_redirect('*/account');
         }
 
         $this->messageManager->addSuccessMessage(__('Auth code was saved'));

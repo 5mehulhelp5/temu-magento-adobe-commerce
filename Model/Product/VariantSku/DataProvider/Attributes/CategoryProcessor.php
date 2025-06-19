@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace M2E\Temu\Model\Product\VariantSku\DataProvider\Attributes;
 
-class Processor
+class CategoryProcessor
 {
     /** @var \M2E\Temu\Model\Category\Dictionary\Attribute\SalesAttribute[] */
     private array $attributes;
@@ -26,17 +26,17 @@ class Processor
     }
 
     /**
-     * @param \M2E\Temu\Model\Product\VariantSku $listingProduct
+     * @param \M2E\Temu\Model\Product\VariantSku $variantSku
      *
      * @return \M2E\Temu\Model\Product\VariantSku\DataProvider\Attributes\Item[]
      */
     public function getAttributes(
-        \M2E\Temu\Model\Product\VariantSku $listingProduct
+        \M2E\Temu\Model\Product\VariantSku $variantSku
     ): array {
         $result = [];
-        $this->initDictionarySalesAttributes($listingProduct);
-        $attributes = $this->getDictionaryCategoryAttributes($listingProduct->getProduct()->getTemplateCategoryId());
-        $magentoProduct = $listingProduct->getMagentoProduct();
+        $this->initDictionarySalesAttributes($variantSku);
+        $attributes = $this->getDictionaryCategoryAttributes($variantSku->getProduct()->getTemplateCategoryId());
+        $magentoProduct = $variantSku->getMagentoProduct();
 
         $this->notFoundAttributeDetector->clearMessages();
         $this->notFoundAttributeDetector->searchNotFoundAttributes($magentoProduct);
@@ -47,7 +47,7 @@ class Processor
 
         $this->notFoundAttributeDetector->processNotFoundAttributes(
             $magentoProduct,
-            $listingProduct->getListing()->getStoreId(),
+            $variantSku->getListing()->getStoreId(),
             (string)__('Variants')
         );
 

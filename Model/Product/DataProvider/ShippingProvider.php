@@ -7,7 +7,8 @@ namespace M2E\Temu\Model\Product\DataProvider;
 class ShippingProvider implements DataBuilderInterface
 {
     public const NICK = 'Shipping';
-    private array $shipping = [];
+    private string $templateId = '';
+    private int $limitDay;
 
     public function getShippingData(\M2E\Temu\Model\Product $product): ?\M2E\Temu\Model\Product\DataProvider\Shipping\Value
     {
@@ -19,16 +20,15 @@ class ShippingProvider implements DataBuilderInterface
 
         $shippingPolicy = $product->getShippingTemplate();
 
-        $shippingData =  [
-            'template_id' => $shippingPolicy->getShippingTemplateId(),
-            'limit_day' => $shippingPolicy->getPreparationTime(),
-        ];
+        $shippingTemplateId = $shippingPolicy->getShippingTemplateId();
+        $shippingLimitDay = $shippingPolicy->getPreparationTime();
 
-        $this->shipping = $shippingData;
+        $this->templateId = $shippingTemplateId;
+        $this->limitDay = $shippingLimitDay;
 
         return new \M2E\Temu\Model\Product\DataProvider\Shipping\Value(
-            $shippingPolicy->getShippingTemplateId(),
-            $shippingPolicy->getPreparationTime()
+            $shippingTemplateId,
+            $shippingLimitDay
         );
     }
 
@@ -40,7 +40,10 @@ class ShippingProvider implements DataBuilderInterface
     public function getMetaData(): array
     {
         return [
-            self::NICK => ['shipping' => $this->shipping],
+            self::NICK => [
+                'template_id' => $this->templateId,
+                'limit_day' => $this->limitDay,
+            ],
         ];
     }
 }

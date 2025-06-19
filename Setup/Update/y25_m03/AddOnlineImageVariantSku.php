@@ -9,7 +9,6 @@ use M2E\Temu\Model\ResourceModel\Product\VariantSku as VariantSkuResource;
 
 class AddOnlineImageVariantSku extends \M2E\Core\Model\Setup\Upgrade\Entity\AbstractFeature
 {
-
     public function execute(): void
     {
         $modifier = $this->createTableModifier(Tables::TABLE_NAME_PRODUCT_VARIANT_SKU);

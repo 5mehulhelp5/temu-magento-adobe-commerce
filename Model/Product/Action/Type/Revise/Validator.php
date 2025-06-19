@@ -7,11 +7,15 @@ namespace M2E\Temu\Model\Product\Action\Type\Revise;
 class Validator extends \M2E\Temu\Model\Product\Action\Type\AbstractValidator
 {
     private \M2E\Temu\Model\Product\Action\Validator\VariantValidator $variantValidator;
+    /** @var \M2E\Temu\Model\Product\Action\Validator\ValidatorInterface[] */
+    private array $validators;
 
     public function __construct(
-        \M2E\Temu\Model\Product\Action\Validator\VariantValidator $variantValidator
+        \M2E\Temu\Model\Product\Action\Validator\VariantValidator $variantValidator,
+        array $validators = []
     ) {
         $this->variantValidator = $variantValidator;
+        $this->validators = $validators;
     }
 
     public function validate(
@@ -32,6 +36,13 @@ class Validator extends \M2E\Temu\Model\Product\Action\Type\AbstractValidator
         $variantErrors = $this->variantValidator->validate($product, $variantSettings);
         foreach ($variantErrors as $variantError) {
             $this->addMessage($variantError);
+        }
+
+        foreach ($this->validators as $validator) {
+            $error = $validator->validate($product, $actionConfigurator);
+            if ($error !== null) {
+                $this->addMessage($error);
+            }
         }
 
         return !$this->hasErrorMessages();

@@ -29,21 +29,10 @@ class VariantValidator
         \M2E\Temu\Model\Product $product,
         \M2E\Temu\Model\Product\Action\VariantSettings $variantSettings
     ): array {
-        $variantsWithoutSkipped = [];
+        $variants = $product->getVariants();
         $messages = [];
 
-        foreach ($product->getVariants() as $variant) {
-            if (
-                $variantSettings->isSkipAction($variant->getId())
-                || $variantSettings->isStopAction($variant->getId())
-            ) {
-                continue;
-            }
-
-            $variantsWithoutSkipped[] = $variant;
-        }
-
-        if (count($variantsWithoutSkipped) > self::VARIATION_COUNT_MAXIMUM) {
+        if (count($variants) > self::VARIATION_COUNT_MAXIMUM) {
             $messages[] = sprintf(
                 'The number of product variations cannot exceed %s.',
                 self::VARIATION_COUNT_MAXIMUM
@@ -52,7 +41,18 @@ class VariantValidator
             return $messages;
         }
 
-        foreach ($variantsWithoutSkipped as $variant) {
+        $totalVariantsQty = 0;
+        foreach ($variants as $variant) {
+            $totalVariantsQty += $variant->getDataProvider()->getQty()->getValue();
+        }
+
+        if ($totalVariantsQty <= 0) {
+            $messages[] = (string)__('The Product Quantity must be greater than 0.');
+
+            return $messages;
+        }
+
+        foreach ($variants as $variant) {
             $variantHasError = false;
 
             if ($error = $this->priceValidator->validate($variant)) {

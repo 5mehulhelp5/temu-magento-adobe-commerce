@@ -115,6 +115,12 @@ class PolicyHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
                 ['nullable' => false]
             )
             ->addColumn(
+                SellingFormatResource::COLUMN_REFERENCE_LINK_ATTRIBUTE,
+                Table::TYPE_TEXT,
+                255,
+                ['default' => null]
+            )
+            ->addColumn(
                 SellingFormatResource::COLUMN_UPDATE_DATE,
                 Table::TYPE_DATETIME,
                 null,
@@ -252,6 +258,12 @@ class PolicyHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
             )
             ->addColumn(
                 SynchronizationResource::COLUMN_REVISE_UPDATE_DESCRIPTION,
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                SynchronizationResource::COLUMN_REVISE_UPDATE_SHIPPING,
                 Table::TYPE_SMALLINT,
                 null,
                 ['unsigned' => true, 'nullable' => false]

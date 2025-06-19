@@ -46,6 +46,25 @@ class DataProvider
         return $result;
     }
 
+    public function getVariantSkusForReviseDetails(): DataProvider\Variants\Result
+    {
+        if ($this->hasResult(DataProvider\VariantsProvider::NICK)) {
+            /** @var DataProvider\Variants\Result */
+            return $this->getResult(DataProvider\VariantsProvider::NICK);
+        }
+
+        /** @var \M2E\Temu\Model\Product\DataProvider\VariantsProvider $builder */
+        $builder = $this->getBuilder(\M2E\Temu\Model\Product\DataProvider\VariantsProvider::NICK);
+
+        $value = $builder->getVariantSkusForReviseDetails($this->product, $this->variantSettings);
+
+        $result = DataProvider\Variants\Result::success($value, $builder->getWarningMessages());
+
+        $this->addResult(DataProvider\VariantsProvider::NICK, $result);
+
+        return $result;
+    }
+
     public function getVariantSkusForList(): DataProvider\Variants\Result
     {
         if ($this->hasResult(DataProvider\VariantsProvider::NICK)) {

@@ -272,6 +272,46 @@ class Data extends AbstractForm
             ]
         );
 
+        $preparedAttributes = [];
+        foreach ($attributesByInputTypes['text'] as $attribute) {
+            $attrs = ['attribute_code' => $attribute['code']];
+            if (
+                !empty($formData['reference_link_attribute'])
+                && $formData['reference_link_attribute'] === $attribute['code']
+            ) {
+                $attrs['selected'] = 'selected';
+            }
+            $preparedAttributes[] = [
+                'attrs' => $attrs,
+                'value' => $attribute['code'],
+                'label' => $attribute['label'],
+            ];
+        }
+
+        $fieldset->addField(
+            'reference_link_attribute',
+            self::SELECT,
+            [
+                'name' => 'selling_format[reference_link_attribute]',
+                'label' => __('Reference Link'),
+                'values' => [
+                    '' => __('None'),
+                    [
+                        'label' => __('Magento Attributes'),
+                        'value' => $preparedAttributes,
+                        'attrs' => [
+                            'is_magento_attribute' => true,
+                        ],
+                    ],
+                ],
+                'create_magento_attribute' => true,
+                'tooltip' => __(
+                    'Select Magento attribute with a link to the product from other marketplaces (e.g. Amazon, eBay, TikTok Shop, etc.)
+                        This reference helps Temu to speed up price assessment. Links should begin with https:// or http://',
+                ),
+            ]
+        )->addCustomAttribute('allowed_attribute_types', 'text');
+
         $this->setForm($form);
 
         $this->jsPhp->addConstants(

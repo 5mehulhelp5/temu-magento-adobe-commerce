@@ -1,8 +1,8 @@
 <?php
 
-/** @var \M2E\Temu\Block\Adminhtml\Account\Edit\Form\Render $this */
+/** @var \M2E\Temu\Block\Adminhtml\Account\Edit\Form\Render $block */
 
-$isEmptyShippingProvider = empty($this->getShippingProviders());
+$isEmptyShippingProvider = empty($block->getShippingProviders());
 ?>
 
 <style>
@@ -23,9 +23,9 @@ $isEmptyShippingProvider = empty($this->getShippingProviders());
 <table id="shipping-mapping-grid" class="data-grid">
     <thead>
     <tr class="headings">
-        <th class="data-grid-th"><?= __('Region') ?></th>
-        <th class="data-grid-th"><?= __('Magento Carrier') ?></th>
-        <th class="data-grid-th"><?= __(
+        <th class="data-grid-th"><?= /* @noEscape */ __('Region') ?></th>
+        <th class="data-grid-th"><?= /* @noEscape */ __('Magento Carrier') ?></th>
+        <th class="data-grid-th"><?= /* @noEscape */ __(
                 '%channel_title Carrier',
                 [
                     'channel_title' => \M2E\Temu\Helper\Module::getChannelTitle(),
@@ -35,10 +35,10 @@ $isEmptyShippingProvider = empty($this->getShippingProviders());
     </thead>
     <tbody>
     <?php
-    foreach ($this->getRegions() as $region) : ?>
+    foreach ($block->getRegions() as $region) : ?>
         <?php
-        foreach ($this->getMagentoCarriers() as $key => $magentoCarrier) : ?>
-            <?= $this->renderTableRow($key, $region, $magentoCarrier) ?>
+        foreach ($block->getMagentoCarriers() as $key => $magentoCarrier) : ?>
+            <?= /* @noEscape */ $block->renderTableRow($key, $region, $magentoCarrier) ?>
         <?php
         endforeach; ?>
     <?php
@@ -48,6 +48,6 @@ $isEmptyShippingProvider = empty($this->getShippingProviders());
 
 <?php
 if ($isEmptyShippingProvider) : ?>
-    <p><?= __('To view available shipping carriers, please refresh your account data.') ?></p>
+    <p><?= /* @noEscape */ __('To view available shipping carriers, please refresh your account data.') ?></p>
 <?php
 endif; ?>

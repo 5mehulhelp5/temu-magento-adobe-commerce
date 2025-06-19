@@ -24,9 +24,12 @@ class Product extends \M2E\Temu\Model\ResourceModel\ActiveRecord\AbstractModel
     public const COLUMN_ONLINE_MAX_PRICE = 'online_max_price';
     public const COLUMN_ONLINE_CATEGORY_ID  = 'online_category_id';
     public const COLUMN_ONLINE_CATEGORIES_DATA = 'online_categories_data';
+    public const COLUMN_ONLINE_SHIPPING_TEMPLATE_ID = 'online_shipping_template_id';
+    public const COLUMN_ONLINE_PREPARATION_TIME = 'online_preparation_time';
     public const COLUMN_TEMPLATE_CATEGORY_ID  = 'template_category_id';
     public const COLUMN_LAST_BLOCKING_ERROR_DATE = 'last_blocking_error_date';
     public const COLUMN_ADDITIONAL_DATA = 'additional_data';
+    public const COLUMN_VARIATION_ATTRIBUTES = 'variation_attributes';
     public const COLUMN_UPDATE_DATE = 'update_date';
     public const COLUMN_CREATE_DATE = 'create_date';
 

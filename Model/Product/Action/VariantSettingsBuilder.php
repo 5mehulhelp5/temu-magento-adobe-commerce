@@ -69,7 +69,7 @@ class VariantSettingsBuilder
                 }
 
                 if ($currentStatus === \M2E\Temu\Model\Product::STATUS_NOT_LISTED) {
-                    $action = VariantSettings::ACTION_SKIP;
+                    $action = VariantSettings::ACTION_STOP;
                 }
             }
 

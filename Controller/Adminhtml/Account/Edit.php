@@ -34,7 +34,7 @@ class Edit extends AbstractAccount
         if ($account === null && $id) {
             $this->messageManager->addError(__('Account does not exist.'));
 
-            return $this->_redirect('*/temu_account');
+            return $this->_redirect('*/account');
         }
 
         if ($account !== null) {

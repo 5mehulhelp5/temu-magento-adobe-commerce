@@ -21,6 +21,7 @@ class Tables
     public const TABLE_NAME_LISTING_WIZARD_PRODUCT = self::PREFIX . 'listing_wizard_product';
     public const TABLE_NAME_PRODUCT = self::PREFIX . 'product';
     public const TABLE_NAME_PRODUCT_VARIANT_SKU = self::PREFIX . 'product_variant_sku';
+    public const TABLE_NAME_PRODUCT_VARIANT_SKU_DELETED = self::PREFIX . 'product_variant_sku_deleted';
     public const TABLE_NAME_PRODUCT_INSTRUCTION = self::PREFIX . 'product_instruction';
     public const TABLE_NAME_PRODUCT_SCHEDULED_ACTION = self::PREFIX . 'product_scheduled_action';
     public const TABLE_NAME_UNMANAGED_PRODUCT = self::PREFIX . 'unmanaged_product';
@@ -122,6 +123,7 @@ class Tables
             self::TABLE_NAME_UNMANAGED_PRODUCT => \M2E\Temu\Model\ResourceModel\UnmanagedProduct::class,
             self::TABLE_NAME_INVENTORY_SYNC_RECEIVED_PRODUCT => \M2E\Temu\Model\ResourceModel\InventorySync\ReceivedProduct::class,
             self::TABLE_NAME_PRODUCT_VARIANT_SKU => \M2E\Temu\Model\ResourceModel\Product\VariantSku::class,
+            self::TABLE_NAME_PRODUCT_VARIANT_SKU_DELETED => \M2E\Temu\Model\ResourceModel\Product\VariantSku\Deleted::class,
             self::TABLE_NAME_UNMANAGED_PRODUCT_VARIANT_SKU => \M2E\Temu\Model\ResourceModel\UnmanagedProduct\VariantSku::class,
             self::TABLE_NAME_CATEGORY_TREE => \M2E\Temu\Model\ResourceModel\Category\Tree::class,
             self::TABLE_NAME_CATEGORY_DICTIONARY => \M2E\Temu\Model\ResourceModel\Category\Dictionary::class,
@@ -167,6 +169,7 @@ class Tables
             self::TABLE_NAME_UNMANAGED_PRODUCT => \M2E\Temu\Model\UnmanagedProduct::class,
             self::TABLE_NAME_INVENTORY_SYNC_RECEIVED_PRODUCT => \M2E\Temu\Model\InventorySync\ReceivedProduct::class,
             self::TABLE_NAME_PRODUCT_VARIANT_SKU => \M2E\Temu\Model\Product\VariantSku::class,
+            self::TABLE_NAME_PRODUCT_VARIANT_SKU_DELETED => \M2E\Temu\Model\Product\VariantSku\Deleted::class,
             self::TABLE_NAME_UNMANAGED_PRODUCT_VARIANT_SKU => \M2E\Temu\Model\UnmanagedProduct\VariantSku::class,
             self::TABLE_NAME_CATEGORY_TREE => \M2E\Temu\Model\Category\Tree::class,
             self::TABLE_NAME_CATEGORY_DICTIONARY => \M2E\Temu\Model\Category\Dictionary::class,

@@ -34,11 +34,6 @@ class Index extends \M2E\Temu\Controller\Adminhtml\AbstractListing
             return $this->getResult();
         }
 
-        $filterByIds = [];
-        if (($idsString = $this->getRequest()->getParam('filter_by_ids')) !== null) {
-            $filterByIds = explode(',', $idsString);
-        }
-
         $view = $this
             ->getLayout()
             ->createBlock(
@@ -46,7 +41,6 @@ class Index extends \M2E\Temu\Controller\Adminhtml\AbstractListing
                 '',
                 [
                     'listingProduct' => $listingProduct,
-                    'filterByIds' => $filterByIds
                 ]
             );
 

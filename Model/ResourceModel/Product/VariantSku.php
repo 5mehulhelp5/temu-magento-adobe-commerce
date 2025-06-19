@@ -15,9 +15,11 @@ class VariantSku extends \M2E\Temu\Model\ResourceModel\ActiveRecord\AbstractMode
     public const COLUMN_ONLINE_PRICE = 'online_price';
     public const COLUMN_ONLINE_QTY = 'online_qty';
     public const COLUMN_ONLINE_IMAGE = 'online_image';
+    public const COLUMN_ONLINE_REFERENCE_LINK = 'online_reference_link';
     public const COLUMN_IDENTIFIERS = 'identifiers';
     public const COLUMN_QTY_ACTUALIZE_DATE = 'qty_actualize_date';
     public const COLUMN_PRICE_ACTUALIZE_DATE = 'price_actualize_date';
+    public const COLUMN_VARIATION_DATA = 'variation_data';
     public const COLUMN_UPDATE_DATE = 'update_date';
     public const COLUMN_CREATE_DATE = 'create_date';
 

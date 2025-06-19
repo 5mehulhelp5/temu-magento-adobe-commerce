@@ -165,10 +165,6 @@ class VariantSku extends \M2E\Temu\Model\ActiveRecord\AbstractModel implements
 
     public function changeStatusToInactive(): self
     {
-        if (!$this->isStatusListed()) {
-            return $this;
-        }
-
         $this->setStatus(\M2E\Temu\Model\Product::STATUS_INACTIVE);
 
         return $this;
@@ -241,6 +237,31 @@ class VariantSku extends \M2E\Temu\Model\ActiveRecord\AbstractModel implements
         return (string)$this->getData(VariantSkuResource::COLUMN_ONLINE_IMAGE);
     }
 
+    public function setVariationData(VariantSku\Dto\VariationData $variationData): self
+    {
+        $this->setData(VariantSkuResource::COLUMN_VARIATION_DATA, $variationData->exportToJson());
+
+        return $this;
+    }
+
+    public function getVariationData(): VariantSku\Dto\VariationData
+    {
+        return (new \M2E\Temu\Model\Product\VariantSku\Dto\VariationData())
+            ->importFromJson((string)$this->getData(VariantSkuResource::COLUMN_VARIATION_DATA));
+    }
+
+    public function setOnlineReferenceLink(?string $referenceLink): self
+    {
+        $this->setData(VariantSkuResource::COLUMN_ONLINE_REFERENCE_LINK, $referenceLink);
+
+        return $this;
+    }
+
+    public function getOnlineReferenceLink(): ?string
+    {
+        return $this->getData(VariantSkuResource::COLUMN_ONLINE_REFERENCE_LINK);
+    }
+
     public function getDataProvider(): VariantSku\DataProvider
     {
         /** @psalm-suppress RedundantPropertyInitializationCheck */
@@ -267,6 +288,7 @@ class VariantSku extends \M2E\Temu\Model\ActiveRecord\AbstractModel implements
             $this->getOnlineQty(),
             $this->getOnlinePrice(),
             $this->getOnlineSku(),
+            $this->getStatus(),
         );
     }
 

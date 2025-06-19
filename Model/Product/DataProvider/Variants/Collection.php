@@ -14,7 +14,7 @@ class Collection
         $this->items[] = $item;
     }
 
-    public function collectOnlineData(): array
+    public function collectOnlineDataForRevise(): array
     {
         $onlineData = [];
         foreach ($this->items as $item) {
@@ -22,6 +22,26 @@ class Collection
                 'sku_id' => $item->getSkuId(),
                 'online_price' => $item->getPrice(),
                 'online_qty' => $item->getQty(),
+            ];
+        }
+
+        return $onlineData;
+    }
+
+    public function collectOnlineDataForReviseDetails(): array
+    {
+        $onlineData = [];
+        foreach ($this->items as $item) {
+            $images = $item->getImages();
+            sort($images);
+            $onlineData[$item->getSkuId()] = [
+                'sku_id' => $item->getSkuId(),
+                'online_price' => $item->getPrice(),
+                'online_qty' => $item->getQty(),
+                'images' => \M2E\Core\Helper\Data::md5String(json_encode($images)),
+                'package_weight' => $item->getPackageWeight(),
+                'package_dimensions' => $item->getPackageDimensions(),
+                'online_reference_link' => $item->getReferenceLink()
             ];
         }
 
@@ -42,6 +62,7 @@ class Collection
                 'variation_attributes' => $item->getVariationAttributes(),
                 'package_weight' => $item->getPackageWeight(),
                 'package_dimensions' => $item->getPackageDimensions(),
+                'online_reference_link' => $item->getReferenceLink()
             ];
         }
 

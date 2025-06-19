@@ -101,27 +101,6 @@ class VariantSettings
         return $settings;
     }
 
-    public static function createAddActionStubForSimpleProduct(\M2E\Temu\Model\Product $product): self
-    {
-        $variantsData = [];
-        $processFirst = false;
-        foreach ($product->getVariants() as $variant) {
-            if (!$processFirst) {
-                $variantsData[$variant->getId()] = self::ACTION_ADD;
-                $processFirst = true;
-
-                continue;
-            }
-
-            $variantsData[$variant->getId()] = self::ACTION_SKIP;
-        }
-
-        $settings = new self();
-        $settings->variants = $variantsData;
-
-        return $settings;
-    }
-
     public function isEqual(VariantSettings $another): bool
     {
         $currentData = $this->variants;

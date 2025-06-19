@@ -122,6 +122,18 @@ define([
                         }
                     });
 
+            //list
+            $('list_mode')
+                    .observe('change', TemuTemplateSynchronizationObj.listMode_change).simulate('change');
+
+            $('list_qty_calculated')
+                    .observe('change', TemuTemplateSynchronizationObj.listQtyChange)
+                    .simulate('change');
+
+            $('list_advanced_rules_mode')
+                    .observe('change', TemuTemplateSynchronizationObj.listAdvancedRules_change)
+                    .simulate('change');
+
             //relist
             $('relist_mode')
                     .observe('change', TemuTemplateSynchronizationObj.relistMode_change)

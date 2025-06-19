@@ -442,7 +442,38 @@ class Product extends \M2E\Temu\Model\ActiveRecord\AbstractModel
 
     public function getOnlineCategoryId(): ?int
     {
-        return (int)$this->getData(ProductResource::COLUMN_ONLINE_CATEGORY_ID);
+        $categoryId = $this->getData(ProductResource::COLUMN_ONLINE_CATEGORY_ID);
+        if (empty($categoryId)) {
+            return null;
+        }
+
+        return (int)$categoryId;
+    }
+
+    public function setOnlineShippingTemplateId(string $templateId): self
+    {
+        $this->setData(ProductResource::COLUMN_ONLINE_SHIPPING_TEMPLATE_ID, $templateId);
+
+        return $this;
+    }
+
+    public function getOnlineShippingTemplateId(): ?string
+    {
+        return $this->getData(ProductResource::COLUMN_ONLINE_SHIPPING_TEMPLATE_ID);
+    }
+
+    public function setOnlinePreparationTime(int $time): self
+    {
+        $this->setData(ProductResource::COLUMN_ONLINE_PREPARATION_TIME, $time);
+
+        return $this;
+    }
+
+    public function getOnlinePreparationTime(): ?int
+    {
+        $value = $this->getData(ProductResource::COLUMN_ONLINE_PREPARATION_TIME);
+
+        return $value !== null ? (int)$value : null;
     }
 
     // ---------------------------------------
@@ -509,9 +540,14 @@ class Product extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         return $this;
     }
 
-    public function getOnlineImages(): string
+    public function getOnlineImages(): ?string
     {
-        return $this->getData(ProductResource::COLUMN_ONLINE_IMAGE);
+        $images = $this->getData(ProductResource::COLUMN_ONLINE_IMAGE);
+        if (empty($images)) {
+            return null;
+        }
+
+        return (string)$images;
     }
 
     // ----------------------------------------
@@ -709,5 +745,18 @@ class Product extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         $this->setData(ProductResource::COLUMN_LAST_BLOCKING_ERROR_DATE, null);
 
         return $this;
+    }
+
+    public function setVariationAttributes(\M2E\Temu\Model\Product\Dto\VariationAttributes $variationAttributes): self
+    {
+        $this->setData(ProductResource::COLUMN_VARIATION_ATTRIBUTES, $variationAttributes->exportToJson());
+
+        return $this;
+    }
+
+    public function getVariationAttributes(): \M2E\Temu\Model\Product\Dto\VariationAttributes
+    {
+        return (new \M2E\Temu\Model\Product\Dto\VariationAttributes())
+            ->importFromJson((string)$this->getData(ProductResource::COLUMN_VARIATION_ATTRIBUTES));
     }
 }

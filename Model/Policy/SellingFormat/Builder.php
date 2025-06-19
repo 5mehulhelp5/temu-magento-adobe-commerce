@@ -120,6 +120,10 @@ class Builder extends \M2E\Temu\Model\Policy\AbstractBuilder
             $data['fixed_price_custom_attribute'] = $this->rawData['fixed_price_custom_attribute'];
         }
 
+        if (isset($this->rawData['reference_link_attribute'])) {
+            $data['reference_link_attribute'] = $this->rawData['reference_link_attribute'];
+        }
+
         // ---------------------------------------
 
         if (isset($this->rawData['start_price_mode'])) {
@@ -271,6 +275,7 @@ class Builder extends \M2E\Temu\Model\Policy\AbstractBuilder
             'fixed_price_mode' => \M2E\Temu\Model\Policy\SellingFormat::PRICE_MODE_PRODUCT,
             'fixed_price_modifier' => '[]',
             'fixed_price_custom_attribute' => '',
+            'reference_link_attribute' => '',
         ];
     }
 

@@ -16,6 +16,8 @@ class Item
     private array $variationAttributes;
     private array $packageWeight;
     private array $packageDimensions;
+    private bool $isDeletedVariation = false;
+    private ?string $referenceLink;
 
     public function setSkuId(string $skuId): void
     {
@@ -115,5 +117,25 @@ class Item
     public function getImages(): array
     {
         return $this->images;
+    }
+
+    public function setIsDeletedVariation(bool $isDeletedVariation): void
+    {
+        $this->isDeletedVariation = $isDeletedVariation;
+    }
+
+    public function isDeletedVariation(): bool
+    {
+        return $this->isDeletedVariation;
+    }
+
+    public function setReferenceLink(?string $referenceLink): void
+    {
+        $this->referenceLink = $referenceLink;
+    }
+
+    public function getReferenceLink(): ?string
+    {
+        return $this->referenceLink;
     }
 }

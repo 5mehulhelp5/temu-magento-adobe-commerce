@@ -9,8 +9,8 @@
         'Temu/Category/Chooser'
     ], () => {
         window.TemuCategoryChooserObj = new TemuCategoryChooser(
-            "<?= $block->getRegion() ?>",
-            <?= $block->getAccountId() ?>
+            "<?= /* @noEscape */ $block->getRegion() ?>",
+            <?= /* @noEscape */ $block->getAccountId() ?>
         );
     });
 </script>
@@ -22,8 +22,8 @@
                 "components": {
                     "category_search": {
                         "component": "M2E_Temu/js/Category/Chooser/Tabs/Search",
-                        "searchUrl": "<?= $block->getSearchUrl() ?>",
-                        "region": "<?= $block->getRegion() ?>"
+                        "searchUrl": "<?= /* @noEscape */ $block->getSearchUrl() ?>",
+                        "region": "<?= /* @noEscape */ $block->getRegion() ?>"
                     }
                 }
             }

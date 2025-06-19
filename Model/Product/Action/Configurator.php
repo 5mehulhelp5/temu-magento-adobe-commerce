@@ -17,13 +17,15 @@ class Configurator
     public const DATA_TYPE_PRICE = 'price';
     public const DATA_TYPE_VARIANTS = 'variants';
     public const DATA_TYPE_CATEGORIES = 'categories';
+    public const DATA_TYPE_SHIPPING = 'shipping';
 
     private static array $allTypes = [
         self::DATA_TYPE_VARIANTS,
         self::DATA_TYPE_IMAGES,
         self::DATA_TYPE_TITLE,
         self::DATA_TYPE_DESCRIPTION,
-        self::DATA_TYPE_CATEGORIES
+        self::DATA_TYPE_CATEGORIES,
+        self::DATA_TYPE_SHIPPING
     ];
 
     private string $mode = self::MODE_EXCLUDING;
@@ -42,7 +44,8 @@ class Configurator
             self::DATA_TYPE_IMAGES,
             self::DATA_TYPE_TITLE,
             self::DATA_TYPE_DESCRIPTION,
-            self::DATA_TYPE_CATEGORIES
+            self::DATA_TYPE_CATEGORIES,
+            self::DATA_TYPE_SHIPPING
         ];
     }
 
@@ -350,5 +353,20 @@ class Configurator
         $this->disallow(self::DATA_TYPE_DESCRIPTION);
 
         return $this;
+    }
+
+    public function isShippingAllowed(): bool
+    {
+        return $this->isAllowed(self::DATA_TYPE_SHIPPING);
+    }
+
+    public function allowShipping(): self
+    {
+        return $this->allow(self::DATA_TYPE_SHIPPING);
+    }
+
+    public function disallowShipping(): self
+    {
+        return $this->disallow(self::DATA_TYPE_SHIPPING);
     }
 }

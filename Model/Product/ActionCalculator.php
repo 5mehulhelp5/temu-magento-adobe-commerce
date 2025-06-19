@@ -104,6 +104,11 @@ class ActionCalculator
         $configurator->disableAll();
 
         $this->updateConfiguratorAddVariants($configurator, $variantSettings);
+        $this->updateConfiguratorAddTitle($configurator, $product);
+        $this->updateConfiguratorAddDescription($configurator, $product);
+        $this->updateConfiguratorAddImages($configurator, $product);
+        $this->updateConfiguratorAddCategoryAttributes($configurator, $product);
+        $this->updateConfiguratorAddShipping($configurator, $product);
 
         if (empty($configurator->getAllowedDataTypes())) {
             return Action::createNothing($product);
@@ -224,5 +229,131 @@ class ActionCalculator
         }
 
         return $variantSettingsBuilder->build();
+    }
+
+    private function updateConfiguratorAddTitle(
+        Action\Configurator $configurator,
+        \M2E\Temu\Model\Product $product
+    ): void {
+        $syncPolicy = $product->getSynchronizationTemplate();
+
+        if (
+            $syncPolicy->isReviseUpdateTitle()
+            && $this->isChangedTitle($product)
+        ) {
+            $configurator->allowTitle();
+        }
+    }
+
+    private function isChangedTitle(
+        \M2E\Temu\Model\Product $product
+    ): bool {
+        $title = $product->getDataProvider()->getTitle()->getValue();
+        $onlineTitle = $product->getOnlineTitle();
+
+        return $title !== $onlineTitle;
+    }
+
+    private function updateConfiguratorAddDescription( //TODO bullet points
+        Action\Configurator $configurator,
+        \M2E\Temu\Model\Product $product
+    ): void {
+        $syncPolicy = $product->getSynchronizationTemplate();
+
+        if (
+            $syncPolicy->isReviseUpdateDescription()
+            && $this->isChangedDescription($product)
+        ) {
+            $configurator->allowDescription();
+        }
+    }
+
+    private function isChangedDescription(
+        \M2E\Temu\Model\Product $product
+    ): bool {
+        $descriptionHash = $product->getDataProvider()->getDescription()->getValue()->hash;
+        $onlineDescription = $product->getOnlineDescription();
+
+        return $descriptionHash !== $onlineDescription;
+    }
+
+    private function updateConfiguratorAddImages(
+        Action\Configurator $configurator,
+        \M2E\Temu\Model\Product $product
+    ): void {
+        $syncPolicy = $product->getSynchronizationTemplate();
+
+        if (
+            $syncPolicy->isReviseUpdateImages()
+            && $this->isChangedImages($product)
+        ) {
+            $configurator->allowImages();
+        }
+    }
+
+    private function isChangedImages(
+        \M2E\Temu\Model\Product $product
+    ): bool {
+        $imagesHash = $product->getDataProvider()->getImages()->getValue()->imagesHash;
+        $onlineImages = $product->getOnlineImages();
+
+        return $imagesHash !== $onlineImages;
+    }
+
+    private function updateConfiguratorAddCategoryAttributes(
+        Action\Configurator $configurator,
+        \M2E\Temu\Model\Product $product
+    ): void {
+        $syncPolicy = $product->getSynchronizationTemplate();
+
+        if (
+            $syncPolicy->isReviseUpdateCategories()
+            && $this->isChangedCategoryAttributes($product)
+        ) {
+            $configurator->allowCategories();
+        }
+    }
+
+    private function isChangedCategoryAttributes(
+        \M2E\Temu\Model\Product $product
+    ): bool {
+        try {
+            $categoryAttributesHash = $product->getDataProvider()->getProductAttributesData()->getValue()->hash;
+            $onlineCategoryAttributes = $product->getOnlineCategoryData();
+        } catch (\M2E\Temu\Model\Exception\Logic $exception) {
+            return false;
+        }
+
+        return $categoryAttributesHash !== $onlineCategoryAttributes;
+    }
+
+    private function updateConfiguratorAddShipping(
+        Action\Configurator $configurator,
+        \M2E\Temu\Model\Product $product
+    ): void {
+        $syncPolicy = $product->getSynchronizationTemplate();
+
+        if (
+            $syncPolicy->isReviseUpdateShipping()
+            && $this->isChangedShipping($product)
+        ) {
+            $configurator->allowShipping();
+        }
+    }
+
+    private function isChangedShipping(
+        \M2E\Temu\Model\Product $product
+    ): bool {
+        $shippingTemplateId = $product->getDataProvider()->getShipping()->getValue()->shippingTemplateId;
+        $onlineShippingTemplateId = $product->getOnlineShippingTemplateId();
+
+        if ($shippingTemplateId !== $onlineShippingTemplateId) {
+            return true;
+        }
+
+        $preparationTime = $product->getDataProvider()->getShipping()->getValue()->preparationTime;
+        $onlinePreparationTime = $product->getOnlinePreparationTime();
+
+        return $preparationTime !== $onlinePreparationTime;
     }
 }

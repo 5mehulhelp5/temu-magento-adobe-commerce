@@ -10,6 +10,11 @@
         <add id="M2E_Temu::temu" title="Temu" module="M2E_Temu" sortOrder="31"
              dependsOnModule="M2E_Temu" resource="M2E_Temu::temu"/>
 
+        <!-- Dashboard -->
+
+        <add id="M2E_Temu::overview" module="M2E_Temu" sortOrder="5" parent="M2E_Temu::temu" title="Overview" resource="M2E_Temu::temu"/>
+        <add id="M2E_Temu::temu_dashboard" title="Dashboard" module="M2E_Temu" sortOrder="10" parent="M2E_Temu::overview" action="m2e_temu/dashboard/index" resource="M2E_Temu::temu"/>
+
         <!-- Listing -->
 
         <add id="M2E_Temu::listings" module="M2E_Temu" sortOrder="10" parent="M2E_Temu::temu"

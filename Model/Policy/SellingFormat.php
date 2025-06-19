@@ -189,6 +189,11 @@ class SellingFormat extends \M2E\Temu\Model\ActiveRecord\AbstractModel implement
         ];
     }
 
+    public function getReferenceLinkAttribute(): ?string
+    {
+        return $this->getData(SellingFormatResource::COLUMN_REFERENCE_LINK_ATTRIBUTE);
+    }
+
     public function isLocked(): bool
     {
         return (bool)$this

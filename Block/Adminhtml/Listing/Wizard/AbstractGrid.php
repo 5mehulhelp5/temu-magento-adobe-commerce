@@ -138,6 +138,7 @@ abstract class AbstractGrid extends \M2E\Temu\Block\Adminhtml\Magento\Product\Gr
                     'attribute' => 'type_id',
                     'in' => [
                         \M2E\Temu\Helper\Magento\Product::TYPE_SIMPLE,
+                        \M2E\Temu\Helper\Magento\Product::TYPE_CONFIGURABLE,
                     ],
                 ],
             ],
@@ -358,6 +359,7 @@ JS,
         $magentoProductTypes = $this->type->getOptionArray();
         $knownTypes = [
             \M2E\Temu\Helper\Magento\Product::TYPE_SIMPLE,
+            \M2E\Temu\Helper\Magento\Product::TYPE_CONFIGURABLE,
         ];
 
         foreach ($magentoProductTypes as $type => $magentoProductTypeLabel) {

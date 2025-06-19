@@ -8,6 +8,7 @@ use M2E\Temu\Model\ResourceModel\Order as OrderResource;
 
 class Repository
 {
+    private \M2E\Core\Model\Dashboard\DateRangeFactory $dateRangeFactory;
     private \M2E\Temu\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory;
     private \M2E\Temu\Model\ResourceModel\Order\Item\CollectionFactory $orderItemCollectionFactory;
     private \M2E\Temu\Model\ResourceModel\Order\Change\CollectionFactory $orderChangeCollectionFactory;
@@ -23,7 +24,8 @@ class Repository
         \M2E\Temu\Model\ResourceModel\Order\Item\CollectionFactory $orderItemCollectionFactory,
         \M2E\Temu\Model\ResourceModel\Order\Change\CollectionFactory $orderChangeCollectionFactory,
         \M2E\Temu\Model\ResourceModel\Order\Note\CollectionFactory $orderNoteCollectionFactory,
-        \Magento\Sales\Model\ResourceModel\Order $magentoOrderResource
+        \Magento\Sales\Model\ResourceModel\Order $magentoOrderResource,
+        \M2E\Core\Model\Dashboard\DateRangeFactory $dateRangeFactory
     ) {
         $this->orderCollectionFactory = $orderCollectionFactory;
         $this->orderItemCollectionFactory = $orderItemCollectionFactory;
@@ -32,6 +34,7 @@ class Repository
         $this->orderResource = $orderResource;
         $this->orderFactory = $orderFactory;
         $this->magentoOrderResource = $magentoOrderResource;
+        $this->dateRangeFactory = $dateRangeFactory;
     }
 
     public function get(int $id): \M2E\Temu\Model\Order
@@ -313,5 +316,150 @@ class Repository
         $collection->setPageSize($limit);
 
         return array_values($collection->getItems());
+    }
+
+    public function getUnshippedCountForRange(
+        \DateTimeInterface $from,
+        \DateTimeInterface $to
+    ): int {
+        $collection = $this->orderCollectionFactory->create();
+        $collection->addFieldToFilter(\M2E\Temu\Model\ResourceModel\Order::COLUMN_SHIP_BY_DATE, ['notnull' => true]);
+        $collection->addFieldToFilter(\M2E\Temu\Model\ResourceModel\Order::COLUMN_SHIP_BY_DATE, [
+            'from' => $from->format('Y-m-d H:i:s'),
+            'to'   => $to->format('Y-m-d H:i:s'),
+        ]);
+        $collection->addFieldToFilter(\M2E\Temu\Model\ResourceModel\Order::COLUMN_ORDER_STATUS, \M2E\Temu\Model\Order::STATUS_UNSHIPPED);
+
+        return (int)$collection->getSize();
+    }
+
+    public function getLateUnshippedCount(): int
+    {
+        $currentDate = \M2E\Core\Helper\Date::createCurrentGmt();
+
+        $collection = $this->orderCollectionFactory->create();
+        $collection->addFieldToFilter(\M2E\Temu\Model\ResourceModel\Order::COLUMN_SHIP_BY_DATE, ['notnull' => true]);
+        $collection->addFieldToFilter(\M2E\Temu\Model\ResourceModel\Order::COLUMN_SHIP_BY_DATE, ['lt' => $currentDate->format('Y-m-d H:i:s')]);
+        $collection->addFieldToFilter(\M2E\Temu\Model\ResourceModel\Order::COLUMN_ORDER_STATUS, \M2E\Temu\Model\Order::STATUS_UNSHIPPED);
+
+        return (int)$collection->getSize();
+    }
+
+    public function getUnshippedCountFrom(\DateTimeInterface $from): int
+    {
+        $collection = $this->orderCollectionFactory->create();
+        $collection->addFieldToFilter(\M2E\Temu\Model\ResourceModel\Order::COLUMN_SHIP_BY_DATE, ['notnull' => true]);
+        $collection->addFieldToFilter(\M2E\Temu\Model\ResourceModel\Order::COLUMN_SHIP_BY_DATE, ['gteq' => $from->format('Y-m-d H:i:s')]);
+        $collection->addFieldToFilter(\M2E\Temu\Model\ResourceModel\Order::COLUMN_ORDER_STATUS, \M2E\Temu\Model\Order::STATUS_UNSHIPPED);
+
+        return (int)$collection->getSize();
+    }
+
+    /**
+     * @return \M2E\Core\Model\Dashboard\Sales\Point[]
+     */
+    public function getAmountPoints(
+        \DateTimeInterface $from,
+        \DateTimeInterface $to,
+        bool $isHourlyInterval
+    ): array {
+        return $this->getPoints(
+            'SUM(price_total + price_delivery + JSON_UNQUOTE(JSON_EXTRACT(tax_details, "$.amount")))',
+            $from,
+            $to,
+            $isHourlyInterval
+        );
+    }
+
+    /**
+     * @return \M2E\Core\Model\Dashboard\Sales\Point[]
+     */
+    public function getQuantityPoints(
+        \DateTimeInterface $from,
+        \DateTimeInterface $to,
+        bool $isHourlyInterval
+    ): array {
+        return $this->getPoints('COUNT(*)', $from, $to, $isHourlyInterval);
+    }
+
+    /**
+     * @return \M2E\Core\Model\Dashboard\Sales\Point[]
+     */
+    private function getPoints(
+        string $valueColumn,
+        \DateTimeInterface $from,
+        \DateTimeInterface $to,
+        bool $isHourlyInterval
+    ): array {
+        $collection = $this->orderCollectionFactory->create();
+
+        $collection->addFieldToFilter(\M2E\Temu\Model\ResourceModel\Order::COLUMN_ORDER_STATUS, ['in' => [
+            \M2E\Temu\Model\Order::STATUS_UNSHIPPED,
+            \M2E\Temu\Model\Order::STATUS_SHIPPED,
+            \M2E\Temu\Model\Order::STATUS_PARTIALLY_SHIPPED
+        ]]);
+        $collection->addFieldToFilter(OrderResource::COLUMN_PURCHASE_DATE, [
+            'from' => $from->format('Y-m-d H:i:s'),
+            'to'   => $to->format('Y-m-d H:i:s')
+        ]);
+
+        $select = $collection->getSelect();
+        $select->reset('columns');
+        $select->columns(
+            [
+                sprintf(
+                    'DATE_FORMAT(%s, "%s") AS date',
+                    OrderResource::COLUMN_PURCHASE_DATE,
+                    $isHourlyInterval ? '%Y-%m-%d %H' : '%Y-%m-%d'
+                ),
+                sprintf('%s AS value', $valueColumn),
+            ]
+        );
+
+        if ($isHourlyInterval) {
+            $select->group(sprintf('HOUR(main_table.%s)', OrderResource::COLUMN_PURCHASE_DATE));
+        }
+        $select->group(sprintf('DAY(main_table.%s)', OrderResource::COLUMN_PURCHASE_DATE));
+        $select->order('date');
+
+        $queryData = $select->query()->fetchAll();
+
+        $keyValueData = array_combine(
+            array_column($queryData, 'date'),
+            array_column($queryData, 'value')
+        );
+
+        return $this->makePoint($keyValueData, $from, $to, $isHourlyInterval);
+    }
+
+    /**
+     * @return \M2E\Core\Model\Dashboard\Sales\Point[]
+     */
+    private function makePoint(
+        array $data,
+        \DateTimeInterface $from,
+        \DateTimeInterface $to,
+        bool $isHourlyInterval
+    ): array {
+        $intervalFormat = $isHourlyInterval ? 'PT1H' : 'P1D';
+        $dateFormat = $isHourlyInterval ? 'Y-m-d H' : 'Y-m-d';
+
+        $period = new \DatePeriod(
+            $from,
+            new \DateInterval($intervalFormat),
+            $to
+        );
+
+        $points = [];
+        foreach ($period as $value) {
+            $pointValue = (float)($data[$value->format($dateFormat)] ?? 0);
+            $pointDate = clone $value;
+            $points[] = new \M2E\Core\Model\Dashboard\Sales\Point(
+                $pointValue,
+                $pointDate
+            );
+        }
+
+        return $points;
     }
 }

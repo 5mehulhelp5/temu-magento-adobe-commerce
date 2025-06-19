@@ -10,7 +10,7 @@ class ImagesProvider implements DataBuilderInterface
 
     public const NICK = 'Images';
 
-    private string $images = '';
+    private string $imagesHash = '';
 
     public function getImages(\M2E\Temu\Model\Product $product): Images\Value
     {
@@ -22,15 +22,16 @@ class ImagesProvider implements DataBuilderInterface
             $set[] = new \M2E\Temu\Model\Product\DataProvider\Images\Image($productImage->getUrl());
         }
 
-        $this->images = $this->generateImagesHash($set);
+        $hash = $this->generateImagesHash($set);
+        $this->imagesHash = $hash;
 
-        return new Images\Value($set);
+        return new Images\Value($set, $hash);
     }
 
     public function getMetaData(): array
     {
         return [
-            self::NICK => ['images' => $this->images],
+            self::NICK => ['images' => $this->imagesHash],
         ];
     }
 

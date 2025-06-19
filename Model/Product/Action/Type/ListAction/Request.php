@@ -61,6 +61,7 @@ class Request extends \M2E\Temu\Model\Product\Action\AbstractRequest
                     'variation_attributes' => $item->getVariationAttributes(),
                     'package_weight' => $item->getPackageWeight(),
                     'package_dimensions' => $item->getPackageDimensions(),
+                    'reference_link' => $item->getReferenceLink()
                 ];
             },
             $variantSkus->items

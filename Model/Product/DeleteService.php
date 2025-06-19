@@ -11,19 +11,22 @@ class DeleteService
     private \M2E\Temu\Model\ScheduledAction\Repository $scheduledActionRepository;
     private \M2E\Temu\Model\Instruction\Repository $instructionRepository;
     private \M2E\Temu\Model\Listing\LogService $listingLogService;
+    private VariantSku\DeletedVariantSkuService $backupVariantSkuService;
 
     public function __construct(
         \M2E\Temu\Model\Tag\ListingProduct\Buffer $tagBuffer,
         \M2E\Temu\Model\Product\Repository $listingProductRepository,
         \M2E\Temu\Model\ScheduledAction\Repository $scheduledActionRepository,
         \M2E\Temu\Model\Instruction\Repository $instructionRepository,
-        \M2E\Temu\Model\Listing\LogService $listingLogService
+        \M2E\Temu\Model\Listing\LogService $listingLogService,
+        VariantSku\DeletedVariantSkuService $backupVariantSkuService
     ) {
         $this->tagBuffer = $tagBuffer;
         $this->listingProductRepository = $listingProductRepository;
         $this->scheduledActionRepository = $scheduledActionRepository;
         $this->instructionRepository = $instructionRepository;
         $this->listingLogService = $listingLogService;
+        $this->backupVariantSkuService = $backupVariantSkuService;
     }
 
     public function process(
@@ -44,6 +47,7 @@ class DeleteService
             \M2E\Temu\Model\Log\AbstractModel::TYPE_INFO,
         );
 
+        $this->backupVariantSkuService->deleteForProduct($product);
         foreach ($product->getVariants() as $variant) {
             $this->listingProductRepository->deleteVariantSku($variant);
         }

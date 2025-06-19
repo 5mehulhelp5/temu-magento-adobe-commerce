@@ -14,26 +14,56 @@ class SalesAttributesProvider implements DataBuilderInterface
 
     public const NICK = 'SalesAttributes';
 
-    private \M2E\Temu\Model\Product\VariantSku\DataProvider\Attributes\Processor $attributeProcessor;
+    private \M2E\Temu\Model\Product\VariantSku\DataProvider\Attributes\CategoryProcessor $categoryAttributeProcessor;
+    private \M2E\Temu\Model\Product\VariantSku\DataProvider\Attributes\AttributeDataProcessor $attributeDataProcessor;
 
     public function __construct(
-        \M2E\Temu\Model\Product\VariantSku\DataProvider\Attributes\Processor $attributeProcessor
+        \M2E\Temu\Model\Product\VariantSku\DataProvider\Attributes\CategoryProcessor $categoryAttributeProcessor,
+        \M2E\Temu\Model\Product\VariantSku\DataProvider\Attributes\AttributeDataProcessor $attributeDataProcessor
     ) {
-        $this->attributeProcessor = $attributeProcessor;
+        $this->categoryAttributeProcessor = $categoryAttributeProcessor;
+        $this->attributeDataProcessor = $attributeDataProcessor;
     }
 
-    public function getSalesAttributesData(\M2E\Temu\Model\Product\VariantSku $product): array
+    public function getSalesAttributesData(\M2E\Temu\Model\Product\VariantSku $variantSku): array
     {
+        if ($variantSku->getProduct()->isSimple()) {
+            return $this->getSalesAttributesDataByCategoryAttributes($variantSku);
+        }
+
+        return $this->getSalesAttributesDataByMagentoConfigurableAttributes($variantSku);
+    }
+
+    private function getSalesAttributesDataByCategoryAttributes(
+        \M2E\Temu\Model\Product\VariantSku $variantSku
+    ): array {
         $result = array_map(static function (Item $attribute) {
             return [
                 'parent_spec_id' => $attribute->getParentSpecId(),
                 'spec_id' => $attribute->getSpecId(),
                 'value' => $attribute->getValue(),
                 'value_id' => $attribute->getValueId(),
-                'name' => $attribute->getName()
+                'name' => $attribute->getName(),
             ];
-        }, $this->attributeProcessor->getAttributes($product));
-        $this->collectWarningMessages($this->attributeProcessor->getWarningMessages());
+        }, $this->categoryAttributeProcessor->getAttributes($variantSku));
+        $this->collectWarningMessages($this->categoryAttributeProcessor->getWarningMessages());
+
+        return $result;
+    }
+
+    private function getSalesAttributesDataByMagentoConfigurableAttributes(
+        \M2E\Temu\Model\Product\VariantSku $variantSku
+    ): array {
+        $result = array_map(static function (Item $attribute) {
+            return [
+                'parent_spec_id' => $attribute->getParentSpecId(),
+                'spec_id' => $attribute->getSpecId(),
+                'value' => $attribute->getValue(),
+                'value_id' => $attribute->getValueId(),
+                'name' => $attribute->getName(),
+            ];
+        }, $this->attributeDataProcessor->getAttributes($variantSku));
+        $this->collectWarningMessages($this->attributeDataProcessor->getWarningMessages());
 
         return $result;
     }

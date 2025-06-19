@@ -11,10 +11,10 @@ use M2E\Temu\Model\ResourceModel\UnmanagedProduct as UnmanagedProductResource;
 use M2E\Temu\Model\ResourceModel\UnmanagedProduct\VariantSku as  UnmanagedProductVariantResource;
 use M2E\Temu\Model\ResourceModel\Product as ProductResource;
 use M2E\Temu\Model\ResourceModel\Product\VariantSku as ProductVariantSkuResource;
+use M2E\Temu\Model\ResourceModel\Product\VariantSku\Deleted as ProductVariantSkuDeletedResource;
 use M2E\Temu\Model\ResourceModel\ScheduledAction as ScheduledActionResource;
 use M2E\Temu\Model\ResourceModel\StopQueue as StopQueueResource;
 use M2E\Temu\Model\ResourceModel\InventorySync\ReceivedProduct as ReceivedProductResource;
-use M2E\Temu\Model\ResourceModel\AttributeMapping\Pair as PairResource;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\DB\Ddl\Table;
 
@@ -26,6 +26,7 @@ class ProductHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
     {
         $this->installProductTable($setup);
         $this->installProductVariantSkuTable($setup);
+        $this->installProductVariantSkuDeletedTable($setup);
         $this->installProductInstructionTable($setup);
         $this->installProductScheduledActionTable($setup);
         $this->installStopQueueTable($setup);
@@ -155,6 +156,18 @@ class ProductHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
                 ['default' => null]
             )
             ->addColumn(
+                ProductResource::COLUMN_ONLINE_SHIPPING_TEMPLATE_ID,
+                Table::TYPE_TEXT,
+                255,
+                ['nullable' => true, 'default' => null]
+            )
+            ->addColumn(
+                ProductResource::COLUMN_ONLINE_PREPARATION_TIME,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'nullable' => true, 'default' => null]
+            )
+            ->addColumn(
                 ProductResource::COLUMN_TEMPLATE_CATEGORY_ID,
                 Table::TYPE_INTEGER,
                 null,
@@ -164,6 +177,12 @@ class ProductHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
                 ProductResource::COLUMN_LAST_BLOCKING_ERROR_DATE,
                 Table::TYPE_DATETIME,
                 null,
+                ['nullable' => true, 'default' => null]
+            )
+            ->addColumn(
+                ProductResource::COLUMN_VARIATION_ATTRIBUTES,
+                Table::TYPE_TEXT,
+                \M2E\Core\Model\ResourceModel\Setup::LONG_COLUMN_SIZE,
                 ['nullable' => true, 'default' => null]
             )
             ->addColumn(
@@ -272,6 +291,12 @@ class ProductHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
                 ['default' => null]
             )
             ->addColumn(
+                ProductVariantSkuResource::COLUMN_ONLINE_REFERENCE_LINK,
+                Table::TYPE_TEXT,
+                255,
+                ['default' => null]
+            )
+            ->addColumn(
                 ProductVariantSkuResource::COLUMN_IDENTIFIERS,
                 Table::TYPE_TEXT,
                 \M2E\Core\Model\ResourceModel\Setup::LONG_COLUMN_SIZE,
@@ -290,6 +315,12 @@ class ProductHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
                 ['default' => null]
             )
             ->addColumn(
+                ProductVariantSkuResource::COLUMN_VARIATION_DATA,
+                Table::TYPE_TEXT,
+                \M2E\Core\Model\ResourceModel\Setup::LONG_COLUMN_SIZE,
+                ['nullable' => true, 'default' => null]
+            )
+            ->addColumn(
                 ProductVariantSkuResource::COLUMN_UPDATE_DATE,
                 Table::TYPE_DATETIME,
                 null,
@@ -306,6 +337,76 @@ class ProductHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
             ->addIndex('sku_id', ProductVariantSkuResource::COLUMN_SKU_ID)
             ->addIndex('online_qty', ProductVariantSkuResource::COLUMN_ONLINE_QTY)
             ->addIndex('online_price', ProductVariantSkuResource::COLUMN_ONLINE_PRICE)
+            ->setOption('type', 'INNODB')
+            ->setOption('charset', 'utf8')
+            ->setOption('collate', 'utf8_general_ci')
+            ->setOption('row_format', 'dynamic');
+
+        $setup->getConnection()->createTable($listingProductVariantTable);
+    }
+
+    private function installProductVariantSkuDeletedTable(\Magento\Framework\Setup\SetupInterface $setup)
+    {
+        $tableName = $this->tablesHelper->getFullName(TablesHelper::TABLE_NAME_PRODUCT_VARIANT_SKU_DELETED);
+
+        $listingProductVariantTable = $setup->getConnection()->newTable($tableName);
+
+        $listingProductVariantTable
+            ->addColumn(
+                ProductVariantSkuDeletedResource::COLUMN_ID,
+                Table::TYPE_INTEGER,
+                null,
+                [
+                    'unsigned' => true,
+                    'primary' => true,
+                    'nullable' => false,
+                    'auto_increment' => true,
+                ]
+            )
+            ->addColumn(
+                ProductVariantSkuDeletedResource::COLUMN_PRODUCT_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                ProductVariantSkuDeletedResource::COLUMN_REMOVED_MAGENTO_PRODUCT_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                ProductVariantSkuDeletedResource::COLUMN_SKU_ID,
+                Table::TYPE_TEXT,
+                50
+            )
+            ->addColumn(
+                ProductVariantSkuDeletedResource::COLUMN_ONLINE_SKU,
+                Table::TYPE_TEXT,
+                255,
+                ['default' => null]
+            )
+            ->addColumn(
+                ProductVariantSkuDeletedResource::COLUMN_ONLINE_PRICE,
+                Table::TYPE_DECIMAL,
+                [12, 4],
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                ProductVariantSkuDeletedResource::COLUMN_VARIATION_DATA,
+                Table::TYPE_TEXT,
+                \M2E\Core\Model\ResourceModel\Setup::LONG_COLUMN_SIZE,
+                ['nullable' => true, 'default' => null]
+            )
+            ->addColumn(
+                ProductVariantSkuDeletedResource::COLUMN_CREATE_DATE,
+                Table::TYPE_DATETIME,
+                null,
+                ['default' => null]
+            )
+            ->addIndex('product_id', ProductVariantSkuDeletedResource::COLUMN_PRODUCT_ID)
+            ->addIndex('removed_magento_product_id', ProductVariantSkuDeletedResource::COLUMN_REMOVED_MAGENTO_PRODUCT_ID)
+            ->addIndex('sku_id', ProductVariantSkuDeletedResource::COLUMN_SKU_ID)
             ->setOption('type', 'INNODB')
             ->setOption('charset', 'utf8')
             ->setOption('collate', 'utf8_general_ci')

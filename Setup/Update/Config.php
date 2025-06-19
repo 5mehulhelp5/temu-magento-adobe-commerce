@@ -23,6 +23,12 @@ class Config implements \M2E\Core\Model\Setup\Upgrade\Entity\ConfigInterface
             'y25_m04' => [
                 \M2E\Temu\Setup\Update\y25_m04\RemoveAttributeMappingTable::class,
             ],
+            'y25_m06' => [
+                \M2E\Temu\Setup\Update\y25_m06\AddConfigurableProducts::class,
+                \M2E\Temu\Setup\Update\y25_m06\AddShippingReviseColumnToPolicy::class,
+                \M2E\Temu\Setup\Update\y25_m06\AddOnlineShippingColumnsToProductTable::class,
+                \M2E\Temu\Setup\Update\y25_m06\AddReferenceLink::class,
+            ],
         ];
     }
 }

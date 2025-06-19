@@ -2,10 +2,10 @@
 
 namespace M2E\Temu\Block\Adminhtml\Listing\View\Temu;
 
+use M2E\Temu\Block\Adminhtml\Grid\Column\Renderer\ChannelProductId;
 use M2E\Temu\Block\Adminhtml\Log\AbstractGrid;
 use M2E\Temu\Model\Product;
 use M2E\Temu\Model\ResourceModel\Product as ListingProductResource;
-use M2E\Temu\Block\Adminhtml\Grid\Column\Renderer\ChannelProductId;
 
 class Grid extends \M2E\Temu\Block\Adminhtml\Listing\View\AbstractGrid
 {
@@ -111,6 +111,7 @@ class Grid extends \M2E\Temu\Block\Adminhtml\Listing\View\AbstractGrid
                 'online_min_price' => ListingProductResource::COLUMN_ONLINE_MIN_PRICE,
                 'online_max_price' => ListingProductResource::COLUMN_ONLINE_MAX_PRICE,
                 'listing_id' => ListingProductResource::COLUMN_LISTING_ID,
+                'variation_attributes' => ListingProductResource::COLUMN_VARIATION_ATTRIBUTES,
             ],
             sprintf(
                 '{{table}}.%s = %s',
@@ -287,6 +288,14 @@ class Grid extends \M2E\Temu\Block\Adminhtml\Listing\View\AbstractGrid
         return parent::_afterLoadCollection();
     }
 
+    /**
+     * @param $value
+     * @param \M2E\Temu\Block\Adminhtml\Listing\View\Temu\Row $row
+     * @param $column
+     * @param $isExport
+     *
+     * @return array|string|string[]|null
+     */
     public function callbackColumnTitle($value, $row, $column, $isExport)
     {
         $title = $row->getName();
@@ -303,9 +312,10 @@ class Grid extends \M2E\Temu\Block\Adminhtml\Listing\View\AbstractGrid
         $sku = $row->getData('sku');
 
         if ($row->getData('sku') === null) {
-            $sku = $this->ourMagentoProductFactory->create()
-                                                  ->setProductId($row->getData('entity_id'))
-                                                  ->getSku();
+            $sku = $this->ourMagentoProductFactory
+                ->create()
+                ->setProductId($row->getData('entity_id'))
+                ->getSku();
         }
 
         if ($isExport) {
@@ -322,18 +332,23 @@ class Grid extends \M2E\Temu\Block\Adminhtml\Listing\View\AbstractGrid
             return $valueHtml;
         }
 
-        $magentoProduct = $listingProduct->getMagentoProduct();
+        $variationAttributes = $listingProduct->getVariationAttributes();
+
+        if ($variationAttributes->isEmpty()) {
+            return $valueHtml;
+        }
+
         $configurableAttributes = array_map(
-            function (\Magento\Eav\Model\Entity\Attribute\AbstractAttribute $attribute) {
-                return sprintf('<span>%s</span>', $attribute->getDefaultFrontendLabel());
+            function (\M2E\Temu\Model\Product\Dto\VariationAttributeItem $item) {
+                return sprintf('<span>%s</span>', $item->getName());
             },
-            $magentoProduct->getConfigurableAttributes()
+            $variationAttributes->getItems()
         );
 
         $onclick = sprintf(
             'TemuListingVariationProductManageObj.openPopUp(%s, \'%s\')',
             $listingProduct->getId(),
-            $this->_escaper->escapeJs($magentoProduct->getName())
+            $this->_escaper->escapeJs($row->getName())
         );
 
         $manageLinkHtml = sprintf(
@@ -536,11 +551,15 @@ HTML;
             'listing_moving/moveToListingGrid'
         );
 
-        $taskCompletedWarningMessage = __('"%task_title%" task has completed with warnings. ' .
-            '<a target="_blank" href="%url%">View Log</a> for details.');
+        $taskCompletedWarningMessage = __(
+            '"%task_title%" task has completed with warnings. ' .
+            '<a target="_blank" href="%url%">View Log</a> for details.'
+        );
 
-        $taskCompletedErrorMessage = __('"%task_title%" task has completed with errors. ' .
-            '<a target="_blank" href="%url%">View Log</a> for details.');
+        $taskCompletedErrorMessage = __(
+            '"%task_title%" task has completed with errors. ' .
+            '<a target="_blank" href="%url%">View Log</a> for details.'
+        );
 
         $channelTitle = \M2E\Temu\Helper\Module::getChannelTitle();
 
@@ -602,28 +621,6 @@ HTML;
 JS
         );
 
-        $openPopUpWithFilterJs = '';
-        if ($childVariationIds = $this->getRequest()->getParam('child_variation_ids')) {
-            $openPopUpWithFilterJs = <<<JS
-function openPopupWithFilter() {
-    const checkboxes = $$('#$gridId .col-select input.admin__control-checkbox');
-    const titles = $$('#$gridId .product-title-value');
-
-    if (checkboxes.length !== 1) {
-        return;
-    }
-
-    const firstItemId = checkboxes[0].value;
-    const firstItemTitle = titles[0].innerText;
-
-    TemuListingVariationProductManageObj.openPopUp(firstItemId, firstItemTitle, '$childVariationIds');
-}
-
-openPopupWithFilter();
-
-JS;
-        }
-
         $this->js->addOnReadyJs(
             <<<JS
     require([
@@ -642,8 +639,6 @@ JS;
             TemuListingViewTemuGridObj.getGridMassActionObj().checkedString = Temu.productsIdsForList;
             TemuListingViewTemuGridObj.actionHandler.listAction();
         }
-
-        {$openPopUpWithFilterJs}
     });
 JS
         );

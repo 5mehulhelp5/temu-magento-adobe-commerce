@@ -92,19 +92,18 @@ class Title extends \Magento\Ui\Component\Listing\Columns\Column
         return $this->urlHelper->getUrlWithFilter('m2e_temu/listing/view', $filters, $params);
     }
 
-    private function renderVariantLine(\M2E\Temu\Model\Product $listingProduct): string
+    private function renderVariantLine(\M2E\Temu\Model\Product $product): string
     {
-        $magentoProduct = $listingProduct->getMagentoProduct();
-        $configurableAttributes = array_map(
-            static function (\Magento\Eav\Model\Entity\Attribute\AbstractAttribute $attribute) {
-                return sprintf('<span>%s</span>', $attribute->getDefaultFrontendLabel());
+        $variationAttributes = array_map(
+            static function (\M2E\Temu\Model\Product\Dto\VariationAttributeItem $attribute) {
+                return sprintf('<span>%s</span>', $attribute->getName());
             },
-            $magentoProduct->getConfigurableAttributes()
+            $product->getVariationAttributes()->getItems()
         );
 
         return sprintf(
             '<div style="font-size: 11px; font-weight: bold; color: grey; margin: 7px 0 0 7px">%s</div>',
-            implode(', ', $configurableAttributes)
+            implode(', ', $variationAttributes)
         );
     }
 }

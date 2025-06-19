@@ -414,7 +414,9 @@ class Product
         $childrenProducts = [];
         /** @var \Magento\Catalog\Model\Product $childProduct */
         foreach ($this->getTypeInstance()->getUsedProductCollection($this->getProduct()) as $childProduct) {
-            $childrenProducts[] = $this->m2eMagentoProductFactory->create()->setProduct($childProduct);
+            $childrenProducts[] = $this->m2eMagentoProductFactory
+                ->create()
+                ->loadProduct($childProduct->getId(), $this->getStoreId());
         }
 
         return $childrenProducts;

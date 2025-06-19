@@ -123,6 +123,31 @@ class Synchronization extends \M2E\Temu\Model\ActiveRecord\AbstractModel impleme
         return $this->getData(SynchronizationResource::COLUMN_REVISE_UPDATE_PRICE) != 0;
     }
 
+    public function isReviseUpdateTitle(): bool
+    {
+        return $this->getData(SynchronizationResource::COLUMN_REVISE_UPDATE_TITLE) != 0;
+    }
+
+    public function isReviseUpdateDescription(): bool
+    {
+        return $this->getData(SynchronizationResource::COLUMN_REVISE_UPDATE_DESCRIPTION) != 0;
+    }
+
+    public function isReviseUpdateImages(): bool
+    {
+        return $this->getData(SynchronizationResource::COLUMN_REVISE_UPDATE_IMAGES) != 0;
+    }
+
+    public function isReviseUpdateCategories(): bool
+    {
+        return $this->getData(SynchronizationResource::COLUMN_REVISE_UPDATE_CATEGORIES) != 0;
+    }
+
+    public function isReviseUpdateShipping(): bool
+    {
+        return $this->getData(SynchronizationResource::COLUMN_REVISE_UPDATE_SHIPPING) != 0;
+    }
+
     // ---------------------------------------
 
     public function isRelistMode(): bool
@@ -207,25 +232,5 @@ class Synchronization extends \M2E\Temu\Model\ActiveRecord\AbstractModel impleme
     public function getStopWhenQtyCalculatedHasValueMin()
     {
         return $this->getData(SynchronizationResource::COLUMN_STOP_QTY_CALCULATED_VALUE);
-    }
-
-    public function isReviseUpdateTitle(): bool
-    {
-        return $this->getData(SynchronizationResource::COLUMN_REVISE_UPDATE_TITLE) != 0;
-    }
-
-    public function isReviseUpdateDescription(): bool
-    {
-        return $this->getData(SynchronizationResource::COLUMN_REVISE_UPDATE_DESCRIPTION) != 0;
-    }
-
-    public function isReviseUpdateImages(): bool
-    {
-        return $this->getData(SynchronizationResource::COLUMN_REVISE_UPDATE_IMAGES) != 0;
-    }
-
-    public function isReviseUpdateCategories(): bool
-    {
-        return $this->getData(SynchronizationResource::COLUMN_REVISE_UPDATE_CATEGORIES) != 0;
     }
 }

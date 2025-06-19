@@ -8,6 +8,7 @@ use M2E\Temu\Model\ResourceModel\ScheduledAction\Collection as ScheduledActionCo
 class Processor
 {
     private const REVISE_VARIANTS_PRIORITY = 500;
+    private const REVISE_DETAILS_PRIORITY = 50;
     private const LIST_PRIORITY = 25;
     private const RELIST_PRIORITY = 125;
     private const STOP_PRIORITY = 1000;
@@ -112,6 +113,11 @@ class Processor
         $unionSelect = $connection->select()->union([
             $this->getListScheduledActionsPreparedCollection()->getSelect(),
             $this->getReviseVariantsScheduledActionsPreparedCollection()->getSelect(),
+            $this->getReviseTitleScheduledActionsPreparedCollection()->getSelect(),
+            $this->getReviseDescriptionScheduledActionsPreparedCollection()->getSelect(),
+            $this->getReviseImagesScheduledActionsPreparedCollection()->getSelect(),
+            $this->getReviseCategoryAttributesScheduledActionsPreparedCollection()->getSelect(),
+            $this->getReviseShippingScheduledActionsPreparedCollection()->getSelect(),
             $this->getRelistScheduledActionsPreparedCollection()->getSelect(),
             $this->getStopScheduledActionsPreparedCollection()->getSelect(),
             $this->getDeleteScheduledActionsPreparedCollection()->getSelect(),
@@ -153,6 +159,61 @@ class Processor
             \M2E\Temu\Model\Product::ACTION_REVISE
         );
         $collection->addTagFilter(Configurator::DATA_TYPE_VARIANTS);
+
+        return $collection;
+    }
+
+    private function getReviseTitleScheduledActionsPreparedCollection(): ScheduledActionCollection
+    {
+        $collection = $this->scheduledActionRepository->createCollectionForFindByActionType(
+            self::REVISE_DETAILS_PRIORITY,
+            \M2E\Temu\Model\Product::ACTION_REVISE
+        );
+        $collection->addTagFilter(Configurator::DATA_TYPE_TITLE);
+
+        return $collection;
+    }
+
+    private function getReviseDescriptionScheduledActionsPreparedCollection(): ScheduledActionCollection
+    {
+        $collection = $this->scheduledActionRepository->createCollectionForFindByActionType(
+            self::REVISE_DETAILS_PRIORITY,
+            \M2E\Temu\Model\Product::ACTION_REVISE
+        );
+        $collection->addTagFilter(Configurator::DATA_TYPE_DESCRIPTION);
+
+        return $collection;
+    }
+
+    private function getReviseImagesScheduledActionsPreparedCollection(): ScheduledActionCollection
+    {
+        $collection = $this->scheduledActionRepository->createCollectionForFindByActionType(
+            self::REVISE_DETAILS_PRIORITY,
+            \M2E\Temu\Model\Product::ACTION_REVISE
+        );
+        $collection->addTagFilter(Configurator::DATA_TYPE_IMAGES);
+
+        return $collection;
+    }
+
+    private function getReviseCategoryAttributesScheduledActionsPreparedCollection(): ScheduledActionCollection
+    {
+        $collection = $this->scheduledActionRepository->createCollectionForFindByActionType(
+            self::REVISE_DETAILS_PRIORITY,
+            \M2E\Temu\Model\Product::ACTION_REVISE
+        );
+        $collection->addTagFilter(Configurator::DATA_TYPE_CATEGORIES);
+
+        return $collection;
+    }
+
+    private function getReviseShippingScheduledActionsPreparedCollection(): ScheduledActionCollection
+    {
+        $collection = $this->scheduledActionRepository->createCollectionForFindByActionType(
+            self::REVISE_DETAILS_PRIORITY,
+            \M2E\Temu\Model\Product::ACTION_REVISE
+        );
+        $collection->addTagFilter(Configurator::DATA_TYPE_SHIPPING);
 
         return $collection;
     }

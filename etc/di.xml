@@ -164,6 +164,28 @@
                 <item name="package_weight" xsi:type="object">
                     M2E\Temu\Model\Product\Action\Validator\PackageWeightValidator
                 </item>
+                <item name="package_size" xsi:type="object">
+                    M2E\Temu\Model\Product\Action\Validator\PackageSizeValidator
+                </item>
+                <item name="description" xsi:type="object">
+                    M2E\Temu\Model\Product\Action\Validator\DescriptionValidator
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="M2E\Temu\Model\Product\Action\Type\Revise\Validator">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="category" xsi:type="object">
+                    M2E\Temu\Model\Product\Action\Validator\CategoryValidator
+                </item>
+                <item name="title" xsi:type="object">
+                    M2E\Temu\Model\Product\Action\Validator\TitleValidator
+                </item>
+                <item name="images" xsi:type="object">
+                    M2E\Temu\Model\Product\Action\Validator\ImagesValidator
+                </item>
                 <item name="description" xsi:type="object">
                     M2E\Temu\Model\Product\Action\Validator\DescriptionValidator
                 </item>

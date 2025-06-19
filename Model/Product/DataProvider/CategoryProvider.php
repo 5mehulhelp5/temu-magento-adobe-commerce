@@ -9,12 +9,15 @@ class CategoryProvider implements DataBuilderInterface
     use DataBuilderHelpTrait;
 
     public const NICK = 'Category';
-    private int $onlineCategoryId;
+    private ?int $onlineCategoryId = null;
 
-    public function getCategoryData(\M2E\Temu\Model\Product $product): int
+    public function getCategoryData(\M2E\Temu\Model\Product $product): ?int
     {
-        $category = $product->getCategoryDictionary();
-        $this->onlineCategoryId = (int)$category->getCategoryId();
+        try {
+            $category = $product->getCategoryDictionary();
+            $this->onlineCategoryId = (int)$category->getCategoryId();
+        } catch (\Throwable $exception) {
+        }
 
         return $this->onlineCategoryId;
     }

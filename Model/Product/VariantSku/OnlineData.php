@@ -10,17 +10,20 @@ class OnlineData
     private int $qty;
     private float $price;
     private ?string $sku;
+    private int $status;
 
     public function __construct(
         int $variantId,
         int $qty,
         float $price,
-        ?string $sku
+        ?string $sku,
+        int $status
     ) {
         $this->variantId = $variantId;
         $this->qty = $qty;
         $this->price = $price;
         $this->sku = $sku;
+        $this->status = $status;
     }
 
     public function getVariantId(): int
@@ -41,5 +44,10 @@ class OnlineData
     public function getSku(): ?string
     {
         return $this->sku;
+    }
+
+    public function getStatus(): int
+    {
+        return $this->status;
     }
 }

@@ -15,7 +15,8 @@ class Factory implements FactoryInterface
         ImageProvider::NICK => ImageProvider::class,
         PackageProvider::NICK => PackageProvider::class,
         SalesAttributesProvider::NICK => SalesAttributesProvider::class,
-        IdentifierProvider::NICK => IdentifierProvider::class
+        IdentifierProvider::NICK => IdentifierProvider::class,
+        ReferenceLinkProvider::NICK => ReferenceLinkProvider::class
     ];
 
     private \Magento\Framework\ObjectManagerInterface $objectManager;

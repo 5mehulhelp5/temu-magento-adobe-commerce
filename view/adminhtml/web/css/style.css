@@ -605,11 +605,23 @@ button.action * {
 }
 
 .data-grid .m2e-variation-attributes p {
+    color: gray;
     margin: 0;
 }
 
+.data-grid .m2e-variation-attributes p:has(.deleted-attribute) {
+    margin-top: 5px;
+}
+
+.data-grid .m2e-variation-attributes p .deleted-attribute {
+    border: 1px solid #eb5202;
+    background-color: #fff;
+    color: #eb5202;
+    border-radius: 3px;
+    padding: 1px 3px;
+}
+
 .data-grid .m2e-variation-attributes a {
-    color: gray;
     text-decoration: none;
 }
 

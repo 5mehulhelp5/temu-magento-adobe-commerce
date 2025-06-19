@@ -11,6 +11,9 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
     private \M2E\Temu\Model\Product\Repository $productRepository;
     private $priceUpdateBySkuId = null;
     private $qtyUpdateBySkuId = null;
+    private array $variantMessages = [];
+    private array $productMessages = [];
+
     protected \Magento\Framework\Locale\CurrencyInterface $localeCurrency;
     private \M2E\Temu\Model\Product\Action\Type\Revise\LoggerFactory $loggerFactory;
 
@@ -65,6 +68,8 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
         }
 
         $this->updateProduct($product, $metadata);
+
+        $this->logSuccessMessages();
     }
 
     private function isSuccess(): bool
@@ -107,16 +112,13 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
 
             if ($this->isSuccessQty($variantSkuId)) {
                 $this->processSuccessReviseQty($variant);
+                $this->processUpdateStatus($variant);
             }
 
-            $messages = $logger->collectSuccessMessages($variant);
-            if (empty($messages)) {
-                $this->getLogBuffer()->addSuccess('Item was revised');
-            }
-
-            foreach ($messages as $message) {
-                $this->getLogBuffer()->addSuccess($message);
-            }
+            $this->variantMessages = array_merge(
+                $this->variantMessages,
+                $logger->collectSuccessMessages($variant)
+            );
         }
     }
 
@@ -173,6 +175,19 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
         $this->productRepository->saveVariantSku($variant);
     }
 
+    private function processUpdateStatus(\M2E\Temu\Model\Product\VariantSku $variant): void
+    {
+        $qty = $this->getOnlineQtyForVariant($variant->getSkuId());
+
+        if ($qty > 0) {
+            $variant->changeStatusToListed();
+        } else {
+            $variant->changeStatusToInactive();
+        }
+
+        $this->productRepository->saveVariantSku($variant);
+    }
+
     private function getOnlinePriceForVariant(string $skuId): float
     {
         $metadata = $this->getRequestMetaData();
@@ -195,11 +210,19 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
             $product->setOnlineQty($this->getOnlineQtyFromVariants($metadata));
         }
 
+        $logger = $this->loggerFactory->create();
+        $logger->saveProductOnlineDataBeforeUpdate($product);
+
+        $this->updateProductDetails($product, $metadata);
+
         $product
             ->recalculateOnlineDataByVariants()
             ->removeBlockingByError();
 
         $this->productRepository->save($product);
+
+        $messages = $logger->collectProductSuccessMessages($product);
+        $this->productMessages = $messages;
     }
 
     private function getOnlineQtyFromVariants(array $metadata): int
@@ -232,5 +255,74 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
         }
 
         $this->qtyUpdateBySkuId['request_time'] = $qtyData['request_time'];
+    }
+
+    private function isSuccessDetails(): bool
+    {
+        $responseData = $this->getResponseData();
+
+        return $responseData['data']['details']['status'];
+    }
+
+    private function hasDetails(): bool
+    {
+        $responseData = $this->getResponseData();
+
+        return isset($responseData['data']['details']['status']);
+    }
+
+    private function logSuccessMessages(): void
+    {
+        $variantMessages = $this->variantMessages;
+        $productMessages = $this->productMessages;
+        $allMessages = array_merge($variantMessages, $productMessages);
+
+        if (empty($allMessages)) {
+            $this->getLogBuffer()->addSuccess('Item was revised');
+            return;
+        }
+
+        foreach ($allMessages as $message) {
+            $this->getLogBuffer()->addSuccess($message);
+        }
+    }
+
+    private function updateProductDetails(\M2E\Temu\Model\Product $product, array $metadata)
+    {
+        if (!$this->hasDetails()) {
+            return;
+        }
+
+        if (!$this->isSuccessDetails()) {
+            $this->getLogBuffer()->addFail('Details failed to be revised.');
+
+            return;
+        }
+
+        if (isset($metadata[DataProvider\TitleProvider::NICK]['online_title'])) {
+            $product->setOnlineTitle($metadata[DataProvider\TitleProvider::NICK]['online_title']);
+        }
+
+        if (isset($metadata[DataProvider\DescriptionProvider::NICK]['online_description'])) {
+            $product->setOnlineDescription($metadata[DataProvider\DescriptionProvider::NICK]['online_description']);
+        }
+
+        if (isset($metadata[DataProvider\ImagesProvider::NICK]['images'])) {
+            $product->setOnlineImages($metadata[DataProvider\ImagesProvider::NICK]['images']);
+        }
+
+        if (isset($metadata[DataProvider\ProductAttributesProvider::NICK])) {
+            $product->setOnlineCategoryData($metadata[DataProvider\ProductAttributesProvider::NICK]);
+        }
+
+        if (isset($metadata[DataProvider\ShippingProvider::NICK]['template_id'])) {
+            $product->setOnlineShippingTemplateId($metadata[DataProvider\ShippingProvider::NICK]['template_id']);
+        }
+
+        $limitDay = $metadata[DataProvider\ShippingProvider::NICK]['limit_day'] ?? null;
+
+        if ($limitDay !== null) {
+            $product->setOnlinePreparationTime((int)$limitDay);
+        }
     }
 }

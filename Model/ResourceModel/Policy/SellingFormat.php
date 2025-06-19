@@ -19,6 +19,7 @@ class SellingFormat extends \M2E\Temu\Model\ResourceModel\ActiveRecord\AbstractM
     public const COLUMN_FIXED_PRICE_MODE = 'fixed_price_mode';
     public const COLUMN_FIXED_PRICE_MODIFIER = 'fixed_price_modifier';
     public const COLUMN_FIXED_PRICE_CUSTOM_ATTRIBUTE = 'fixed_price_custom_attribute';
+    public const COLUMN_REFERENCE_LINK_ATTRIBUTE = 'reference_link_attribute';
     public const COLUMN_UPDATE_DATE = 'update_date';
     public const COLUMN_CREATE_DATE = 'create_date';
 

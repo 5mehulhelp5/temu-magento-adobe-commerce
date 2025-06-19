@@ -98,9 +98,17 @@ class RequestData
                     $body .= '<div>' . $this->printProductInfo($listingProduct, $action) . '</div>';
                 }
             } catch (\Throwable $exception) {
+                $errorMessage = sprintf(
+                    '<p style="margin-bottom: 20px">Error "%s" in %s:%s</p>',
+                    $exception->getMessage(),
+                    $exception->getFile(),
+                    $exception->getLine()
+                );
+
                 $body .= sprintf(
-                    '<div style="margin: 20px 0">%s</div>',
-                    $exception->getMessage()
+                    '<div style="margin: 20px 0">%s<pre>%s</pre></div>',
+                    $errorMessage,
+                    $exception->getTraceAsString()
                 );
             }
         }
@@ -124,8 +132,10 @@ class RequestData
         return $variantSettingsBuilder->build();
     }
 
-    private function printFormForCalculateAction(string $productMagentoSku = '', string $selectedAction = 'auto'): string
-    {
+    private function printFormForCalculateAction(
+        string $productMagentoSku = '',
+        string $selectedAction = 'auto'
+    ): string {
         $formKey = $this->formKey->getFormKey();
         $actionUrl = $this->url->getUrl('*/*/*', ['action' => 'getRequestData']);
 
@@ -203,7 +213,7 @@ HTML;
 
         $requestMetaData = $request === null
             ? 'Nothing action allowed.'
-            : $this->printRequestData(
+            : $this->printRequestMetaData(
                 $request,
                 $product,
                 $action
@@ -259,6 +269,23 @@ HTML;
                         $this->logBufferFactory->create(),
                         []
                     )->toArray(),
+                    JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
+                ),
+                ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401,
+            ),
+        );
+    }
+
+    private function printRequestMetaData(
+        \M2E\Temu\Model\Product\Action\AbstractRequest $request,
+        \M2E\Temu\Model\Product $product,
+        Action $action
+    ) {
+        return sprintf(
+            '<pre class="white-space_pre-wrap">%s</pre>',
+            $this->escaper->escapeHtml(
+                json_encode(
+                    $request->getMetadata(),
                     JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
                 ),
                 ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401,

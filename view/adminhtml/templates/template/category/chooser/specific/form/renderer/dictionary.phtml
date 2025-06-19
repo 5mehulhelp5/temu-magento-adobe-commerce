@@ -1,28 +1,28 @@
 <?php
 
-/** @var \M2E\Temu\Block\Adminhtml\Template\Category\Chooser\Specific\Form\Renderer\Dictionary $this */
+/** @var \M2E\Temu\Block\Adminhtml\Template\Category\Chooser\Specific\Form\Renderer\Dictionary $block */
 
 /** @var \M2E\Temu\Block\Adminhtml\Template\Category\Chooser\Specific\Form\Element\Dictionary $element */
-$element = $this->getElement();
+$element = $block->getElement();
 ?>
 
 <table
-    data-specific-scope="<?= $element->getId() ?>"
+    data-specific-scope="<?= /* @noEscape */ $element->getId() ?>"
     class="specific-table data-grid data-grid-not-hovered"
     style="width: 100%"
 >
     <thead>
     <tr class="headings">
-        <th class="data-grid-th" style="width: 30%;"><?= __('Name'); ?></th>
-        <th class="data-grid-th" style="width: 30%;"><?= __('Mode'); ?></th>
-        <th class="data-grid-th" style="width: 40%;"><?= __('Value'); ?></th>
+        <th class="data-grid-th" style="width: 30%;"><?= /* @noEscape */ __('Name'); ?></th>
+        <th class="data-grid-th" style="width: 30%;"><?= /* @noEscape */ __('Mode'); ?></th>
+        <th class="data-grid-th" style="width: 40%;"><?= /* @noEscape */ __('Value'); ?></th>
     </tr>
     </thead>
     <tbody>
     <?php
     foreach ($element->getSpecifics() as $index => $specific) { ?>
         <tr style="height: 25px;" <?php
-        echo ($element->isProductChildAttribute($specific)) ? 'class="child-relation-row"' : ''; ?>>
+        /* @noEscape */ echo ($element->isProductChildAttribute($specific)) ? 'class="child-relation-row"' : ''; ?>>
             <td style="vertical-align:top;">
                 <?php
                 echo $element->getAttributeIdHiddenHtml($index, $specific); ?>

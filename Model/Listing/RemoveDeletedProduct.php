@@ -13,19 +13,22 @@ class RemoveDeletedProduct
     private \M2E\Temu\Model\Listing\LogService $listingLogService;
     private \M2E\Temu\Model\InstructionService $instructionService;
     private \M2E\Temu\Model\StopQueueService $stopQueueService;
+    private \M2E\Temu\Model\Product\VariantSku\DeletedVariantSkuService $backupVariantSkuService;
 
     public function __construct(
         \M2E\Temu\Model\Product\Repository $productRepository,
         \M2E\Temu\Model\StopQueueService $stopQueueService,
         \M2E\Temu\Model\Product\DeleteService $productDeleteService,
         \M2E\Temu\Model\Listing\LogService $listingLogService,
-        \M2E\Temu\Model\InstructionService $instructionService
+        \M2E\Temu\Model\InstructionService $instructionService,
+        \M2E\Temu\Model\Product\VariantSku\DeletedVariantSkuService $backupVariantSkuService
     ) {
         $this->productRepository = $productRepository;
         $this->productDeleteService = $productDeleteService;
         $this->listingLogService = $listingLogService;
         $this->instructionService = $instructionService;
         $this->stopQueueService = $stopQueueService;
+        $this->backupVariantSkuService = $backupVariantSkuService;
     }
 
     /**
@@ -105,6 +108,9 @@ class RemoveDeletedProduct
 
     private function deleteVariantSku(\M2E\Temu\Model\Product\VariantSku $variantSku): void
     {
+        if (!$variantSku->isStatusNotListed()) {
+            $this->backupVariantSkuService->backupVariantSku($variantSku);
+        }
         $this->productRepository->deleteVariantSku($variantSku);
     }
 

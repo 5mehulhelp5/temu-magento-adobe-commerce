@@ -9,21 +9,22 @@ class DescriptionProvider implements DataBuilderInterface
     use DataBuilderHelpTrait;
 
     public const NICK = 'Description';
-    private string $onlineDescription = '';
+    private string $descriptionHash = '';
 
     public function getDescription(\M2E\Temu\Model\Product $product): Description\Value
     {
         $data = $product->getRenderedDescription();
 
-        $this->onlineDescription = \M2E\Core\Helper\Data::md5String($data);
+        $hash = \M2E\Core\Helper\Data::md5String($data);
+        $this->descriptionHash = $hash;
 
-        return new Description\Value($data);
+        return new Description\Value($data, $hash);
     }
 
     public function getMetaData(): array
     {
         return [
-            self::NICK => ['online_description' => $this->onlineDescription],
+            self::NICK => ['online_description' => $this->descriptionHash],
         ];
     }
 }

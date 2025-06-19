@@ -36,9 +36,10 @@ class ProductAttributesProvider implements DataBuilderInterface
         $this->collectWarningMessages($this->attributeProcessor->getWarningMessages());
 
         sort($result);
-        $this->encodedProductAttributes = \M2E\Core\Helper\Data::md5String(json_encode($result));
+        $hash = \M2E\Core\Helper\Data::md5String(json_encode($result));
+        $this->encodedProductAttributes = $hash;
 
-        return new \M2E\Temu\Model\Product\DataProvider\Attributes\Value($attributes);
+        return new \M2E\Temu\Model\Product\DataProvider\Attributes\Value($attributes, $hash);
     }
 
     public function getMetaData(): array

@@ -103,6 +103,25 @@ class DataProvider
         return $result;
     }
 
+    public function getReferenceLink(): DataProvider\ReferenceLink\Result
+    {
+        if ($this->hasResult(DataProvider\ReferenceLinkProvider::NICK)) {
+            /** @var \M2E\Temu\Model\Product\VariantSku\DataProvider\ReferenceLink\Result */
+            return $this->getResult(DataProvider\ReferenceLinkProvider::NICK);
+        }
+
+        /** @var \M2E\Temu\Model\Product\VariantSku\DataProvider\ReferenceLinkProvider $builder */
+        $builder = $this->getBuilder(DataProvider\ReferenceLinkProvider::NICK);
+
+        $value = $builder->getReferenceLink($this->variantSku);
+
+        $result = DataProvider\ReferenceLink\Result::success($value, $builder->getWarningMessages());
+
+        $this->addResult(DataProvider\ReferenceLinkProvider::NICK, $result);
+
+        return $result;
+    }
+
     public function getPackage(): DataProvider\Package\Result
     {
         if ($this->hasResult(DataProvider\PackageProvider::NICK)) {

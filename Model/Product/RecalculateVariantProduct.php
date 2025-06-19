@@ -14,6 +14,8 @@ class RecalculateVariantProduct
     private \M2E\Temu\Model\Listing\LogService $listingLogService;
     private \M2E\Temu\Model\Product\VariantSkuFactory $variantSkuFactory;
     private \M2E\Temu\Model\Listing\Repository $listingRepository;
+    private \M2E\Temu\Model\Product\LockManager $productLockManager;
+
     private int $actionId;
 
     public function __construct(
@@ -21,13 +23,15 @@ class RecalculateVariantProduct
         \M2E\Temu\Model\Product\Repository $productRepository,
         \M2E\Temu\Model\Listing\LogService $listingLogService,
         \M2E\Temu\Model\Product\VariantSkuFactory $variantSkuFactory,
-        \M2E\Temu\Model\Listing\Repository $listingRepository
+        \M2E\Temu\Model\Listing\Repository $listingRepository,
+        \M2E\Temu\Model\Product\LockManager $productLockManager
     ) {
         $this->instructionService = $instructionService;
         $this->productRepository = $productRepository;
         $this->listingLogService = $listingLogService;
         $this->variantSkuFactory = $variantSkuFactory;
         $this->listingRepository = $listingRepository;
+        $this->productLockManager = $productLockManager;
     }
 
     /**
@@ -57,7 +61,7 @@ class RecalculateVariantProduct
             }
 
             $temuProductVariants = $this->processTemuProductVariants($temuProduct, $magentoVariations);
-            $this->processMagentoProductVariants($temuProduct, $magentoVariations, $temuProductVariants);
+            //$this->processMagentoProductVariants($temuProduct, $magentoVariations, $temuProductVariants);
         }
     }
 
@@ -105,6 +109,10 @@ class RecalculateVariantProduct
         \M2E\Temu\Model\Product $temuParentProduct,
         \M2E\Temu\Model\Product\VariantSku $temuVariant
     ): void {
+        if (!$temuVariant->isStatusNotListed()) {
+            return;
+        }
+
         $this->productRepository->deleteVariantSku($temuVariant);
 
         if ($temuParentProduct->isStatusListed()) {

@@ -11,6 +11,10 @@ class Account extends \M2E\Temu\Model\ActiveRecord\AbstractModel
 
     private const REGION_US = 'US';
     private const REGION_EU = 'EU';
+    private const REGION_GLOBAL = 'GLOBAL';
+
+    public const SITE_ID_CANADA = 101;
+    public const SITE_ID_MEXICO = 110;
 
     private Account\Settings\UnmanagedListings $unmanagedListingSettings;
     private Account\Settings\Order $ordersSettings;
@@ -108,6 +112,8 @@ class Account extends \M2E\Temu\Model\ActiveRecord\AbstractModel
         return $this->getData(AccountResource::COLUMN_SITE_TITLE);
     }
 
+    // ----------------------------------------
+
     public function setRegion(string $region): self
     {
         $this->setData(AccountResource::COLUMN_REGION, $region);
@@ -122,8 +128,20 @@ class Account extends \M2E\Temu\Model\ActiveRecord\AbstractModel
 
     public function isRegionUs(): bool
     {
-        return $this->getData(AccountResource::COLUMN_REGION) === self::REGION_US;
+        return strtoupper($this->getRegion()) === self::REGION_US;
     }
+
+    public function isRegionEU(): bool
+    {
+        return strtoupper($this->getRegion()) === self::REGION_EU;
+    }
+
+    public function isRegionGlobal(): bool
+    {
+        return strtoupper($this->getRegion()) === self::REGION_GLOBAL;
+    }
+
+    // ----------------------------------------
 
     public function getCurrencyCode(): string
     {

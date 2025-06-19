@@ -80,6 +80,14 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
                 ->removeBlockingByError()
                 ->recalculateOnlineDataByVariants();
 
+        if (isset($metadata[DataProvider\ShippingProvider::NICK]['template_id'])) {
+            $product->setOnlineShippingTemplateId($metadata[DataProvider\ShippingProvider::NICK]['template_id']);
+        }
+
+        if (isset($metadata[DataProvider\ShippingProvider::NICK]['limit_day'])) {
+            $product->setOnlinePreparationTime((int)$metadata[DataProvider\ShippingProvider::NICK]['limit_day']);
+        }
+
         $this->productRepository->save($product);
     }
 
@@ -108,13 +116,21 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
             $variantSku = $variant->getSku();
 
             if (isset($responseVariantSku[$variantSku])) {
+                $qty = $this->getOnlineQtyForVariant($variantSku);
+
                 $variant
                     ->setSkuId((string)$responseVariantSku[$variantSku]['sku_id'])
                     ->setOnlineSku($this->getOnlineSkuForVariant($variantSku))
-                    ->setOnlineQty($this->getOnlineQtyForVariant($variantSku))
+                    ->setOnlineQty($qty)
                     ->setOnlinePrice($this->getOnlinePriceForVariant($variantSku))
                     ->setOnlineImage($this->getOnlineImageForVariant($variantSku))
-                    ->changeStatusToListed();
+                    ->setOnlineReferenceLink($this->getOnlineReferenceLinkForVariant($variantSku));
+
+                if ($qty > 0) {
+                    $variant->changeStatusToListed();
+                } else {
+                    $variant->changeStatusToInactive();
+                }
             }
 
             $this->productRepository->saveVariantSku($variant);
@@ -147,5 +163,12 @@ class Response extends \M2E\Temu\Model\Product\Action\Type\AbstractResponse
         $metadata = $this->getRequestMetaData();
 
         return $metadata[DataProvider\VariantsProvider::NICK][$sku]['images'] ?? '';
+    }
+
+    private function getOnlineReferenceLinkForVariant(string $sku): ?string
+    {
+        $metadata = $this->getRequestMetaData();
+
+        return $metadata[DataProvider\VariantsProvider::NICK][$sku]['online_reference_link'] ?? null;
     }
 }
