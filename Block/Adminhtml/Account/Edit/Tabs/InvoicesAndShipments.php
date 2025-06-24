@@ -12,7 +12,7 @@ class InvoicesAndShipments extends AbstractForm
         \M2E\Temu\Block\Adminhtml\Magento\Context\Template $context,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Data\FormFactory $formFactory,
-        \M2E\Temu\Model\Account $account = null,
+        ?\M2E\Temu\Model\Account $account = null,
         array $data = []
     ) {
         $this->account = $account;

@@ -11,7 +11,7 @@ class GetCommand implements \M2E\Core\Model\Connector\CommandInterface
     private string $region;
     private ?int $parentId;
 
-    public function __construct(string $region, int $parentId = null)
+    public function __construct(string $region, ?int $parentId = null)
     {
         $this->region = $region;
         $this->parentId = $parentId;

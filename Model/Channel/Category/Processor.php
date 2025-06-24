@@ -15,7 +15,7 @@ class Processor
 
     public function process(
         string $region,
-        int $parentId = null
+        ?int $parentId = null
     ): \M2E\Temu\Model\Channel\Connector\Category\Get\Response {
         $command = new \M2E\Temu\Model\Channel\Connector\Category\GetCommand(
             $region,
